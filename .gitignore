@@ -1,0 +1,7 @@
+# pack build inputs/outputs (tools/build_pack.py)
+raw/
+pack/
+__pycache__/
+*.pyc
+.vercel/
+.DS_Store

@@ -1,0 +1,22 @@
+{
+ "id": "ottawa-gatineau",
+ "name": "Ottawa–Gatineau",
+ "bbox": [
+  -75.74,
+  45.38,
+  -75.65,
+  45.445
+ ],
+ "files": [
+  "roads.json",
+  "areas.json",
+  "places.json"
+ ],
+ "bytes": 3923760,
+ "source": "Overture Maps Foundation release 2026-09-23.1",
+ "licences": {
+  "roads, areas": "ODbL-1.0 (© OpenStreetMap contributors)",
+  "places": "CDLA-Permissive-2.0 / Apache-2.0 (Foursquare OS Places) / CC0-1.0 (AllThePlaces)"
+ },
+ "built": "2026-10-07"
+}

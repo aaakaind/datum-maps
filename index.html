@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DATUM Maps</title>
+<meta name="description" content="DATUM is a free, open map of the world. Search places, get walking, cycling and driving directions, and download region packs to search and route on your device. Built on OpenStreetMap.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23F3EEE4'/%3E%3Ccircle cx='32' cy='32' r='16' fill='%23C8432B' stroke='%231C1A17' stroke-width='5'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#F3EEE4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15130F" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="DATUM Maps">
+<meta property="og:description" content="A free, open map of the world. Search, directions, and on-device region packs. Built on OpenStreetMap.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Jost:wght@500;600;700&display=swap">
+<style>
+/* Layout: the map is a framed drawing sheet. 2px ink frame with exposed graticule ticks,
+   a title-block panel docked top-left (bottom sheet on phones), and one deliberate break:
+   an overscaled live datum readout (the map centre's coordinates) set as the headline.
+   Dial (AKA IND / AI² Lab): Eames medium, brutalist high, avant-garde medium. */
+:root{
+  color-scheme:light;
+  --ground:#F3EEE4; --card:#FBF8F2; --rule:#CFC6B6; --ink:#1C1A17; --ink-2:#4F483E;
+  --walnut:#6B4428; --ochre:#E3A72F; --blue:#2D5B8A; --red:#C8432B; --olive:#5E6B3A;
+  --on-red:#FBF8F2; --focus:#2D5B8A; --space:#1C1A17;
+  --m-land:#F3EEE4; --m-park:#D8DCBC; --m-wood:#C4CCA2; --m-pitch:#CBD4A8; --m-plaza:#EAE3D5; --m-farm:#EEE8D2;
+  --m-sand:#EDE3C6; --m-ice:#FBFAF6; --m-rock:#E2DCD0; --m-resid:#EEE8DC;
+  --m-campus:#F0E1BE; --m-water:#A9C3DA; --m-waterline:#5F86AE; --m-water-label:#2D5B8A;
+  --m-bldg:#E3DACA; --m-bldg-line:#C4B8A3; --m-bldg-3d:#DCD2C0;
+  --m-road:#FFFDF8; --m-road-case:#BDB19D; --m-art:#F2C96F; --m-art-case:#9C7420;
+  --m-hwy:#1C1A17; --m-hwy-case:#1C1A17; --m-path:#8A6A4C; --m-rail:#4F483E; --m-border:#6B4428;
+  --m-label:#1C1A17; --m-label-2:#5A5246; --m-park-label:#4C5730; --m-halo:#F7F3EB;
+  --m-route:#C8432B; --m-route-case:#1C1A17;
+  --p-food:#E3A72F; --p-shop:#6B4428; --p-health:#C8432B; --p-civic:#2D5B8A; --p-rec:#5E6B3A; --p-serv:#8D8273; --p-transit:#1C1A17;
+  --display:'Jost','Futura','Century Gothic',system-ui,sans-serif;
+  --body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  --r-pill:999px; --r-card:22px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#15130F; --card:#1F1C17; --rule:#3E382F; --ink:#EFE8DA; --ink-2:#BDB3A1;
+  --walnut:#C79468; --ochre:#E8B44A; --blue:#86ACD3; --red:#E2694E; --olive:#A6B370;
+  --on-red:#15130F; --focus:#86ACD3; --space:#050505;
+  --m-land:#1A1813; --m-park:#232A1B; --m-wood:#28321D; --m-pitch:#2B3521; --m-plaza:#221F19; --m-farm:#1F1D17;
+  --m-sand:#29251A; --m-ice:#2A2925; --m-rock:#24221D; --m-resid:#1E1C17;
+  --m-campus:#2C2617; --m-water:#1B2D40; --m-waterline:#3F6488; --m-water-label:#86ACD3;
+  --m-bldg:#2A251E; --m-bldg-line:#3B342A; --m-bldg-3d:#3A3329;
+  --m-road:#3A352D; --m-road-case:#4B4439; --m-art:#A9791F; --m-art-case:#6A4E15;
+  --m-hwy:#EFE8DA; --m-hwy-case:#EFE8DA; --m-path:#9B8468; --m-rail:#A39885; --m-border:#C79468;
+  --m-label:#EFE8DA; --m-label-2:#BDB3A1; --m-park-label:#A6B370; --m-halo:#1A1813;
+  --m-route:#E2694E; --m-route-case:#EFE8DA;
+  --p-food:#E8B44A; --p-shop:#C79468; --p-health:#E2694E; --p-civic:#86ACD3; --p-rec:#A6B370; --p-serv:#9A8F7E; --p-transit:#EFE8DA;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --ground:#15130F; --card:#1F1C17; --rule:#3E382F; --ink:#EFE8DA; --ink-2:#BDB3A1;
+  --walnut:#C79468; --ochre:#E8B44A; --blue:#86ACD3; --red:#E2694E; --olive:#A6B370;
+  --on-red:#15130F; --focus:#86ACD3; --space:#050505;
+  --m-land:#1A1813; --m-park:#232A1B; --m-wood:#28321D; --m-pitch:#2B3521; --m-plaza:#221F19; --m-farm:#1F1D17;
+  --m-sand:#29251A; --m-ice:#2A2925; --m-rock:#24221D; --m-resid:#1E1C17;
+  --m-campus:#2C2617; --m-water:#1B2D40; --m-waterline:#3F6488; --m-water-label:#86ACD3;
+  --m-bldg:#2A251E; --m-bldg-line:#3B342A; --m-bldg-3d:#3A3329;
+  --m-road:#3A352D; --m-road-case:#4B4439; --m-art:#A9791F; --m-art-case:#6A4E15;
+  --m-hwy:#EFE8DA; --m-hwy-case:#EFE8DA; --m-path:#9B8468; --m-rail:#A39885; --m-border:#C79468;
+  --m-label:#EFE8DA; --m-label-2:#BDB3A1; --m-park-label:#A6B370; --m-halo:#1A1813;
+  --m-route:#E2694E; --m-route-case:#EFE8DA;
+  --p-food:#E8B44A; --p-shop:#C79468; --p-health:#E2694E; --p-civic:#86ACD3; --p-rec:#A6B370; --p-serv:#9A8F7E; --p-transit:#EFE8DA;
+  color-scheme:dark;
+}
+
+/* MapLibre core rules (subset of maplibre-gl 5.24.0 CSS) */
+.maplibregl-map{overflow:hidden;position:relative;-webkit-tap-highlight-color:rgb(0 0 0/0)}
+.maplibregl-canvas{left:0;position:absolute;top:0}
+.maplibregl-canvas-container.maplibregl-interactive{cursor:grab;user-select:none;-webkit-user-select:none}
+.maplibregl-canvas-container.maplibregl-interactive.maplibregl-track-pointer{cursor:pointer}
+.maplibregl-canvas-container.maplibregl-interactive:active{cursor:grabbing}
+.maplibregl-canvas-container.maplibregl-touch-zoom-rotate,.maplibregl-canvas-container.maplibregl-touch-zoom-rotate .maplibregl-canvas{touch-action:pan-x pan-y}
+.maplibregl-canvas-container.maplibregl-touch-drag-pan,.maplibregl-canvas-container.maplibregl-touch-drag-pan .maplibregl-canvas{touch-action:pinch-zoom}
+.maplibregl-canvas-container.maplibregl-touch-zoom-rotate.maplibregl-touch-drag-pan,.maplibregl-canvas-container.maplibregl-touch-zoom-rotate.maplibregl-touch-drag-pan .maplibregl-canvas{touch-action:none}
+.maplibregl-marker{left:0;position:absolute;top:0;will-change:transform}
+.maplibregl-boxzoom{background:var(--card);border:2px dotted var(--ink);height:0;left:0;opacity:.5;position:absolute;top:0;width:0}
+
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{height:100%;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+body{height:100%;margin:0;background:var(--ground);color:var(--ink);font:400 14px/1.45 var(--body);overflow:hidden;position:relative}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+.sheet{position:absolute;inset:10px;border:2px solid var(--ink);background:var(--space);overflow:hidden}
+#map{position:absolute;inset:0}
+#ticks{position:absolute;inset:0;pointer-events:none;z-index:1}
+
+.readout{position:absolute;top:14px;right:14px;z-index:3;background:var(--card);border:2px solid var(--ink);padding:10px 14px 9px;pointer-events:none;text-align:right}
+.readout .ll{font:700 clamp(26px,3.3vw,50px)/0.98 var(--display);letter-spacing:-0.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.readout .ll span{display:block}
+.readout .spec{margin-top:7px;font:500 10.5px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.panel{position:absolute;top:14px;left:14px;z-index:4;width:384px;max-height:calc(100% - 82px);display:flex;flex-direction:column;background:var(--card);border:2px solid var(--ink);border-radius:var(--r-card);overflow:hidden}
+.panel-head{display:flex;flex-direction:column;gap:12px;padding:16px 18px 14px;border-bottom:2px solid var(--ink)}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.wordmark{font:700 26px/1 var(--display);letter-spacing:.06em}
+.wordmark i{font-style:normal;display:inline-block;width:.42em;height:.42em;border-radius:50%;background:var(--red);border:2px solid var(--ink);margin-left:.18em;transform:translateY(-.02em)}
+.specline{font:500 10px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);text-align:right}
+.handle{display:none}
+.tabs{display:grid;grid-template-columns:1fr 1fr;border:2px solid var(--ink);border-radius:var(--r-pill);overflow:hidden}
+.tabs button{border:0;background:transparent;padding:7px 10px;font:600 13px/1.2 var(--body);cursor:pointer}
+.tabs button+button{border-left:2px solid var(--ink)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--card)}
+.panel-body{overflow-y:auto;overscroll-behavior:contain;padding:14px 18px 18px;display:flex;flex-direction:column;gap:14px;min-height:0}
+
+.field{display:flex;align-items:center;gap:8px;border:2px solid var(--ink);border-radius:var(--r-pill);background:var(--ground);padding:0 8px 0 14px}
+.field label{font:500 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);flex:none;width:34px}
+.field input{flex:1;min-width:0;border:0;background:transparent;padding:10px 0;outline:none;font-size:15px}
+.field input::placeholder{color:var(--ink-2);opacity:.8}
+.field:focus-within{box-shadow:0 0 0 3px var(--ochre)}
+.xbtn{border:0;background:transparent;cursor:pointer;font:500 11px/1 var(--mono);letter-spacing:.06em;color:var(--ink-2);padding:6px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--ink);border-radius:var(--r-pill);background:transparent;padding:5px 11px 5px 9px;font:500 12.5px/1.2 var(--body);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip .dot{width:9px;height:9px}
+.chip:hover{background:var(--ground)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.chip.try{border-style:dashed}
+
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;border:1.5px solid var(--ink);flex:none}
+.sq{width:11px;height:11px;border:1.5px solid var(--ink);display:inline-block;margin-top:4px;flex:none}
+.label{font:500 10px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.note{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin:0}
+.note b{color:var(--ink);font-weight:600}
+
+.results{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.results li+li{border-top:1px solid var(--rule)}
+.res{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:start;width:100%;text-align:left;border:0;background:transparent;padding:9px 4px;cursor:pointer;border-radius:10px}
+.res:hover,.res:focus-visible{background:var(--ground)}
+.res .dot{margin-top:4px}
+.res .nm{font-weight:500;line-height:1.3;min-width:0;overflow-wrap:anywhere}
+.res .sub{display:block;font-size:12px;color:var(--ink-2);margin-top:1px;overflow-wrap:anywhere}
+.res .km{font:500 11px/1.3 var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums;padding-top:2px;white-space:nowrap;text-align:right}
+.res .src{display:block;font:500 9.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+
+.pack{border:2px solid var(--ink);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:var(--ground)}
+.pack-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pack h3{margin:0;font:600 15px/1.2 var(--display);letter-spacing:.02em}
+.badge{display:inline-flex;align-items:center;gap:6px;font:500 10px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;border:1.5px solid var(--ink);border-radius:var(--r-pill);padding:2px 8px;white-space:nowrap}
+.badge.on{background:var(--olive);color:var(--card);border-color:var(--olive)}
+
+.card{display:flex;flex-direction:column;gap:12px}
+.back{align-self:flex-start;border:0;background:transparent;padding:2px 0;cursor:pointer;font:500 11px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.card h2{margin:0;font:600 24px/1.12 var(--display);text-wrap:balance;overflow-wrap:anywhere}
+.kv{display:grid;grid-template-columns:72px 1fr;gap:6px 12px;margin:0;font-size:13.5px}
+.kv dt{font:500 10px/1.9 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.kv a,.note a,.about-card a{color:var(--blue)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px}
+.copy{border:1.5px solid var(--ink);background:transparent;border-radius:var(--r-pill);padding:1px 8px;margin-left:6px;cursor:pointer;font:500 10px/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:2px solid var(--ink);border-radius:var(--r-pill);background:var(--card);padding:8px 15px;font:600 13px/1.2 var(--body);cursor:pointer}
+.btn.primary{background:var(--red);color:var(--on-red)}
+.btn:hover{transform:translateY(-1px)}
+.btn[disabled]{opacity:.55;cursor:default;transform:none}
+
+.dirs{display:flex;flex-direction:column;gap:8px}
+.dirs-grid{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.dirs-fields{display:flex;flex-direction:column;gap:8px;min-width:0}
+.swap{border:2px solid var(--ink);border-radius:50%;width:38px;height:38px;background:var(--card);cursor:pointer;font:600 15px/1 var(--mono)}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);border:2px solid var(--ink);border-radius:var(--r-pill);overflow:hidden}
+.modes button{border:0;background:transparent;padding:7px 4px;cursor:pointer;font:600 13px/1.2 var(--body)}
+.modes button+button{border-left:2px solid var(--ink)}
+.modes button[aria-pressed="true"]{background:var(--ochre);color:#1C1A17}
+.suggest{list-style:none;margin:0;padding:4px;border:2px solid var(--ink);border-radius:16px;background:var(--card)}
+.summary{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;border-top:2px solid var(--ink);padding-top:12px}
+.summary .t{font:700 34px/1 var(--display);font-variant-numeric:tabular-nums}
+.summary .d{font:500 12px/1.4 var(--mono);color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums}
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;padding:8px 2px;border-top:1px solid var(--rule);cursor:pointer;align-items:baseline}
+.steps li:hover{background:var(--ground)}
+.steps .n{font:500 11px/1.3 var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.steps .what{min-width:0;overflow-wrap:anywhere}
+.steps .what .turn{display:block;font:500 10px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.steps .len{font:500 11px/1.3 var(--mono);color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.err{border:2px solid var(--red);border-radius:14px;padding:10px 12px;font-size:13px}
+.busy{font:500 11px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+
+.tools{position:absolute;right:14px;bottom:56px;z-index:3;display:flex;flex-direction:column;gap:8px}
+.tool{width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);background:var(--card);cursor:pointer;font:600 15px/1 var(--mono);display:grid;place-items:center}
+.tool[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.strip{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;align-items:center;gap:16px;padding:7px 14px;background:var(--card);border-top:2px solid var(--ink);font:500 10.5px/1.35 var(--mono);color:var(--ink-2);min-width:0}
+.strip .att{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.strip .att a{color:inherit}
+.strip button{border:0;background:transparent;font:inherit;color:var(--ink);text-decoration:underline;cursor:pointer;padding:0;white-space:nowrap}
+.ruler{display:flex;align-items:center;gap:8px;flex:none;color:var(--ink)}
+.ruler .bar{display:flex;height:8px;border:1.5px solid var(--ink)}
+.ruler .bar i{display:block;height:100%;width:25%}
+.ruler .bar i:nth-child(odd){background:var(--ink)}
+.matt{display:none}
+
+.mk{width:22px;height:22px;border-radius:50%;border:3px solid var(--ink);background:var(--card);display:grid;place-items:center;font:700 10px/1 var(--mono);color:var(--ink)}
+.mk.b{background:var(--red);color:var(--on-red)}
+.mk.sel{background:var(--ochre);color:#1C1A17;width:18px;height:18px}
+
+.about{position:absolute;inset:0;z-index:10;background:color-mix(in srgb,var(--ground) 82%,transparent);display:grid;place-items:center;padding:20px 16px;overflow:auto}
+.about-card{background:var(--card);border:2px solid var(--ink);border-radius:var(--r-card);max-width:640px;width:100%;padding:22px 24px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto}
+.about-card h2{margin:0;font:700 30px/1.05 var(--display);letter-spacing:.04em}
+.about-card h3{margin:0;font:500 10.5px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.about-card p{margin:0;max-width:64ch;line-height:1.55}
+.about-card ul{margin:0;padding-left:18px;line-height:1.55;max-width:64ch}
+.about-card section{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--rule);padding-top:12px}
+
+@media (max-width:720px){
+  .sheet{inset:6px}
+  .readout{top:10px;right:10px;padding:7px 10px 6px}
+  .readout .ll{font-size:22px}
+  .readout .spec{display:none}
+  .panel{top:auto;left:0;right:0;bottom:0;width:auto;max-height:58%;border-width:2px 0 0 0;border-radius:var(--r-card) var(--r-card) 0 0}
+  .panel.collapsed .panel-body>*:not(.keep){display:none}
+  .panel-head{padding:6px 16px 12px;gap:10px}
+  .handle{display:block;align-self:center;width:56px;height:20px;border:0;background:transparent;cursor:pointer;position:relative}
+  .handle::after{content:"";position:absolute;left:8px;right:8px;top:8px;height:4px;border-radius:2px;background:var(--ink)}
+  .panel-body{padding:12px 16px 16px}
+  .tools{bottom:auto;top:74px;right:10px}
+  .tool{width:40px;height:40px}
+  .strip{display:none}
+  .matt{display:block;position:absolute;top:10px;left:10px;z-index:3;max-width:44%;background:var(--card);border:1.5px solid var(--ink);padding:3px 7px;font:500 9.5px/1.35 var(--mono);color:var(--ink-2)}
+  .matt a{color:inherit}
+}
+@media (prefers-reduced-motion: reduce){ .btn:hover{transform:none} }
+</style>
+</head>
+<body>
+<div class="sheet" id="sheet">
+  <div id="map" role="region" aria-label="World map"></div>
+  <canvas id="ticks" aria-hidden="true"></canvas>
+  <div class="matt"><a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · Data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · <button id="about-m" style="border:0;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;cursor:pointer">About</button></div>
+
+  <div class="readout" aria-hidden="true">
+    <div class="ll"><span id="lat">—</span><span id="lon">—</span></div>
+    <div class="spec" id="spec">Z — · WGS 84 · 1:—</div>
+  </div>
+
+  <section class="panel" id="panel" aria-label="Search and directions">
+    <div class="panel-head">
+      <button class="handle" id="handle" aria-label="Expand or collapse panel"></button>
+      <div class="brand">
+        <div class="wordmark">DATUM<i aria-hidden="true"></i></div>
+        <div class="specline">DTM-02 · v0.2<br>Planet · OSM</div>
+      </div>
+      <div class="tabs" role="tablist">
+        <button role="tab" id="tab-search" aria-selected="true">Search</button>
+        <button role="tab" id="tab-dirs" aria-selected="false">Directions</button>
+      </div>
+    </div>
+    <div class="panel-body" id="body"></div>
+  </section>
+
+  <div class="tools">
+    <button class="tool" id="zin" aria-label="Zoom in">+</button>
+    <button class="tool" id="zout" aria-label="Zoom out">−</button>
+    <button class="tool" id="t3d" aria-pressed="false" aria-label="Toggle 3D buildings">3D</button>
+    <button class="tool" id="tinfo" aria-label="About DATUM">i</button>
+  </div>
+
+  <footer class="strip">
+    <div class="ruler"><div class="bar" id="rulerbar"><i></i><i></i><i></i><i></i></div><span id="rulerlab">—</span></div>
+    <div class="att"><a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">© OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · Search <a href="https://photon.komoot.io" target="_blank" rel="noopener">Photon</a> · Routing <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> by FOSSGIS<span id="att-pack" hidden> · Region pack: Overture Maps Foundation</span></div>
+    <button id="about-link">About DATUM</button>
+  </footer>
+
+  <div class="about" id="about" hidden>
+    <div class="about-card" role="dialog" aria-modal="true" aria-labelledby="about-h">
+      <div class="brand"><h2 id="about-h">DATUM</h2><button class="btn" id="about-close">Close</button></div>
+      <p>A free, open map of the world. Search places, get walking, cycling and driving directions, and download region packs that search and route on your device. No account, no ads.</p>
+      <section>
+        <h3>Where your requests go</h3>
+        <ul>
+          <li>Map tiles load from OpenFreeMap. Like any tile server, it sees your IP address and the area you are viewing.</li>
+          <li>Searches go to Photon, komoot's public geocoder, when you type 3 or more characters. Tapping the map sends that point to Photon to look up the nearest address.</li>
+          <li>Routes go to Valhalla on the FOSSGIS public server when you ask for directions.</li>
+          <li>Inside a downloaded region pack, search and routing run on your device and nothing is sent.</li>
+          <li>Category lists (Coffee, Parks…) are read from the map tiles already on your screen. No request is made.</li>
+          <li>DATUM itself adds no accounts, cookies or analytics.</li>
+        </ul>
+      </section>
+      <section>
+        <h3>Region packs</h3>
+        <p id="about-packs">Ottawa–Gatineau is the first pack. It holds roads, paths and places from the Overture Maps Foundation (release 2026-09-23.1), about 3.9 MB, and is stored in your browser after the first download.</p>
+      </section>
+      <section>
+        <h3>How times are estimated</h3>
+        <p>Valhalla routes use the router's own speed model. Region-pack routes assume steady speeds: walking 4.9 km/h, cycling 15 km/h, driving at the posted limit or a default for the road type. Neither includes live traffic, so treat times as estimates.</p>
+      </section>
+      <section>
+        <h3>Data and licences</h3>
+        <ul>
+          <li>Map: <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">© OpenMapTiles</a>. Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a> under ODbL 1.0.</li>
+          <li>Search: <a href="https://github.com/komoot/photon" target="_blank" rel="noopener">Photon</a> by komoot, using OpenStreetMap data.</li>
+          <li>Routing: <a href="https://github.com/valhalla/valhalla" target="_blank" rel="noopener">Valhalla</a>, served by <a href="https://www.fossgis.de" target="_blank" rel="noopener">FOSSGIS e.V.</a>, using OpenStreetMap data.</li>
+          <li>Region pack data: <a href="https://overturemaps.org" target="_blank" rel="noopener">Overture Maps Foundation</a>. Roads and areas © OpenStreetMap contributors (ODbL 1.0). Places under CDLA-Permissive-2.0, including Foursquare Open Source Places (Apache-2.0) and AllThePlaces (CC0). The pack files are a derivative database, available under ODbL 1.0.</li>
+          <li>See something wrong? Fix it at the source on <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a>, and everyone's maps improve.</li>
+        </ul>
+      </section>
+      <section>
+        <h3>Build</h3>
+        <p class="mono">DTM-02 · v0.2 · build 2026-10-07 · renderer MapLibre GL JS 5.24.0 · code licence AGPL-3.0</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.24.0/maplibre-gl.js"></script>
+<script>
+(() => {
+'use strict';
+// ================================================================== CONFIG
+// Every external service in one place. Swap these for self-hosted instances
+// (OpenFreeMap, Photon and Valhalla are all open source) before heavy traffic.
+const CONFIG = {
+  tiles:  'https://tiles.openfreemap.org/planet',
+  glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
+  search: 'https://photon.komoot.io',
+  route:  'https://valhalla1.openstreetmap.de/route',
+  packs: [
+    { id:'ottawa-gatineau', name:'Ottawa–Gatineau', bbox:[-75.74, 45.38, -75.65, 45.445], base:'packs/ottawa-gatineau/', files:['roads','areas','places'], mb:3.9, release:'Overture 2026-09-23.1' },
+  ],
+};
+const START = { center:[-40, 28], zoom: 1.55 };
+const TRY = ['Eiffel Tower', 'Shibuya Crossing', 'Parliament Hill', 'Table Mountain'];
+const MOBILE = matchMedia('(max-width: 720px)');
+const DARK = matchMedia('(prefers-color-scheme: dark)');
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[’`]/g, "'");
+const pretty = (s) => s ? String(s).replace(/_/g, ' ').replace(/^./, c => c.toUpperCase()) : '';
+const EMPTY = { type:'FeatureCollection', features:[] };
+const fmtCount = (n) => n.toLocaleString('en-CA');
+
+const CHIPS = [
+  { label:'Coffee', cls:['cafe'], tok:'--p-food' },
+  { label:'Restaurants', cls:['restaurant','fast_food'], tok:'--p-food' },
+  { label:'Groceries', cls:['grocery'], tok:'--p-shop' },
+  { label:'Pharmacies', cls:['pharmacy'], tok:'--p-health' },
+  { label:'Parks', cls:['park'], tok:'--p-rec' },
+  { label:'Museums', cls:['museum','art_gallery'], tok:'--p-civic' },
+  { label:'Libraries', cls:['library'], tok:'--p-civic' },
+  { label:'Bars', cls:['bar','beer'], tok:'--p-food' },
+  { label:'Hotels', cls:['lodging'], tok:'--p-serv' },
+  { label:'Transit', cls:['railway','bus'], tok:'--p-transit' },
+  { label:'Fuel', cls:['fuel'], tok:'--p-serv' },
+];
+const MODES = { walk:{ label:'Walk', bit:1, costing:'pedestrian' }, bike:{ label:'Bike', bit:2, costing:'bicycle' }, car:{ label:'Drive', bit:4, costing:'auto' } };
+
+// POI classes (OpenMapTiles) → colour group
+const POI_GROUPS = {
+  food: ['restaurant','cafe','fast_food','bar','beer','ice_cream','bakery','food_court'],
+  shop: ['shop','grocery','clothing_store','alcohol_shop','convenience','hardware','furniture','jewelry','books','gift','music','mobile_phone','shoe','toys','electronics','florist','garden_centre','optician','laundry','butcher','deli','department_store','car'],
+  health: ['hospital','pharmacy','doctors','dentist','veterinary'],
+  civic: ['museum','art_gallery','library','school','college','town_hall','place_of_worship','theatre','cinema','attraction','monument','castle','post','police','fire_station','embassy','information'],
+  rec: ['park','playground','sports','stadium','swimming','garden','zoo','golf','pitch','campsite','dog_park','ice_rink'],
+  transit: ['railway','bus','ferry_terminal','airport','aerialway','bicycle_rental','parking','fuel','charging_station'],
+};
+const GROUP_TOK = { food:'--p-food', shop:'--p-shop', health:'--p-health', civic:'--p-civic', rec:'--p-rec', transit:'--p-transit', serv:'--p-serv', place:'--ink', street:'--m-road', area:'--m-park', water:'--m-water' };
+function photonGroup(p) {
+  const k = p.osm_key, v = p.osm_value;
+  if (['place','boundary'].includes(k)) return 'place';
+  if (k === 'highway') return 'street';
+  if (k === 'natural' || k === 'waterway') return v === 'water' || k === 'waterway' ? 'water' : 'area';
+  if (k === 'leisure') return 'rec';
+  if (k === 'shop') return 'shop';
+  if (k === 'healthcare') return 'health';
+  if (k === 'railway' || k === 'public_transport' || k === 'aeroway') return 'transit';
+  if (k === 'tourism') return ['museum','gallery','attraction','artwork','viewpoint'].includes(v) ? 'civic' : 'serv';
+  if (k === 'historic') return 'civic';
+  if (k === 'amenity') {
+    for (const [g, list] of Object.entries(POI_GROUPS)) if (list.includes(v) || (v === 'pub' && g === 'food') || (v === 'clinic' && g === 'health') || (['university','townhall','arts_centre'].includes(v) && g === 'civic')) return g;
+  }
+  return 'serv';
+}
+
+// ================================================================== STATE
+const S = {
+  tab:'search', q:'', chip:null, card:null, hits:[], searching:false, searchErr:null, needZoom:false,
+  from:null, to:null, mode:'walk', route:null, activeField:null, draft:'', suggest:[],
+  pack:{ status:'none', loaded:{} }, three:false,
+};
+let map, markers = {};
+let R, A, P, G, ORIGIN, Q, LOCAL = []; // region pack engine
+
+// ================================================================== GEO HELPERS
+const R_EARTH = 6371008.8;
+function geoDist(a, b) {
+  const t1 = a[1] * Math.PI / 180, t2 = b[1] * Math.PI / 180, dt = t2 - t1, dl = (b[0] - a[0]) * Math.PI / 180;
+  const h = Math.sin(dt / 2) ** 2 + Math.cos(t1) * Math.cos(t2) * Math.sin(dl / 2) ** 2;
+  return 2 * R_EARTH * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+function fmtDist(m) { return m < 950 ? `${Math.max(10, Math.round(m / 10) * 10)} m` : m < 99500 ? `${(m / 1000).toFixed(m < 9950 ? 1 : 0)} km` : `${fmtCount(Math.round(m / 1000))} km`; }
+function fmtTime(s) { const m = Math.max(1, Math.round(s / 60)); if (m < 60) return `${m} min`; const h = Math.floor(m / 60); return h < 48 ? `${h} h ${String(m % 60).padStart(2, '0')} min` : `${Math.round(h / 24)} days`; }
+function fmtKm(m) { return m < 1000 ? `${Math.round(m / 10) * 10} m` : m < 100000 ? `${(m / 1000).toFixed(1)} km` : `${fmtCount(Math.round(m / 1000))} km`; }
+function inBBox(pt, b) { return pt && pt.lon >= b[0] && pt.lon <= b[2] && pt.lat >= b[1] && pt.lat <= b[3]; }
+function centerLL() { const c = map ? map.getCenter() : { lng: START.center[0], lat: START.center[1] }; return [c.lng, c.lat]; }
+const tok = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+function decodePolyline6(str) {
+  let i = 0, lat = 0, lon = 0; const out = [];
+  while (i < str.length) {
+    for (const which of [0, 1]) {
+      let shift = 0, result = 0, b;
+      do { b = str.charCodeAt(i++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+      const d = (result & 1) ? ~(result >> 1) : (result >> 1);
+      if (which === 0) lat += d; else lon += d;
+    }
+    out.push([lon / 1e6, lat / 1e6]);
+  }
+  return out;
+}
+async function copyText(text, btn) {
+  try { await navigator.clipboard.writeText(text); btn.textContent = 'Copied'; }
+  catch { const el = btn.previousElementSibling; if (el) { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } btn.textContent = 'Selected'; }
+  setTimeout(() => { btn.textContent = 'Copy'; }, 1600);
+}
+
+// ================================================================== MAP STYLE (OpenMapTiles schema)
+function palette() {
+  const names = ['land','park','wood','pitch','plaza','farm','sand','ice','rock','resid','campus','water','waterline','water-label','bldg','bldg-line','bldg-3d','road','road-case','art','art-case','hwy','hwy-case','path','rail','border','label','label-2','park-label','halo','route','route-case'];
+  const C = {}; for (const n of names) C[n] = tok('--m-' + n);
+  for (const n of ['food','shop','health','civic','rec','serv','transit']) C['p-' + n] = tok('--p-' + n);
+  return C;
+}
+const W = (pairs) => ['interpolate', ['exponential', 1.55], ['zoom'], ...pairs];
+const byClass = (v) => ['match', ['get','class'], ['motorway','trunk'], v.hwy, ['primary','secondary'], v.art, 'tertiary', v.ter, 'minor', v.min, ['service','track'], v.svc, 0];
+const NAME = ['coalesce', ['get','name:en'], ['get','name_en'], ['get','name']];
+const LOCALNAME = ['coalesce', ['get','name'], ['get','name:en']];
+function poiColor(C) {
+  const m = ['match', ['get','class']];
+  const seen = new Set();
+  for (const [g, list] of Object.entries(POI_GROUPS)) { const l = list.filter(c => !seen.has(c)); l.forEach(c => seen.add(c)); if (l.length) m.push(l, C['p-' + g]); }
+  m.push(C['p-serv']); return m;
+}
+function paintFor(C) {
+  return {
+    'bg': { 'background-color': C.land },
+    'landcover': { 'fill-color': ['match', ['get','class'], 'wood', C.wood, 'grass', C.park, 'wetland', C.wood, 'farmland', C.farm, 'sand', C.sand, 'ice', C.ice, 'rock', C.rock, C.park], 'fill-opacity': W([0, .6, 8, .85, 12, 1]) },
+    'landuse': { 'fill-color': ['match', ['get','class'], ['residential','suburb','quarter','neighbourhood'], C.resid, ['cemetery'], C.park, ['hospital','school','university','college','kindergarten','library'], C.campus, ['stadium','pitch','playground','track'], C.pitch, ['commercial','retail'], C.plaza, C.plaza], 'fill-opacity': W([10, 0, 12, 1]) },
+    'park': { 'fill-color': C.park, 'fill-opacity': W([4, .5, 10, .75]) },
+    'water': { 'fill-color': C.water },
+    'waterway': { 'line-color': C.waterline, 'line-width': W([8, ['match', ['get','class'], 'river', .8, .2], 13, ['match', ['get','class'], ['river','canal'], 2.4, .8], 18, ['match', ['get','class'], ['river','canal'], 7, 2.5]]) },
+    'aeroway-area': { 'fill-color': C.plaza },
+    'aeroway-runway': { 'line-color': C['road-case'], 'line-width': W([10, 2, 14, 14, 18, 60]) },
+    'buildings': { 'fill-color': C.bldg, 'fill-opacity': W([13.2, 0, 14.4, 1]) },
+    'buildings-line': { 'line-color': C['bldg-line'], 'line-width': W([15.5, .3, 18, 1]), 'line-opacity': W([15.4, 0, 16, 1]) },
+    'buildings-3d': { 'fill-extrusion-color': C['bldg-3d'], 'fill-extrusion-height': ['coalesce', ['get','render_height'], 6], 'fill-extrusion-base': ['coalesce', ['get','render_min_height'], 0], 'fill-extrusion-opacity': .92, 'fill-extrusion-vertical-gradient': true },
+    'roads-path': { 'line-color': C.path, 'line-width': W([13, .5, 16, 1, 18, 2]), 'line-dasharray': [2, 1.6], 'line-opacity': W([13, .5, 16, .9]) },
+    'roads-case': { 'line-color': ['match', ['get','class'], ['motorway','trunk'], C['hwy-case'], ['primary','secondary'], C['art-case'], C['road-case']],
+      'line-width': W([5, byClass({hwy:.9, art:.4, ter:0, min:0, svc:0}), 10, byClass({hwy:1.8, art:1.2, ter:.8, min:0, svc:0}), 13, byClass({hwy:3.4, art:2.8, ter:2.2, min:1.4, svc:0}), 16, byClass({hwy:11, art:10, ter:8, min:6.6, svc:3.6}), 18, byClass({hwy:25, art:23, ter:19, min:16, svc:9})]),
+      'line-opacity': ['case', ['==', ['get','brunnel'], 'tunnel'], .45, 1] },
+    'roads': { 'line-color': ['match', ['get','class'], ['motorway','trunk'], C.hwy, ['primary','secondary'], C.art, C.road],
+      'line-width': W([5, byClass({hwy:.6, art:.25, ter:0, min:0, svc:0}), 10, byClass({hwy:1.3, art:.8, ter:.5, min:0, svc:0}), 13, byClass({hwy:2.4, art:1.9, ter:1.4, min:.7, svc:0}), 16, byClass({hwy:9, art:8, ter:6.3, min:5, svc:2.4}), 18, byClass({hwy:22, art:20, ter:16.5, min:13.5, svc:7})]),
+      'line-opacity': ['case', ['==', ['get','brunnel'], 'tunnel'], .5, 1] },
+    'rail': { 'line-color': C.rail, 'line-width': W([10, .6, 16, 2.4, 18, 3.5]) },
+    'rail-ties': { 'line-color': C.land, 'line-width': W([12, .4, 16, 1.1, 18, 1.6]), 'line-dasharray': [2, 3] },
+    'ferry': { 'line-color': C.waterline, 'line-width': W([8, .6, 16, 1.6]), 'line-dasharray': [3, 2] },
+    'border-country': { 'line-color': C.border, 'line-width': W([1, .6, 6, 1.3, 12, 2.2]), 'line-dasharray': [4, 2] },
+    'border-state': { 'line-color': C.border, 'line-width': W([3, .4, 10, 1]), 'line-dasharray': [1, 2], 'line-opacity': .7 },
+    'route-link': { 'line-color': C['route-case'], 'line-width': 2, 'line-dasharray': [1, 1.4] },
+    'route-case': { 'line-color': C['route-case'], 'line-width': W([5, 4, 11, 6, 15, 10, 18, 18]) },
+    'route': { 'line-color': C.route, 'line-width': W([5, 2.2, 11, 3.4, 15, 6, 18, 12]) },
+    'pack-edge': { 'line-color': C.route, 'line-width': 1.5, 'line-dasharray': [2, 2], 'line-opacity': W([8, 0, 9, .9, 12, .9, 13, 0]) },
+    'water-name': { 'text-color': C['water-label'], 'text-halo-color': C.water, 'text-halo-width': 1 },
+    'water-name-line': { 'text-color': C['water-label'], 'text-halo-color': C.water, 'text-halo-width': 1 },
+    'waterway-name': { 'text-color': C['water-label'], 'text-halo-color': C.halo, 'text-halo-width': 1.2 },
+    'park-name': { 'text-color': C['park-label'], 'text-halo-color': C.halo, 'text-halo-width': 1.4 },
+    'road-label': { 'text-color': C.label, 'text-halo-color': C.halo, 'text-halo-width': 1.6 },
+    'housenumber': { 'text-color': C['label-2'], 'text-halo-color': C.halo, 'text-halo-width': 1.2 },
+    'place-minor': { 'text-color': C['label-2'], 'text-halo-color': C.halo, 'text-halo-width': 1.6 },
+    'place-city': { 'text-color': C.label, 'text-halo-color': C.halo, 'text-halo-width': 1.8 },
+    'place-state': { 'text-color': C['label-2'], 'text-halo-color': C.halo, 'text-halo-width': 1.4 },
+    'place-country': { 'text-color': C.label, 'text-halo-color': C.halo, 'text-halo-width': 2 },
+    'airport': { 'text-color': C['label-2'], 'text-halo-color': C.halo, 'text-halo-width': 1.4 },
+    'poi-dot': { 'circle-color': poiColor(C), 'circle-radius': W([15, 2.6, 17, 4, 19, 6]), 'circle-stroke-color': C.label, 'circle-stroke-width': W([15, .5, 17, 1]) },
+    'poi-label': { 'text-color': C.label, 'text-halo-color': C.halo, 'text-halo-width': 1.5 },
+    'poi-label-near': { 'text-color': C.label, 'text-halo-color': C.halo, 'text-halo-width': 1.5 },
+    'hits': { 'circle-color': ['match', ['get','g'], 'food', C['p-food'], 'shop', C['p-shop'], 'health', C['p-health'], 'civic', C['p-civic'], 'rec', C['p-rec'], 'transit', C['p-transit'], 'place', C.label, 'street', C.road, 'water', C.water, 'area', C.park, C['p-serv']], 'circle-radius': W([3, 5, 17, 8]), 'circle-stroke-color': C.label, 'circle-stroke-width': 2.2 },
+    'hits-label': { 'text-color': C.label, 'text-halo-color': C.halo, 'text-halo-width': 1.8 },
+  };
+}
+function buildStyle(C) {
+  const paint = paintFor(C);
+  const L = (id, type, sl, extra = {}) => ({ id, type, ...(sl ? { source:'omt', 'source-layer': sl } : {}), paint: paint[id] || {}, ...extra });
+  const G = (id, type, source, extra = {}) => ({ id, type, source, paint: paint[id] || {}, ...extra });
+  const RO = ['Noto Sans Regular'], BO = ['Noto Sans Bold'], IT = ['Noto Sans Italic'];
+  const roadOrder = ['match', ['get','class'], ['motorway','trunk'], 5, ['primary','secondary'], 4, 'tertiary', 3, 'minor', 2, 1];
+  const isRoad = ['match', ['get','class'], ['motorway','trunk','primary','secondary','tertiary','minor','service','track'], true, false];
+  return {
+    version: 8,
+    projection: { type: 'globe' },
+    glyphs: CONFIG.glyphs,
+    sources: {
+      omt: { type:'vector', url: CONFIG.tiles, attribution: '' },
+      route: { type:'geojson', data: EMPTY }, routeLink: { type:'geojson', data: EMPTY }, hits: { type:'geojson', data: EMPTY },
+      packs: { type:'geojson', data: packEdgesGeo() },
+    },
+    layers: [
+      L('bg', 'background'),
+      L('landcover', 'fill', 'landcover'),
+      L('landuse', 'fill', 'landuse', { minzoom: 10, filter: ['match', ['get','class'], ['residential','suburb','quarter','neighbourhood','cemetery','hospital','school','university','college','kindergarten','library','stadium','pitch','playground','track','commercial','retail'], true, false] }),
+      L('park', 'fill', 'park'),
+      L('water', 'fill', 'water', { filter: ['!=', ['get','brunnel'], 'tunnel'] }),
+      L('waterway', 'line', 'waterway', { minzoom: 8, filter: ['!=', ['get','brunnel'], 'tunnel'], layout: { 'line-cap':'round' } }),
+      L('aeroway-area', 'fill', 'aeroway', { minzoom: 11, filter: ['==', ['geometry-type'], 'Polygon'] }),
+      L('aeroway-runway', 'line', 'aeroway', { minzoom: 10, filter: ['all', ['==', ['geometry-type'], 'LineString'], ['==', ['get','class'], 'runway']] }),
+      L('buildings', 'fill', 'building', { minzoom: 13 }),
+      L('buildings-line', 'line', 'building', { minzoom: 15.4 }),
+      L('roads-path', 'line', 'transportation', { minzoom: 13, filter: ['==', ['get','class'], 'path'] }),
+      L('roads-case', 'line', 'transportation', { minzoom: 5, filter: isRoad, layout: { 'line-cap':'round', 'line-join':'round', 'line-sort-key': roadOrder } }),
+      L('roads', 'line', 'transportation', { minzoom: 5, filter: isRoad, layout: { 'line-cap':'round', 'line-join':'round', 'line-sort-key': roadOrder } }),
+      L('rail', 'line', 'transportation', { minzoom: 9, filter: ['match', ['get','class'], ['rail','transit'], true, false] }),
+      L('rail-ties', 'line', 'transportation', { minzoom: 13, filter: ['match', ['get','class'], ['rail','transit'], true, false] }),
+      L('ferry', 'line', 'transportation', { minzoom: 7, filter: ['==', ['get','class'], 'ferry'] }),
+      L('border-state', 'line', 'boundary', { minzoom: 3, filter: ['all', ['==', ['get','admin_level'], 4], ['!=', ['get','maritime'], 1]] }),
+      L('border-country', 'line', 'boundary', { filter: ['all', ['==', ['get','admin_level'], 2], ['!=', ['get','maritime'], 1], ['!=', ['get','disputed'], 1]] }),
+      L('buildings-3d', 'fill-extrusion', 'building', { minzoom: 14, filter: ['!=', ['get','hide_3d'], true], layout: { visibility: 'none' } }),
+      G('pack-edge', 'line', 'packs'),
+      G('route-link', 'line', 'routeLink'),
+      G('route-case', 'line', 'route', { layout: { 'line-cap':'round', 'line-join':'round' } }),
+      G('route', 'line', 'route', { layout: { 'line-cap':'round', 'line-join':'round' } }),
+      L('water-name', 'symbol', 'water_name', { filter: ['==', ['geometry-type'], 'Point'], layout: { 'text-field': NAME, 'text-font': IT, 'text-size': ['match', ['get','class'], 'ocean', 15, 'sea', 13, 11.5], 'text-letter-spacing': ['match', ['get','class'], ['ocean','sea'], .25, .06], 'text-max-width': 6 } }),
+      L('water-name-line', 'symbol', 'water_name', { filter: ['==', ['geometry-type'], 'LineString'], layout: { 'symbol-placement':'line', 'text-field': NAME, 'text-font': IT, 'text-size': 11.5, 'text-letter-spacing': .06 } }),
+      L('waterway-name', 'symbol', 'waterway', { minzoom: 12, filter: ['has', 'name'], layout: { 'symbol-placement':'line', 'text-field': LOCALNAME, 'text-font': IT, 'text-size': 11, 'symbol-spacing': 360 } }),
+      L('park-name', 'symbol', 'park', { minzoom: 9, filter: ['has','name'], layout: { 'text-field': NAME, 'text-font': RO, 'text-size': 11, 'text-max-width': 8, 'symbol-sort-key': ['coalesce', ['get','rank'], 99] } }),
+      L('road-label', 'symbol', 'transportation_name', { minzoom: 12, filter: ['any', ['>=', ['zoom'], 14.6], ['match', ['get','class'], ['motorway','trunk','primary','secondary','tertiary'], true, false]],
+        layout: { 'symbol-placement':'line', 'text-field': LOCALNAME, 'text-font': RO, 'text-size': W([12, 10, 16, 12, 18, 14]), 'symbol-spacing': 320, 'text-max-angle': 32, 'text-padding': 2 } }),
+      L('housenumber', 'symbol', 'housenumber', { minzoom: 17.2, layout: { 'text-field': ['get','housenumber'], 'text-font': RO, 'text-size': 9.5, 'text-padding': 3 } }),
+      L('airport', 'symbol', 'aerodrome_label', { minzoom: 9, maxzoom: 14, layout: { 'text-field': ['coalesce', ['get','iata'], NAME], 'text-font': BO, 'text-size': 11, 'text-letter-spacing': .12 } }),
+      L('poi-dot', 'circle', 'poi', { minzoom: 15, filter: ['all', ['<=', ['coalesce', ['get','rank'], 99], 40], ['!=', ['get','class'], 'bus']] }),
+      L('poi-label', 'symbol', 'poi', { minzoom: 15.6, maxzoom: 17, filter: ['all', ['has','name'], ['!=', ['get','class'], 'bus'], ['<=', ['coalesce', ['get','rank'], 99], 16]], layout: { 'text-field': LOCALNAME, 'text-font': RO, 'text-size': 11, 'text-anchor':'top', 'text-offset':[0, .7], 'text-max-width': 9, 'symbol-sort-key': ['coalesce', ['get','rank'], 99], 'text-optional': true } }),
+      L('poi-label-near', 'symbol', 'poi', { minzoom: 17, filter: ['all', ['has','name'], ['!=', ['get','class'], 'bus']], layout: { 'text-field': LOCALNAME, 'text-font': RO, 'text-size': 11, 'text-anchor':'top', 'text-offset':[0, .7], 'text-max-width': 9, 'symbol-sort-key': ['coalesce', ['get','rank'], 99], 'text-optional': true } }),
+      L('place-minor', 'symbol', 'place', { minzoom: 11, filter: ['match', ['get','class'], ['suburb','quarter','neighbourhood','village','hamlet','island'], true, false],
+        layout: { 'text-field': NAME, 'text-font': BO, 'text-transform':'uppercase', 'text-letter-spacing': .18, 'text-size': W([11, 10, 15, 13]), 'text-max-width': 7, 'symbol-sort-key': ['coalesce', ['get','rank'], 99] } }),
+      L('place-city', 'symbol', 'place', { minzoom: 3, filter: ['match', ['get','class'], ['city','town'], true, false],
+        layout: { 'text-field': NAME, 'text-font': ['case', ['==', ['get','class'], 'city'], ['literal', BO], ['literal', RO]], 'text-size': W([3, ['case', ['==', ['get','capital'], 2], 12, 10.5], 8, ['match', ['get','class'], 'city', 15, 12], 13, ['match', ['get','class'], 'city', 20, 15]]), 'text-max-width': 8, 'symbol-sort-key': ['coalesce', ['get','rank'], 99] } }),
+      L('place-state', 'symbol', 'place', { minzoom: 3.5, maxzoom: 8, filter: ['match', ['get','class'], ['state','province'], true, false],
+        layout: { 'text-field': NAME, 'text-font': RO, 'text-transform':'uppercase', 'text-letter-spacing': .2, 'text-size': W([4, 9.5, 7, 12]), 'text-max-width': 8 } }),
+      L('place-country', 'symbol', 'place', { maxzoom: 9, filter: ['==', ['get','class'], 'country'],
+        layout: { 'text-field': NAME, 'text-font': BO, 'text-transform':'uppercase', 'text-letter-spacing': .16, 'text-size': W([1, ['match', ['coalesce', ['get','rank'], 9], [1, 2], 12, 9.5], 5, ['match', ['coalesce', ['get','rank'], 9], [1, 2], 18, 13]]), 'text-max-width': 7, 'symbol-sort-key': ['coalesce', ['get','rank'], 99] } }),
+      G('hits', 'circle', 'hits'),
+      G('hits-label', 'symbol', 'hits', { layout: { 'text-field': ['get','n'], 'text-font': BO, 'text-size': 12, 'text-anchor':'top', 'text-offset':[0, .9], 'text-max-width': 10 } }),
+    ],
+  };
+}
+function packEdgesGeo() {
+  return { type:'FeatureCollection', features: CONFIG.packs.map(p => { const [w, s, e, n] = p.bbox; return { type:'Feature', properties:{ id: p.id }, geometry:{ type:'LineString', coordinates:[[w,s],[e,s],[e,n],[w,n],[w,s]] } }; }) };
+}
+function applyPalette() {
+  if (!map || !map.isStyleLoaded()) return;
+  const paint = paintFor(palette());
+  for (const [id, props] of Object.entries(paint)) {
+    if (!map.getLayer(id)) continue;
+    for (const [k, v] of Object.entries(props)) { try { map.setPaintProperty(id, k, v); } catch {} }
+  }
+  drawTicks();
+}
+
+// ================================================================== REGION PACK ENGINE (on-device)
+const PACK = CONFIG.packs[0];
+const M_PER_DEG_Y = 111320, M_PER_DEG_X = 111320 * Math.cos(45.41 * Math.PI / 180);
+const toLL = (x, y) => [ORIGIN[0] + x / Q, ORIGIN[1] + y / Q];
+function distM(a, b) { return Math.hypot((b[0] - a[0]) * M_PER_DEG_X, (b[1] - a[1]) * M_PER_DEG_Y); }
+function bearing(a, b) { const dx = (b[0]-a[0]) * M_PER_DEG_X, dy = (b[1]-a[1]) * M_PER_DEG_Y; return (Math.atan2(dx, dy) * 180 / Math.PI + 360) % 360; }
+function compass(b) { return ['north','northeast','east','southeast','south','southwest','west','northwest'][Math.round(b / 45) % 8]; }
+function decLine(arr, i0, x, y, out) { for (let i = i0; i < arr.length; i += 2) { x += arr[i]; y += arr[i + 1]; out.push(toLL(x, y)); } return out; }
+function edgeCoords(e) {
+  const nd = R.nodes, a = e[0], b = e[1], ax = nd[2*a], ay = nd[2*a+1];
+  const out = [toLL(ax, ay)]; decLine(e, 6, ax, ay, out); out.push(toLL(nd[2*b], nd[2*b+1])); return out;
+}
+async function packJSON(url) {
+  try {
+    const cache = await caches.open('datum-packs-v1');
+    let res = await cache.match(url);
+    if (!res) { res = await fetch(url); if (!res.ok) throw new Error(`${url} returned ${res.status}`); await cache.put(url, res.clone()); }
+    return await res.json();
+  } catch (e) {
+    if (e && /returned/.test(e.message)) throw e;
+    const res = await fetch(url); if (!res.ok) throw new Error(`${url} returned ${res.status}`); return res.json();
+  }
+}
+async function packCached() {
+  try { const cache = await caches.open('datum-packs-v1'); for (const f of PACK.files) if (!(await cache.match(PACK.base + f + '.json'))) return false; return true; } catch { return false; }
+}
+async function loadPack() {
+  if (S.pack.status === 'loading' || S.pack.status === 'ready') return;
+  S.pack.status = 'loading'; render();
+  try {
+    const [r, a, p] = await Promise.all(PACK.files.map(async f => { const j = await packJSON(PACK.base + f + '.json'); S.pack.loaded[f] = true; render(); return j; }));
+    R = r; A = a; P = p; ORIGIN = R.origin; Q = R.q;
+    G = buildGraph(); buildLocalSearch();
+    S.pack.status = 'ready'; $('#att-pack').hidden = false;
+  } catch (e) { S.pack.status = 'error'; S.pack.error = e.message; console.error(e); }
+  render();
+}
+async function removePack() {
+  try { const cache = await caches.open('datum-packs-v1'); for (const f of PACK.files) await cache.delete(PACK.base + f + '.json'); } catch {}
+  R = A = P = G = null; LOCAL = []; S.pack = { status:'none', loaded:{} }; $('#att-pack').hidden = true; render();
+}
+function buildGraph() {
+  const nN = R.nodes.length / 2, E = R.edges, nE = E.length;
+  const len = new Float32Array(nE), cls = new Uint8Array(nE), kmh = new Uint8Array(nE), anyName = new Int32Array(nN).fill(-1);
+  const deg = new Uint32Array(nN + 1), fwdM = new Uint8Array(nE), backM = new Uint8Array(nE);
+  for (let i = 0; i < nE; i++) {
+    const e = E[i], f = e[4];
+    cls[i] = e[2]; kmh[i] = e[5];
+    const c = edgeCoords(e); let L = 0; for (let j = 1; j < c.length; j++) L += distM(c[j-1], c[j]); len[i] = L;
+    fwdM[i] = ((f & 16) ? 1 : 0) | ((f & 4) ? 2 : 0) | ((f & 1) ? 4 : 0);
+    backM[i] = ((f & 16) ? 1 : 0) | ((f & 8) ? 2 : 0) | ((f & 2) ? 4 : 0);
+    if (fwdM[i]) deg[e[0] + 1]++;
+    if (backM[i]) deg[e[1] + 1]++;
+    if (e[3] >= 0 && !(f & 256)) { if (anyName[e[0]] < 0) anyName[e[0]] = e[3]; if (anyName[e[1]] < 0) anyName[e[1]] = e[3]; }
+  }
+  for (let i = 0; i < nN; i++) deg[i + 1] += deg[i];
+  const fill = deg.slice(0, nN), to = new Uint32Array(deg[nN]), edge = new Uint32Array(deg[nN]), dir = new Uint8Array(deg[nN]), am = new Uint8Array(deg[nN]);
+  for (let i = 0; i < nE; i++) {
+    const e = E[i];
+    if (fwdM[i]) { const k = fill[e[0]]++; to[k] = e[1]; edge[k] = i; dir[k] = 1; am[k] = fwdM[i]; }
+    if (backM[i]) { const k = fill[e[1]]++; to[k] = e[0]; edge[k] = i; dir[k] = 0; am[k] = backM[i]; }
+  }
+  const nx = new Float64Array(nN), ny = new Float64Array(nN);
+  for (let i = 0; i < nN; i++) { const ll = toLL(R.nodes[2*i], R.nodes[2*i+1]); nx[i] = ll[0]; ny[i] = ll[1]; }
+  const ci = (n) => R.classes.indexOf(n);
+  const C = { footway: ci('footway'), pedestrian: ci('pedestrian'), steps: ci('steps'), cycleway: ci('cycleway'), path: ci('path'), primary: ci('primary'), secondary: ci('secondary'), track: ci('track') };
+  const g = { nN, nE, len, cls, kmh, anyName, deg, to, edge, dir, am, nx, ny, C };
+  g.main = { walk: largestSCC(g, 1), bike: largestSCC(g, 2), car: largestSCC(g, 4) };
+  return g;
+}
+// Largest strongly connected component per mode (iterative Tarjan); endpoints snap inside it.
+function largestSCC(g, bit) {
+  const n = g.nN, index = new Int32Array(n).fill(-1), low = new Int32Array(n), onStack = new Uint8Array(n);
+  const stack = new Int32Array(n), comp = new Int32Array(n).fill(-1), callNode = new Int32Array(n), callArc = new Int32Array(n);
+  let sp = 0, idx = 0, nComp = 0; const sizes = [];
+  for (let s = 0; s < n; s++) {
+    if (index[s] !== -1) continue;
+    let csp = 0; callNode[0] = s; callArc[0] = g.deg[s]; index[s] = low[s] = idx++; stack[sp++] = s; onStack[s] = 1;
+    while (csp >= 0) {
+      const v = callNode[csp]; let k = callArc[csp], pushed = false;
+      for (; k < g.deg[v + 1]; k++) {
+        if (!(g.am[k] & bit)) continue;
+        const w = g.to[k];
+        if (index[w] === -1) { callArc[csp] = k + 1; csp++; callNode[csp] = w; callArc[csp] = g.deg[w]; index[w] = low[w] = idx++; stack[sp++] = w; onStack[w] = 1; pushed = true; break; }
+        else if (onStack[w] && index[w] < low[v]) low[v] = index[w];
+      }
+      if (pushed) continue;
+      if (low[v] === index[v]) { let size = 0, w; do { w = stack[--sp]; onStack[w] = 0; comp[w] = nComp; size++; } while (w !== v); sizes.push(size); nComp++; }
+      csp--;
+      if (csp >= 0) { const u = callNode[csp]; if (low[v] < low[u]) low[u] = low[v]; }
+    }
+  }
+  let best = 0; for (let i = 1; i < sizes.length; i++) if (sizes[i] > sizes[best]) best = i;
+  const inMain = new Uint8Array(n); for (let i = 0; i < n; i++) if (comp[i] === best) inMain[i] = 1;
+  return inMain;
+}
+function speed(mode, i) {
+  const c = G.cls[i], C = G.C;
+  if (mode === 'walk') return c === C.steps ? 0.7 : 1.36;
+  if (mode === 'bike') {
+    if (c === C.footway || c === C.pedestrian) return 1.7;
+    if (c === C.cycleway || c === C.path) return 4.5;
+    if (c === C.track) return 3.0;
+    if (c === C.primary || c === C.secondary) return 3.7;
+    return 4.17;
+  }
+  return Math.max(2.5, (G.kmh[i] || 30) / 3.6);
+}
+const VMAX = { walk: 1.36, bike: 4.5, car: 25 };
+function nearestNode(ll, mode) {
+  let best = -1, bd = Infinity; const main = G.main[mode];
+  for (let i = 0; i < G.nN; i++) {
+    if (!main[i]) continue;
+    const dx = (G.nx[i] - ll[0]) * M_PER_DEG_X, dy = (G.ny[i] - ll[1]) * M_PER_DEG_Y, d = dx*dx + dy*dy;
+    if (d < bd) { bd = d; best = i; }
+  }
+  return { node: best, dist: Math.sqrt(bd) };
+}
+function astar(s, t, mode) {
+  const bit = MODES[mode].bit, n = G.nN, vmax = VMAX[mode];
+  const g = new Float64Array(n).fill(Infinity), prevArc = new Int32Array(n).fill(-1), closed = new Uint8Array(n);
+  const hx = G.nx[t], hy = G.ny[t];
+  const h = (i) => Math.hypot((G.nx[i] - hx) * M_PER_DEG_X, (G.ny[i] - hy) * M_PER_DEG_Y) / vmax;
+  const hn = [], hk = [];
+  const push = (node, key) => { hn.push(node); hk.push(key); let i = hn.length - 1;
+    while (i > 0) { const p = (i - 1) >> 1; if (hk[p] <= hk[i]) break; [hn[p], hn[i]] = [hn[i], hn[p]]; [hk[p], hk[i]] = [hk[i], hk[p]]; i = p; } };
+  const pop = () => { const top = hn[0]; const ln = hn.pop(), lk = hk.pop();
+    if (hn.length) { hn[0] = ln; hk[0] = lk; let i = 0;
+      for (;;) { const l = 2*i + 1, r = l + 1; let m = i; if (l < hn.length && hk[l] < hk[m]) m = l; if (r < hn.length && hk[r] < hk[m]) m = r; if (m === i) break;
+        [hn[m], hn[i]] = [hn[i], hn[m]]; [hk[m], hk[i]] = [hk[i], hk[m]]; i = m; } }
+    return top; };
+  g[s] = 0; push(s, h(s)); let visited = 0;
+  while (hn.length) {
+    const u = pop(); if (closed[u]) continue; closed[u] = 1; visited++;
+    if (u === t) break;
+    for (let k = G.deg[u]; k < G.deg[u + 1]; k++) {
+      if (!(G.am[k] & bit)) continue;
+      const v = G.to[k]; if (closed[v]) continue;
+      const ei = G.edge[k], ng = g[u] + G.len[ei] / speed(mode, ei);
+      if (ng < g[v]) { g[v] = ng; prevArc[v] = k; push(v, ng + h(v)); }
+    }
+  }
+  if (!isFinite(g[t])) return null;
+  const arcs = []; let cur = t;
+  while (cur !== s) { const k = prevArc[cur]; arcs.push(k); cur = G.dir[k] ? R.edges[G.edge[k]][0] : R.edges[G.edge[k]][1]; }
+  arcs.reverse();
+  return { arcs, seconds: g[t], visited };
+}
+function legName(ei) {
+  const e = R.edges[ei];
+  if (e[3] >= 0) return R.names[e[3]];
+  if (e[4] & 512) return 'crossing';
+  const c = R.classes[e[2]];
+  return ({ footway:'footpath', path:'path', cycleway:'cycle path', steps:'steps', pedestrian:'pedestrian street', service:'service road', track:'track' })[c] || 'unnamed road';
+}
+function viaName(legs) {
+  const tally = new Map();
+  for (const l of legs) { const e = R.edges[l.ei]; if (e[3] < 0) continue; const n = R.names[e[3]]; tally.set(n, (tally.get(n) || 0) + l.len); }
+  let best = '', bl = 0; for (const [n, v] of tally) if (v > bl) { bl = v; best = n; }
+  return best;
+}
+function makeSteps(legs, dest) {
+  const groups = [];
+  for (const l of legs) {
+    const name = legName(l.ei), last = groups[groups.length - 1];
+    if (last && last.name === name) { last.len += l.len; last.coords.push(...l.coords.slice(1)); }
+    else groups.push({ name, len: l.len, coords: l.coords.slice() });
+  }
+  const UNNAMED = /^(footpath|path|unnamed road|service road|steps|cycle path|crossing)$/;
+  const join = (into, gp) => { into.len += gp.len; into.coords.push(...gp.coords.slice(1)); };
+  let merged = groups;
+  for (let pass = 0; pass < 3; pass++) {
+    const out = [];
+    for (const gp of merged) {
+      const prev = out[out.length - 1];
+      if (prev && prev.name === gp.name) { join(prev, gp); continue; }
+      if (prev && gp.len < 20) { join(prev, gp); continue; }
+      if (prev && UNNAMED.test(gp.name) && (gp.len < 60 || gp.name === 'crossing')) { join(prev, gp); continue; }
+      out.push(gp);
+    }
+    merged = out;
+  }
+  const steps = merged.map((gp, i) => {
+    const c = gp.coords, b0 = bearing(c[0], c[Math.min(c.length - 1, 2)]);
+    let turn;
+    if (i === 0) turn = `Head ${compass(b0)}`;
+    else {
+      const pc = merged[i - 1].coords, bp = bearing(pc[Math.max(0, pc.length - 3)], pc[pc.length - 1]);
+      let d = ((b0 - bp + 540) % 360) - 180; const side = d < 0 ? 'left' : 'right'; d = Math.abs(d);
+      turn = d < 22 ? 'Continue' : d < 60 ? `Slight ${side}` : d < 140 ? `Turn ${side}` : `Sharp ${side}`;
+    }
+    return { turn, text: `on ${gp.name}`, len: gp.len, at: c[0] };
+  });
+  steps.push({ turn: 'Arrive', text: dest || 'destination', len: 0, at: legs.length ? legs[legs.length - 1].coords.slice(-1)[0] : null });
+  return steps;
+}
+function routeOnDevice(from, to, mode) {
+  const a = nearestNode([from.lon, from.lat], mode), b = nearestNode([to.lon, to.lat], mode);
+  if (a.node < 0 || b.node < 0) return { error: 'No road or path near one of the points.' };
+  const res = a.node === b.node ? { arcs: [], seconds: 0, visited: 1 } : astar(a.node, b.node, mode);
+  if (!res) return { error: `No ${MODES[mode].label.toLowerCase()} route found in the region pack.` };
+  const coords = [], legs = []; let dist = 0;
+  for (const k of res.arcs) {
+    const ei = G.edge[k]; let c = edgeCoords(R.edges[ei]); if (!G.dir[k]) c = c.reverse();
+    legs.push({ ei, coords: c.slice(), len: G.len[ei] });
+    coords.push(...(coords.length ? c.slice(1) : c)); dist += G.len[ei];
+  }
+  const extra = (a.dist + b.dist) / (mode === 'car' ? 1.36 : VMAX[mode] * .85);
+  return { engine:'device', coords, dist: dist + a.dist + b.dist, seconds: res.seconds + extra, visited: res.visited,
+    steps: makeSteps(legs, to.label), via: viaName(legs),
+    link: [[[from.lon, from.lat], [G.nx[a.node], G.ny[a.node]]], [[G.nx[b.node], G.ny[b.node]], [to.lon, to.lat]]] };
+}
+function buildLocalSearch() {
+  const items = [];
+  const hood = A.hoods.filter(h => h[0] > 0).map(h => ({ n: A.names[h[1]], ll: toLL(h[2], h[3]) }));
+  const nearestHood = (ll) => { let b = '', d = Infinity; for (const h of hood) { const x = distM(ll, h.ll); if (x < d) { d = x; b = h.n; } } return b; };
+  const best = new Map();
+  for (let i = 0; i < R.edges.length; i++) { const e = R.edges[i]; if (e[3] < 0 || (e[4] & 256)) continue; const L = G.len[i]; const cur = best.get(e[3]); if (!cur || L > cur.L) best.set(e[3], { i, L }); }
+  for (const [ni, { i }] of best) { const c = edgeCoords(R.edges[i]); const mid = c[Math.floor(c.length / 2)];
+    items.push({ src:'pack', kind:'street', g:'street', name: R.names[ni], ll: mid, sub: `Street · ${nearestHood(mid)}`, w: 18 }); }
+  P.places.forEach((p, i) => { const ll = toLL(p[0], p[1]);
+    items.push({ src:'pack', kind:'place', g: overtureGroup(P.groups[p[4]]), i, name: p[2], ll, cat: P.cats[p[3]], sub: [P.cats[p[3]], p[5] ? p[5].split(',')[0] : nearestHood(ll)].filter(Boolean).join(' · '), w: p[8] / 12 }); });
+  const ABBR = { street:'st', avenue:'ave', road:'rd', drive:'dr', boulevard:'blvd', crescent:'cres', place:'pl', lane:'ln', parkway:'pkwy', court:'crt', terrace:'terr', east:'e', west:'w', north:'n', south:'s' };
+  for (const it of items) { it.nn = norm(it.name); it.words = it.nn.split(/[\s\-/,.()]+/).filter(Boolean); it.nc = norm(it.cat || '');
+    if (it.kind === 'street') for (const w of it.words.slice()) if (ABBR[w]) it.words.push(ABBR[w]); }
+  LOCAL = items;
+}
+function overtureGroup(g) {
+  return ({ food_and_drink:'food', shopping:'shop', health_care:'health', community_and_government:'civic', education:'civic', cultural_and_historic:'civic', arts_and_entertainment:'civic', sports_and_recreation:'rec', geographic_entities:'rec', travel_and_transportation:'transit' })[g] || 'serv';
+}
+function localSearch(q, limit) {
+  const qn = norm(q).trim(); if (!qn || !LOCAL.length) return [];
+  const qt = qn.split(/\s+/), c = centerLL(), out = [];
+  for (const it of LOCAL) {
+    let ok = true, sc = 0;
+    for (const t of qt) {
+      if (it.words.includes(t)) sc += 36; else if (it.words.some(w => w.startsWith(t))) sc += 30;
+      else if (it.nn.includes(t)) sc += 12; else if (it.nc && it.nc.split(' ').some(w => w.startsWith(t))) sc += 14;
+      else { ok = false; break; }
+    }
+    if (!ok) continue;
+    if (it.nn.startsWith(qn)) sc += 40; if (it.nn === qn) sc += 30;
+    const m = geoDist(c, it.ll); sc += it.w - Math.min(14, m / 1000 * 2.2);
+    out.push({ ...it, sc, m });
+  }
+  out.sort((a, b) => b.sc - a.sc); return out.slice(0, limit);
+}
+function packPlaceCard(i) {
+  const p = P.places[i]; return { kind:'place', src:'pack', name: p[2], cat: P.cats[p[3]], g: overtureGroup(P.groups[p[4]]), addr: p[5], phone: p[6], web: p[7], conf: p[8], ll: toLL(p[0], p[1]) };
+}
+const packNear = () => S.pack.status === 'ready' && geoDist(centerLL(), [(PACK.bbox[0] + PACK.bbox[2]) / 2, (PACK.bbox[1] + PACK.bbox[3]) / 2]) < 40000;
+
+// ================================================================== SEARCH (Photon + pack)
+let searchCtl, searchSeq = 0;
+function photonToItem(f) {
+  const p = f.properties || {}, ll = f.geometry.coordinates;
+  const street = p.street ? (p.housenumber ? `${p.housenumber} ${p.street}` : p.street) : '';
+  const place = p.city || p.locality || p.district || p.county;
+  const name = p.name || street || place || p.state || p.country || 'Unnamed place';
+  const g = photonGroup(p);
+  const typeLabel = ({ city:'City', district:'District', locality:'Locality', county:'County', state:'State or province', country:'Country', street:'Street', house: '' })[p.type];
+  const cat = (g === 'place' || g === 'street') ? (typeLabel || pretty(p.osm_value)) : pretty(p.osm_value);
+  const addr = [street !== name ? street : '', place !== name ? place : '', p.state !== name ? p.state : '', p.country !== name ? p.country : ''].filter(Boolean);
+  return { src:'photon', kind: g === 'place' ? 'area' : g === 'street' ? 'street' : 'place', g, name, ll, cat, addr: addr.join(', '),
+    sub: [cat, addr.slice(0, 3).join(', ')].filter(Boolean).join(' · '), extent: p.extent, type: p.type,
+    osm: p.osm_type && p.osm_id ? `https://www.openstreetmap.org/${({ N:'node', W:'way', R:'relation' })[p.osm_type]}/${p.osm_id}` : null };
+}
+async function photon(q, limit) {
+  const c = centerLL(), z = map ? map.getZoom() : 2;
+  const url = `${CONFIG.search}/api/?q=${encodeURIComponent(q)}&limit=${limit}&lang=en&lat=${c[1].toFixed(4)}&lon=${c[0].toFixed(4)}&zoom=${Math.max(3, Math.min(16, Math.round(z)))}&location_bias_scale=0.35`;
+  if (searchCtl) searchCtl.abort(); searchCtl = new AbortController();
+  const res = await fetch(url, { signal: searchCtl.signal });
+  if (!res.ok) throw new Error(`Search service returned ${res.status}`);
+  const j = await res.json();
+  return (j.features || []).map(photonToItem).map(it => ({ ...it, m: geoDist(centerLL(), it.ll) }));
+}
+function merge(local, remote, limit) {
+  const out = [...local];
+  for (const r of remote) if (!out.some(l => norm(l.name) === norm(r.name) && geoDist(l.ll, r.ll) < 120)) out.push(r);
+  return out.slice(0, limit);
+}
+async function doSearch(q, target) { // target: 'q' | 'from' | 'to'
+  const seq = ++searchSeq, limit = target === 'q' ? 15 : 8;
+  const local = packNear() ? localSearch(q, target === 'q' ? 6 : 4) : [];
+  const set = (list) => { if (target === 'q') { S.hits = list; setHits(list); } else S.suggest = list; };
+  set(local); S.searchErr = null;
+  if (norm(q).trim().length < 3) { S.searching = false; render(); return; }
+  S.searching = true; render();
+  try {
+    const remote = await photon(q, limit);
+    if (seq !== searchSeq) return;
+    set(merge(local, remote, limit));
+  } catch (e) {
+    if (e.name === 'AbortError') return;
+    if (seq === searchSeq) S.searchErr = local.length ? null : 'Search service unreachable. Check your connection and try again.';
+  }
+  if (seq === searchSeq) { S.searching = false; render(); }
+}
+function chipSearch(chip) {
+  if (map.getZoom() < 13.5) return { needZoom: true, list: [] };
+  const set = new Set(chip.cls), c = centerLL(), seen = new Set(), list = [];
+  for (const f of map.querySourceFeatures('omt', { sourceLayer: 'poi' })) {
+    const pr = f.properties; if (!set.has(pr.class) || !pr.name || f.geometry.type !== 'Point') continue;
+    const ll = f.geometry.coordinates, key = pr.name + '|' + ll[0].toFixed(4) + ll[1].toFixed(4);
+    if (seen.has(key)) continue; seen.add(key);
+    const g = Object.entries(POI_GROUPS).find(([, l]) => l.includes(pr.class));
+    list.push({ src:'tiles', kind:'place', g: g ? g[0] : 'serv', name: pr.name, ll, cat: pretty(pr.subclass || pr.class), sub: pretty(pr.subclass || pr.class), m: geoDist(c, ll) });
+  }
+  list.sort((a, b) => a.m - b.m);
+  return { needZoom: false, list: list.slice(0, 25) };
+}
+function setHits(list) {
+  if (!map || !map.getSource('hits')) return;
+  map.getSource('hits').setData({ type:'FeatureCollection', features: list.map((h, k) => ({ type:'Feature', geometry:{ type:'Point', coordinates: h.ll }, properties:{ n: h.name, g: h.g, k } })) });
+}
+
+// ================================================================== CARDS
+let revCtl;
+async function reverse(card) {
+  try {
+    if (revCtl) revCtl.abort(); revCtl = new AbortController();
+    const res = await fetch(`${CONFIG.search}/reverse?lon=${card.ll[0].toFixed(6)}&lat=${card.ll[1].toFixed(6)}&lang=en&limit=1`, { signal: revCtl.signal });
+    if (!res.ok) return;
+    const f = ((await res.json()).features || [])[0]; if (!f || S.card !== card) return;
+    const it = photonToItem(f);
+    card.near = [it.name !== it.addr ? it.name : '', it.addr].filter(Boolean).join(', ');
+    if (card.kind === 'pin') card.name = it.name;
+    render();
+  } catch {}
+}
+function openCard(card, fly = true) {
+  S.card = card; S.tab = 'search';
+  setMarker('sel', { lon: card.ll[0], lat: card.ll[1] }, '', 'sel');
+  if (fly && map) {
+    if (card.extent && card.kind === 'area') { const [w, n, e, s] = card.extent; map.fitBounds([[w, s], [e, n]], { padding: pad(), maxZoom: 15, duration: 900 }); }
+    else map.flyTo({ center: card.ll, zoom: card.type === 'country' ? 4.5 : card.type === 'state' ? 6 : card.type === 'city' ? 11.5 : Math.max(map.getZoom(), 16.2), padding: pad(), duration: 1100, essential: true });
+  }
+  if (MOBILE.matches) $('#panel').classList.remove('collapsed');
+  render();
+}
+function endpointFrom(card) { return { lon: card.ll[0], lat: card.ll[1], label: card.name }; }
+function setMarker(key, pt, text, cls) {
+  if (markers[key]) { markers[key].remove(); delete markers[key]; }
+  if (!pt || !map) return;
+  const el = document.createElement('div'); el.className = 'mk ' + cls; el.textContent = text; el.setAttribute('aria-hidden', 'true');
+  markers[key] = new maplibregl.Marker({ element: el }).setLngLat([pt.lon, pt.lat]).addTo(map);
+}
+
+// ================================================================== ROUTING
+let routeCtl, routeSeq = 0;
+const TURN = { 1:'Start', 2:'Start', 3:'Start', 4:'Arrive', 5:'Arrive', 6:'Arrive', 7:'Continue', 8:'Continue', 9:'Slight right', 10:'Turn right', 11:'Sharp right', 12:'U-turn', 13:'U-turn', 14:'Sharp left', 15:'Turn left', 16:'Slight left', 17:'Ramp', 18:'Ramp right', 19:'Ramp left', 20:'Exit right', 21:'Exit left', 22:'Keep straight', 23:'Keep right', 24:'Keep left', 25:'Merge', 26:'Roundabout', 27:'Leave roundabout', 28:'Ferry', 29:'Leave ferry', 37:'Merge right', 38:'Merge left' };
+async function routeValhalla(from, to, mode, signal) {
+  const body = { locations: [{ lat: from.lat, lon: from.lon }, { lat: to.lat, lon: to.lon }], costing: MODES[mode].costing, directions_options: { units: 'kilometers', language: 'en-US' } };
+  const res = await fetch(`${CONFIG.route}?json=${encodeURIComponent(JSON.stringify(body))}`, { signal });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok || !j.trip) return { error: j.error ? `Routing service: ${j.error}.` : `Routing service returned ${res.status}.` };
+  const coords = [], steps = [];
+  for (const leg of j.trip.legs) {
+    const shape = decodePolyline6(leg.shape), base = coords.length;
+    coords.push(...shape);
+    for (const m of leg.maneuvers) steps.push({ turn: TURN[m.type] || 'Continue', text: m.instruction, len: (m.length || 0) * 1000, at: coords[base + m.begin_shape_index] });
+  }
+  const names = new Map();
+  for (const leg of j.trip.legs) for (const m of leg.maneuvers) for (const n of (m.street_names || [])) names.set(n, (names.get(n) || 0) + (m.length || 0));
+  let via = '', vl = 0; for (const [n, l] of names) if (l > vl) { vl = l; via = n; }
+  return { engine:'valhalla', coords, dist: j.trip.summary.length * 1000, seconds: j.trip.summary.time, steps, via };
+}
+async function planRoute(fit = true) {
+  const seq = ++routeSeq;
+  if (routeCtl) routeCtl.abort();
+  if (!S.from || !S.to) { S.route = null; syncRoute(); render(); return; }
+  const onDevice = S.pack.status === 'ready' && inBBox(S.from, PACK.bbox) && inBBox(S.to, PACK.bbox);
+  if (onDevice) { S.route = routeOnDevice(S.from, S.to, S.mode); }
+  else {
+    S.route = { loading: true }; render();
+    routeCtl = new AbortController();
+    try { S.route = await routeValhalla(S.from, S.to, S.mode, routeCtl.signal); }
+    catch (e) { if (e.name === 'AbortError') return; S.route = { error: 'Routing service unreachable. Check your connection and try again.' }; }
+    if (seq !== routeSeq) return;
+  }
+  syncRoute(); render(); if (fit) fitRoute();
+}
+function syncRoute() {
+  if (!map || !map.getSource('route')) return;
+  const r = S.route;
+  map.getSource('route').setData(r && r.coords ? { type:'Feature', properties:{}, geometry:{ type:'LineString', coordinates: r.coords } } : EMPTY);
+  map.getSource('routeLink').setData(r && r.link ? { type:'FeatureCollection', features: r.link.map(c => ({ type:'Feature', properties:{}, geometry:{ type:'LineString', coordinates: c } })) } : EMPTY);
+  setMarker('a', S.from, 'A', ''); setMarker('b', S.to, 'B', 'b');
+}
+function fitRoute() {
+  const r = S.route; if (!r || !r.coords || !r.coords.length) return;
+  const b = new maplibregl.LngLatBounds(r.coords[0], r.coords[0]); r.coords.forEach(c => b.extend(c));
+  map.fitBounds(b, { padding: pad(), maxZoom: 17, duration: 900 });
+}
+function pad() {
+  const el = $('#panel');
+  return MOBILE.matches ? { top: 70, right: 60, bottom: Math.min(el.offsetHeight, 420) + 24, left: 30 } : { top: 140, right: 90, bottom: 70, left: el.offsetWidth + 50 };
+}
+
+// ================================================================== PANEL RENDERING
+function render() {
+  $('#tab-search').setAttribute('aria-selected', S.tab === 'search');
+  $('#tab-dirs').setAttribute('aria-selected', S.tab === 'dirs');
+  const body = $('#body'), act = document.activeElement, active = act && act.id, caret = act && act.selectionStart;
+  body.innerHTML = S.tab === 'search' ? (S.card ? cardHTML(S.card) : searchHTML()) : dirsHTML();
+  if (active && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); if (caret != null && el.setSelectionRange) try { el.setSelectionRange(caret, caret); } catch {} }
+}
+const markHTML = (it) => ['place','street','area','water'].includes(it.g) || it.kind !== 'place'
+  ? `<span class="sq" style="background:var(${GROUP_TOK[it.g] || '--m-road'})"></span>` : `<span class="dot" style="background:var(${GROUP_TOK[it.g] || '--p-serv'})"></span>`;
+const SRC = { pack:'On device', photon:'Photon', tiles:'From map' };
+function resultRows(list, attr) {
+  return `<ul class="results">${list.map((it, k) => `<li><button class="res" data-${attr}="${k}">${markHTML(it)}<span class="nm">${esc(it.name)}<span class="sub">${esc(it.sub)}</span></span><span class="km">${it.m != null ? fmtKm(it.m) : ''}<span class="src">${SRC[it.src] || ''}</span></span></button></li>`).join('')}</ul>`;
+}
+function packHTML() {
+  const st = S.pack.status;
+  const btn = st === 'ready' ? `<button class="xbtn" id="pack-remove">REMOVE</button>` : st === 'loading' ? `<span class="busy">Downloading…</span>` : `<button class="btn" id="pack-get">Download · ${PACK.mb} MB</button>`;
+  const badge = st === 'ready' ? `<span class="badge on">On device</span>` : `<span class="badge">Region pack</span>`;
+  return `<div class="pack"><div class="pack-row"><h3>${esc(PACK.name)}</h3>${badge}</div>
+    <p class="note">${st === 'ready' ? 'Search and directions inside this area now run on your device. Nothing is sent.' : 'Download to search 11,000+ places and get directions inside this area without sending your queries anywhere.'}</p>
+    ${st === 'error' ? `<div class="err">Download failed: ${esc(S.pack.error)}</div>` : ''}
+    <div class="pack-row"><span class="label">${esc(PACK.release)}</span>${btn}</div></div>`;
+}
+function searchHTML() {
+  const field = `<div class="field keep"><label for="q">Find</label><input id="q" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Search the world" value="${esc(S.q)}">${S.q ? '<button class="xbtn" id="qclear" aria-label="Clear search">CLEAR</button>' : ''}</div>`;
+  const chips = `<div class="chips">${CHIPS.map((c, i) => `<button class="chip" data-chip="${i}" aria-pressed="${S.chip === i}"><span class="dot" style="background:var(${c.tok})"></span>${esc(c.label)}</button>`).join('')}</div>`;
+  let main = '';
+  if (S.chip != null) {
+    main = S.needZoom ? `<p class="note">Zoom in to a neighbourhood to list ${esc(CHIPS[S.chip].label.toLowerCase())} from the map.</p>`
+      : `<div class="label" aria-live="polite">${esc(CHIPS[S.chip].label)} in view · nearest first</div>` + (S.hits.length ? resultRows(S.hits, 'hit') : `<p class="note">None on the map here. Pan or zoom out a little and tap the chip again.</p>`);
+  } else if (S.q) {
+    const head = S.searching ? 'Searching…' : `${S.hits.length} result${S.hits.length === 1 ? '' : 's'}`;
+    main = `<div class="label" aria-live="polite">${head}</div>` + (S.searchErr ? `<div class="err">${esc(S.searchErr)}</div>` : '') +
+      (S.hits.length ? resultRows(S.hits, 'hit') : (!S.searching && !S.searchErr && norm(S.q).length >= 3 ? `<p class="note">Nothing found for “${esc(S.q)}”. Check the spelling or add a city.</p>` : (norm(S.q).length < 3 ? `<p class="note">Keep typing. Search starts at 3 characters.</p>` : '')));
+  } else {
+    main = `<div class="chips"><span class="label" style="align-self:center">Try</span>${TRY.map((t, i) => `<button class="chip try" data-try="${i}">${esc(t)}</button>`).join('')}</div>` + packHTML() +
+      `<p class="note">Tap the map to drop a pin. Category chips read places from the map on your screen. See <b>About</b> for where each request goes.</p>`;
+  }
+  return field + chips + main;
+}
+function cardHTML(c) {
+  const coord = `${c.ll[1].toFixed(5)}, ${c.ll[0].toFixed(5)}`;
+  let rows = '';
+  if (c.addr) rows += `<dt>Address</dt><dd>${esc(c.addr)}</dd>`;
+  else if (c.near) rows += `<dt>Near</dt><dd>${esc(c.near)}</dd>`;
+  if (c.phone) rows += `<dt>Phone</dt><dd><span class="mono">${esc(c.phone)}</span><button class="copy" data-copy="${esc(c.phone)}">Copy</button></dd>`;
+  if (c.web && /^https?:\/\//i.test(c.web)) { let host = c.web; try { host = new URL(c.web).host.replace(/^www\./, ''); } catch {} rows += `<dt>Web</dt><dd><a href="${esc(c.web)}" target="_blank" rel="noopener nofollow">${esc(host)}</a></dd>`; }
+  rows += `<dt>Coords</dt><dd><span class="mono">${coord}</span><button class="copy" data-copy="${coord}">Copy</button></dd>`;
+  const srcLine = c.src === 'pack' ? `Overture places (region pack) · confidence ${c.conf}%` : c.src === 'photon' ? 'OpenStreetMap via Photon' : c.src === 'tiles' ? 'OpenStreetMap map data' : '';
+  if (srcLine) rows += `<dt>Source</dt><dd>${esc(srcLine)}${c.osm ? ` · <a href="${esc(c.osm)}" target="_blank" rel="noopener">view or edit on OSM</a>` : ''}</dd>`;
+  const tag = c.kind === 'place' ? `<span class="label" style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:var(${GROUP_TOK[c.g] || '--p-serv'})"></span>${esc(c.cat || 'Place')}</span>` : `<span class="label">${esc(c.cat || (c.kind === 'pin' ? 'Dropped pin' : 'Place'))}</span>`;
+  return `<div class="card"><button class="back" id="back">← ${S.q || S.chip != null ? 'Results' : 'Search'}</button>${tag}<h2>${esc(c.name)}</h2><dl class="kv">${rows}</dl>
+    <div class="btnrow"><button class="btn primary" id="go-to">Directions here</button><button class="btn" id="go-from">Start from here</button></div></div>`;
+}
+function dirsHTML() {
+  const fld = (id, lab, ep) => `<div class="field"><label for="${id}">${lab}</label><input id="${id}" autocomplete="off" spellcheck="false" placeholder="Search or tap the map" value="${esc(ep ? ep.label : (S.activeField === id ? S.draft : ''))}">${ep ? `<button class="xbtn" data-clear="${id}" aria-label="Clear ${lab}">✕</button>` : ''}</div>`;
+  const sugg = S.activeField && S.suggest.length ? `<div class="suggest">${resultRows(S.suggest, 'sug')}</div>` : '';
+  const modes = `<div class="modes" role="group" aria-label="Travel mode">${Object.entries(MODES).map(([k, m]) => `<button data-mode="${k}" aria-pressed="${S.mode === k}">${m.label}</button>`).join('')}</div>`;
+  const r = S.route; let out = '';
+  if (r && r.loading) out = `<p class="busy">Asking Valhalla for a route…</p>`;
+  else if (r && r.error) out = `<div class="err">${esc(r.error)}</div>`;
+  else if (r && r.coords) {
+    const where = r.engine === 'device' ? 'on your device' : 'by Valhalla';
+    out = `<div class="summary"><div><div class="label">Estimated · ${MODES[S.mode].label.toLowerCase()} · ${where}</div><div class="t">${fmtTime(r.seconds)}</div></div><div class="d">${fmtDist(r.dist)}${r.via ? `<br>via ${esc(r.via)}` : ''}</div></div>`
+      + `<ol class="steps">${r.steps.map((s, k) => `<li data-step="${k}"><span class="n">${String(k + 1).padStart(2, '0')}</span><span class="what"><span class="turn">${esc(s.turn)}</span>${esc(s.text)}</span><span class="len">${s.len ? fmtDist(s.len) : ''}</span></li>`).join('')}</ol>`
+      + `<p class="note">${r.engine === 'device' ? `Computed on your device from the ${esc(PACK.name)} region pack (${fmtCount(r.visited)} intersections searched). Assumes steady speeds; no traffic, signals or turn restrictions.` : 'Route from Valhalla on the FOSSGIS public server, using OpenStreetMap data. No live traffic.'}</p>`;
+  } else out = `<p class="note">Choose a start and a destination: search above, or tap the map and use <b>Start from here</b> or <b>Directions here</b>.</p>`;
+  return `<div class="dirs"><div class="dirs-grid"><div class="dirs-fields">${fld('from', 'From', S.from)}${fld('to', 'To', S.to)}</div><button class="swap" id="swap" aria-label="Swap start and destination">⇅</button></div>${sugg}${modes}</div>${out}`;
+}
+
+// ================================================================== EVENTS
+let deb;
+$('#body').addEventListener('input', (e) => {
+  const id = e.target.id;
+  if (id === 'q') { S.q = e.target.value; S.chip = null; S.card = null; clearTimeout(deb); deb = setTimeout(() => doSearch(S.q, 'q'), 280); render(); }
+  else if (id === 'from' || id === 'to') {
+    S.activeField = id; S.draft = e.target.value;
+    if (S[id]) { S[id] = null; S.route = null; syncRoute(); }
+    clearTimeout(deb); deb = setTimeout(() => doSearch(S.draft, id), 280);
+  }
+});
+$('#body').addEventListener('focusin', (e) => { const id = e.target.id; if ((id === 'from' || id === 'to') && S.activeField !== id) { S.activeField = id; S.draft = S[id] ? S[id].label : ''; S.suggest = []; } });
+$('#body').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (e.target.id === 'q') { e.preventDefault(); clearTimeout(deb); if (S.hits.length) chooseHit(S.hits[0]); else doSearch(S.q, 'q'); }
+    if ((e.target.id === 'from' || e.target.id === 'to') && S.suggest.length) { e.preventDefault(); chooseSuggestion(0); }
+  }
+  if (e.key === 'Escape' && S.activeField) { S.suggest = []; render(); }
+});
+$('#body').addEventListener('click', (e) => {
+  const t = e.target.closest('button, li[data-step]'); if (!t) return;
+  const d = t.dataset;
+  if (t.id === 'qclear') { S.q = ''; S.hits = []; setHits([]); render(); $('#q') && $('#q').focus(); return; }
+  if (d.try != null) { S.q = TRY[+d.try]; S.chip = null; render(); doSearch(S.q, 'q'); return; }
+  if (d.chip != null) { const i = +d.chip; S.chip = S.chip === i ? null : i; S.q = ''; S.card = null;
+    if (S.chip == null) { S.hits = []; S.needZoom = false; } else { const r = chipSearch(CHIPS[i]); S.hits = r.list; S.needZoom = r.needZoom; }
+    setHits(S.hits); render(); fitHits(); return; }
+  if (d.hit != null) { chooseHit(S.hits[+d.hit]); return; }
+  if (d.sug != null) { chooseSuggestion(+d.sug); return; }
+  if (t.id === 'back') { S.card = null; setMarker('sel', null); render(); return; }
+  if (d.copy != null) { copyText(d.copy, t); return; }
+  if (t.id === 'go-to' || t.id === 'go-from') {
+    const ep = endpointFrom(S.card);
+    if (t.id === 'go-to') S.to = ep; else S.from = ep;
+    S.card = null; setMarker('sel', null); S.tab = 'dirs'; S.activeField = null; S.suggest = [];
+    render(); planRoute(); if (!S.from || !S.to) { const f = document.getElementById(t.id === 'go-to' ? 'from' : 'to'); f && f.focus(); }
+    return;
+  }
+  if (d.mode) { S.mode = d.mode; render(); planRoute(); return; }
+  if (t.id === 'swap') { [S.from, S.to] = [S.to, S.from]; render(); planRoute(); return; }
+  if (d.clear) { S[d.clear] = null; S.activeField = d.clear; S.draft = ''; S.suggest = []; S.route = null; syncRoute(); render(); document.getElementById(d.clear).focus(); return; }
+  if (t.id === 'pack-get') { loadPack(); return; }
+  if (t.id === 'pack-remove') { removePack(); return; }
+  if (d.step != null) { const s = S.route.steps[+d.step]; if (s.at) map.flyTo({ center: s.at, zoom: Math.max(map.getZoom(), 16.5), padding: pad(), duration: 700 }); }
+});
+function chooseHit(h) {
+  if (!h) return;
+  if (h.src === 'pack' && h.kind === 'place') openCard(packPlaceCard(h.i));
+  else { const card = { kind: h.kind, src: h.src, name: h.name, cat: h.cat, g: h.g, addr: h.addr, ll: h.ll, extent: h.extent, type: h.type, osm: h.osm }; openCard(card); if (!card.addr && h.src === 'tiles') reverse(card); }
+}
+function chooseSuggestion(k) {
+  const h = S.suggest[k]; if (!h) return;
+  const which = S.activeField || (S.from ? 'to' : 'from');
+  S[which] = { lon: h.ll[0], lat: h.ll[1], label: h.name };
+  S.suggest = []; S.activeField = null; S.draft = '';
+  render(); planRoute();
+  if (!S.from || !S.to) { const other = document.getElementById(which === 'from' ? 'to' : 'from'); other && other.focus(); }
+}
+function fitHits() {
+  if (!S.hits.length) return;
+  const b = new maplibregl.LngLatBounds(S.hits[0].ll, S.hits[0].ll); S.hits.forEach(h => b.extend(h.ll));
+  map.fitBounds(b, { padding: pad(), maxZoom: 16.5, duration: 700 });
+}
+$('#tab-search').addEventListener('click', () => { S.tab = 'search'; render(); });
+$('#tab-dirs').addEventListener('click', () => { S.tab = 'dirs'; S.card = null; setMarker('sel', null); render(); });
+$('#handle').addEventListener('click', () => $('#panel').classList.toggle('collapsed'));
+const openAbout = () => { $('#about').hidden = false; $('#about-close').focus(); };
+$('#about-link').addEventListener('click', openAbout);
+$('#tinfo').addEventListener('click', openAbout);
+$('#about-m').addEventListener('click', openAbout);
+$('#about-close').addEventListener('click', () => { $('#about').hidden = true; });
+$('#about').addEventListener('click', (e) => { if (e.target.id === 'about') $('#about').hidden = true; });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('#about').hidden = true; });
+$('#zin').addEventListener('click', () => map && map.zoomIn());
+$('#zout').addEventListener('click', () => map && map.zoomOut());
+$('#t3d').addEventListener('click', () => {
+  if (!map) return; S.three = !S.three; $('#t3d').setAttribute('aria-pressed', S.three);
+  map.setLayoutProperty('buildings-3d', 'visibility', S.three ? 'visible' : 'none');
+  if (S.three) { map.dragRotate.enable(); map.touchZoomRotate.enableRotation(); map.easeTo({ pitch: 58, bearing: -18, zoom: Math.max(map.getZoom(), 15.6), duration: 900 }); }
+  else { map.dragRotate.disable(); map.touchZoomRotate.disableRotation(); map.easeTo({ pitch: 0, bearing: 0, duration: 700 }); }
+});
+
+// ================================================================== READOUT, GRATICULE TICKS, SCALE RULER
+const canvas = $('#ticks'), ctx = canvas.getContext('2d');
+function drawTicks() {
+  if (!map) return;
+  const dpr = devicePixelRatio || 1, w = canvas.clientWidth, h = canvas.clientHeight;
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+  if (map.getZoom() < 6 || map.getPitch() > 0.5 || Math.abs(map.getBearing()) > 0.5) return;
+  const tl = map.unproject([0, 0]), br = map.unproject([w, h]);
+  const span = br.lng - tl.lng, steps = [5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.005, 0.002, 0.001, 0.0005];
+  let step = steps[0]; for (const s of steps) if ((w / span) * s >= 96) step = s;
+  const dec = step >= 1 ? 0 : step >= 0.1 ? 1 : step >= 0.01 ? 2 : step >= 0.001 ? 3 : 4;
+  ctx.strokeStyle = tok('--ink'); ctx.fillStyle = tok('--ink'); ctx.lineWidth = 1.5;
+  ctx.font = `500 10px ${tok('--mono')}`;
+  const mob = MOBILE.matches, bottom = mob ? h : h - (document.querySelector('.strip').offsetHeight || 0);
+  for (let lng = Math.ceil(tl.lng / step) * step; lng <= br.lng; lng += step) {
+    const x = map.project([lng, (tl.lat + br.lat) / 2]).x; if (x < 30 || x > w - 30) continue;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 9); ctx.moveTo(x, bottom); ctx.lineTo(x, bottom - 9); ctx.stroke();
+    if (!mob) { ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(`${Math.abs(lng).toFixed(dec)}°${lng < 0 ? 'W' : 'E'}`, x, bottom - 22); }
+  }
+  for (let lat = Math.ceil(br.lat / step) * step; lat <= tl.lat; lat += step) {
+    const y = map.project([(tl.lng + br.lng) / 2, lat]).y; if (y < 30 || y > bottom - 30) continue;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(9, y); ctx.moveTo(w, y); ctx.lineTo(w - 9, y); ctx.stroke();
+    if (mob) continue;
+    ctx.save(); ctx.translate(w - 13, y); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(`${Math.abs(lat).toFixed(dec)}°${lat < 0 ? 'S' : 'N'}`, 0, 0); ctx.restore();
+  }
+}
+function updateReadout() {
+  const c = map.getCenter(), z = map.getZoom(), lng = ((c.lng + 540) % 360) - 180;
+  $('#lat').textContent = `${Math.abs(c.lat).toFixed(5)}° ${c.lat >= 0 ? 'N' : 'S'}`;
+  $('#lon').textContent = `${Math.abs(lng).toFixed(5)}° ${lng < 0 ? 'W' : 'E'}`;
+  const mpp = 40075016.686 * Math.cos(c.lat * Math.PI / 180) / (512 * Math.pow(2, z));
+  const sc = mpp * 96 / 0.0254, scale = sc > 1e6 ? Math.round(sc / 1e5) * 1e5 : sc > 1e4 ? Math.round(sc / 1000) * 1000 : Math.round(sc / 100) * 100;
+  $('#spec').textContent = `Z ${z.toFixed(1)} · WGS 84 · 1:${fmtCount(scale)}`;
+  const nice = [10, 20, 50, 100, 200, 250, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000];
+  let m = nice[0]; for (const n of nice) if (n / mpp <= 150) m = n;
+  $('#rulerbar').style.width = (m / mpp).toFixed(1) + 'px';
+  $('#rulerlab').textContent = m >= 1000 ? `${fmtCount(m / 1000)} km` : `${m} m`;
+}
+
+// ================================================================== BOOT
+render();
+map = new maplibregl.Map({
+  container: 'map', style: buildStyle(palette()), center: START.center, zoom: MOBILE.matches ? START.zoom - 0.6 : START.zoom,
+  minZoom: 0.8, maxZoom: 19, attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false, fadeDuration: 150,
+});
+map.touchZoomRotate.disableRotation();
+map.on('move', () => { updateReadout(); drawTicks(); });
+map.on('resize', drawTicks);
+map.on('click', (e) => {
+  const f = map.queryRenderedFeatures(e.point, { layers: ['hits', 'poi-dot', 'poi-label', 'poi-label-near'] })[0];
+  if (f && f.layer.id === 'hits') { chooseHit(S.hits[f.properties.k]); return; }
+  if (f && f.properties.name) {
+    const ll = f.geometry.type === 'Point' ? f.geometry.coordinates : [e.lngLat.lng, e.lngLat.lat];
+    const g = Object.entries(POI_GROUPS).find(([, l]) => l.includes(f.properties.class));
+    const card = { kind:'place', src:'tiles', name: f.properties.name, cat: pretty(f.properties.subclass || f.properties.class), g: g ? g[0] : 'serv', ll };
+    openCard(card, false); reverse(card); return;
+  }
+  const ll = [((e.lngLat.lng + 540) % 360) - 180, e.lngLat.lat];
+  if (S.pack.status === 'ready' && inBBox({ lon: ll[0], lat: ll[1] }, PACK.bbox)) {
+    // nearest street from the pack, no request needed
+    let best = -1, bd = Infinity; for (let i = 0; i < G.nN; i++) { if (G.anyName[i] < 0) continue; const d = distM(ll, [G.nx[i], G.ny[i]]); if (d < bd) { bd = d; best = i; } }
+    const near = best >= 0 && bd < 250 ? R.names[G.anyName[best]] : '';
+    openCard({ kind:'pin', src:'pack', name: near ? `Near ${near}` : 'Dropped pin', near, ll }, false); return;
+  }
+  const card = { kind:'pin', name:'Dropped pin', ll }; openCard(card, false); reverse(card);
+});
+for (const id of ['poi-dot', 'poi-label', 'poi-label-near', 'hits']) {
+  map.on('mouseenter', id, () => map.getCanvas().style.cursor = 'pointer');
+  map.on('mouseleave', id, () => map.getCanvas().style.cursor = '');
+}
+map.on('error', (e) => console.warn('DATUM map error:', e && e.error ? (e.error.message || e.error) : e));
+map.once('load', () => { updateReadout(); drawTicks(); });
+packCached().then(c => { if (c) loadPack(); });
+DARK.addEventListener('change', applyPalette);
+new MutationObserver(applyPalette).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+MOBILE.addEventListener('change', () => { render(); drawTicks(); });
+window.__datum = { S, get map() { return map; }, doSearch, planRoute, loadPack, CONFIG };
+})();
+</script>
+</body>
+</html>
