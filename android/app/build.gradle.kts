@@ -56,10 +56,12 @@ android {
     }
 
     // Besides the universal APK, one APK per CPU type for sideloading: a Galaxy Z Fold
-    // or any other recent phone takes the arm64-v8a one. Google Play gets the AAB.
+    // or any other recent phone takes the arm64-v8a one. Google Play gets the AAB,
+    // which AGP will not build with APK splits on, so they are off for bundle tasks.
+    val bundling = gradle.startParameter.taskNames.any { it.contains("bundle", ignoreCase = true) }
     splits {
         abi {
-            isEnable = true
+            isEnable = !bundling
             reset()
             include("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
             isUniversalApk = true

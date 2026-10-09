@@ -144,8 +144,13 @@ Release builds are signed with the upload key named in `android/keystore.propert
 git-ignored and must never be committed. Then:
 
 ```sh
-./gradlew assembleRelease bundleRelease   # APK to sideload, AAB for Google Play
+./gradlew assembleRelease   # APKs to sideload: one per CPU type plus a universal one
+./gradlew bundleRelease     # AAB for Google Play (run on its own)
 ```
+
+Most phones, a Galaxy Z Fold included, take `app-arm64-v8a-release.apk`. Enrol the app in
+Play App Signing so the key in `keystore.properties` is only the upload key: Google
+holds the app signing key, and a lost upload key can be reset from the Play Console.
 
 Trying it in a car: Android Auto only lists apps installed from Google Play unless you
 turn on Android Auto's developer settings (tap *Version* ten times) and enable *Unknown
