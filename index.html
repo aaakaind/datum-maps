@@ -196,6 +196,12 @@ button,input{font:inherit;color:inherit}
 .ruler .bar i{display:block;height:100%;width:25%}
 .ruler .bar i:nth-child(odd){background:var(--ink)}
 .matt{display:none}
+#world{position:absolute;inset:0;z-index:2;background:var(--card);cursor:crosshair;touch-action:manipulation;width:100%;height:100%;display:block}
+.world-cap{position:absolute;left:414px;bottom:48px;z-index:3;background:var(--card);border:2px solid var(--ink);padding:8px 12px;max-width:360px;display:flex;flex-direction:column;gap:3px}
+.world-cap .k{font:500 10.5px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.world-cap .v{font:400 12.5px/1.4 var(--body);color:var(--ink-2)}
+.sheet.is-world .ruler{visibility:hidden}
+.tool svg{width:20px;height:20px;display:block}
 
 .mk{width:22px;height:22px;border-radius:50%;border:3px solid var(--ink);background:var(--card);display:grid;place-items:center;font:700 10px/1 var(--mono);color:var(--ink)}
 .mk.b{background:var(--red);color:var(--on-red)}
@@ -223,6 +229,9 @@ button,input{font:inherit;color:inherit}
   .tools{bottom:auto;top:74px;right:10px}
   .tool{width:40px;height:40px}
   .strip{display:none}
+  .world-cap{left:10px;right:auto;top:58px;bottom:auto;max-width:calc(100% - 80px);padding:6px 9px}
+  .world-cap .v{font-size:11.5px}
+  .world-cap .hint{display:none}
   .matt{display:block;position:absolute;top:10px;left:10px;z-index:3;max-width:44%;background:var(--card);border:1.5px solid var(--ink);padding:3px 7px;font:500 9.5px/1.35 var(--mono);color:var(--ink-2)}
   .matt a{color:inherit}
 }
@@ -233,6 +242,11 @@ button,input{font:inherit;color:inherit}
 <div class="sheet" id="sheet">
   <div id="map" role="region" aria-label="World map"></div>
   <canvas id="ticks" aria-hidden="true"></canvas>
+  <canvas id="world" role="img" aria-label="World map in the Equal Earth projection. Click a place to zoom in."></canvas>
+  <div class="world-cap" id="world-cap">
+    <span class="k">Equal Earth · areas true to scale</span>
+    <span class="v">The world projection backed by the UN General Assembly on 4 September 2026.<span class="hint"> Click a place to zoom in.</span></span>
+  </div>
   <div class="matt"><a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · Data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · <button id="about-m" style="border:0;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;cursor:pointer">About</button></div>
 
   <div class="readout" aria-hidden="true">
@@ -256,6 +270,7 @@ button,input{font:inherit;color:inherit}
   </section>
 
   <div class="tools">
+    <button class="tool" id="tworld" aria-pressed="true" aria-label="World map, Equal Earth projection"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 5h11c3.6 3.2 3.6 10.8 0 14h-11c-3.6-3.2-3.6-10.8 0-14z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.6 12h16.8" stroke="currentColor" stroke-width="1.5"/></svg></button>
     <button class="tool" id="zin" aria-label="Zoom in">+</button>
     <button class="tool" id="zout" aria-label="Zoom out">−</button>
     <button class="tool" id="t3d" aria-pressed="false" aria-label="Toggle 3D buildings">3D</button>
@@ -264,7 +279,7 @@ button,input{font:inherit;color:inherit}
 
   <footer class="strip">
     <div class="ruler"><div class="bar" id="rulerbar"><i></i><i></i><i></i><i></i></div><span id="rulerlab">—</span></div>
-    <div class="att"><a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">© OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · Search <a href="https://photon.komoot.io" target="_blank" rel="noopener">Photon</a> · Routing <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> by FOSSGIS<span id="att-pack" hidden> · Region pack: Overture Maps Foundation</span></div>
+    <div class="att"><a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">© OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · Search <a href="https://photon.komoot.io" target="_blank" rel="noopener">Photon</a> · Routing <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> by FOSSGIS · World view <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a><span id="att-pack" hidden> · Region pack: Overture Maps Foundation</span></div>
     <button id="about-link">About DATUM</button>
   </footer>
 
@@ -288,6 +303,10 @@ button,input{font:inherit;color:inherit}
         <p id="about-packs">Ottawa–Gatineau is the first pack. It holds roads, paths and places from the Overture Maps Foundation (release 2026-09-23.1), about 3.9 MB, and is stored in your browser after the first download.</p>
       </section>
       <section>
+        <h3>World view</h3>
+        <p>Zoomed out, DATUM draws the world in the Equal Earth projection (Šavrič, Patterson and Jenny, 2018), which keeps every country's area true to scale. The UN General Assembly backed it on 4 September 2026 as a more accurate picture of the world. Land, lakes and borders come from Natural Earth, which is in the public domain. Borders are shown as they stand on the ground; disputed or unsettled lines are dashed. Names and lines do not imply endorsement by AKA IND.</p>
+      </section>
+      <section>
         <h3>How times are estimated</h3>
         <p>Valhalla routes use the router's own speed model. Region-pack routes assume steady speeds: walking 4.9 km/h, cycling 15 km/h, driving at the posted limit or a default for the road type. Neither includes live traffic, so treat times as estimates.</p>
       </section>
@@ -297,6 +316,7 @@ button,input{font:inherit;color:inherit}
           <li>Map: <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">© OpenMapTiles</a>. Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a> under ODbL 1.0.</li>
           <li>Search: <a href="https://github.com/komoot/photon" target="_blank" rel="noopener">Photon</a> by komoot, using OpenStreetMap data.</li>
           <li>Routing: <a href="https://github.com/valhalla/valhalla" target="_blank" rel="noopener">Valhalla</a>, served by <a href="https://www.fossgis.de" target="_blank" rel="noopener">FOSSGIS e.V.</a>, using OpenStreetMap data.</li>
+          <li>World view: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (public domain), drawn with <a href="https://github.com/d3/d3-geo" target="_blank" rel="noopener">d3-geo</a> (ISC).</li>
           <li>Region pack data: <a href="https://overturemaps.org" target="_blank" rel="noopener">Overture Maps Foundation</a>. Roads and areas © OpenStreetMap contributors (ODbL 1.0). Places under CDLA-Permissive-2.0, including Foursquare Open Source Places (Apache-2.0) and AllThePlaces (CC0). The pack files are a derivative database, available under ODbL 1.0.</li>
           <li>See something wrong? Fix it at the source on <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a>, and everyone's maps improve.</li>
         </ul>
@@ -310,6 +330,7 @@ button,input{font:inherit;color:inherit}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.24.0/maplibre-gl.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <script>
 (() => {
 'use strict';
@@ -460,6 +481,7 @@ function paintFor(C) {
     'rail-ties': { 'line-color': C.land, 'line-width': W([12, .4, 16, 1.1, 18, 1.6]), 'line-dasharray': [2, 3] },
     'ferry': { 'line-color': C.waterline, 'line-width': W([8, .6, 16, 1.6]), 'line-dasharray': [3, 2] },
     'border-country': { 'line-color': C.border, 'line-width': W([1, .6, 6, 1.3, 12, 2.2]), 'line-dasharray': [4, 2] },
+    'border-disputed': { 'line-color': C.border, 'line-width': W([1, .5, 6, 1, 12, 1.6]), 'line-dasharray': [1.5, 2], 'line-opacity': .8 },
     'border-state': { 'line-color': C.border, 'line-width': W([3, .4, 10, 1]), 'line-dasharray': [1, 2], 'line-opacity': .7 },
     'route-link': { 'line-color': C['route-case'], 'line-width': 2, 'line-dasharray': [1, 1.4] },
     'route-case': { 'line-color': C['route-case'], 'line-width': W([5, 4, 11, 6, 15, 10, 18, 18]) },
@@ -518,6 +540,7 @@ function buildStyle(C) {
       L('ferry', 'line', 'transportation', { minzoom: 7, filter: ['==', ['get','class'], 'ferry'] }),
       L('border-state', 'line', 'boundary', { minzoom: 3, filter: ['all', ['==', ['get','admin_level'], 4], ['!=', ['get','maritime'], 1]] }),
       L('border-country', 'line', 'boundary', { filter: ['all', ['==', ['get','admin_level'], 2], ['!=', ['get','maritime'], 1], ['!=', ['get','disputed'], 1]] }),
+      L('border-disputed', 'line', 'boundary', { filter: ['all', ['==', ['get','admin_level'], 2], ['!=', ['get','maritime'], 1], ['==', ['get','disputed'], 1]] }),
       L('buildings-3d', 'fill-extrusion', 'building', { minzoom: 14, filter: ['!=', ['get','hide_3d'], true], layout: { visibility: 'none' } }),
       G('pack-edge', 'line', 'packs'),
       G('route-link', 'line', 'routeLink'),
@@ -894,6 +917,7 @@ function openCard(card, fly = true) {
   S.card = card; S.tab = 'search';
   setMarker('sel', { lon: card.ll[0], lat: card.ll[1] }, '', 'sel');
   if (fly && map) {
+    hideWorld();
     if (card.extent && card.kind === 'area') { const [w, n, e, s] = card.extent; map.fitBounds([[w, s], [e, n]], { padding: pad(), maxZoom: 15, duration: 900 }); }
     else map.flyTo({ center: card.ll, zoom: card.type === 'country' ? 4.5 : card.type === 'state' ? 6 : card.type === 'city' ? 11.5 : Math.max(map.getZoom(), 16.2), padding: pad(), duration: 1100, essential: true });
   }
@@ -951,6 +975,7 @@ function syncRoute() {
 }
 function fitRoute() {
   const r = S.route; if (!r || !r.coords || !r.coords.length) return;
+  hideWorld();
   const b = new maplibregl.LngLatBounds(r.coords[0], r.coords[0]); r.coords.forEach(c => b.extend(c));
   map.fitBounds(b, { padding: pad(), maxZoom: 17, duration: 900 });
 }
@@ -1072,7 +1097,7 @@ $('#body').addEventListener('click', (e) => {
   if (d.clear) { S[d.clear] = null; S.activeField = d.clear; S.draft = ''; S.suggest = []; S.route = null; syncRoute(); render(); document.getElementById(d.clear).focus(); return; }
   if (t.id === 'pack-get') { loadPack(); return; }
   if (t.id === 'pack-remove') { removePack(); return; }
-  if (d.step != null) { const s = S.route.steps[+d.step]; if (s.at) map.flyTo({ center: s.at, zoom: Math.max(map.getZoom(), 16.5), padding: pad(), duration: 700 }); }
+  if (d.step != null) { const s = S.route.steps[+d.step]; if (s.at) hideWorld(); if (s.at) map.flyTo({ center: s.at, zoom: Math.max(map.getZoom(), 16.5), padding: pad(), duration: 700 }); }
 });
 function chooseHit(h) {
   if (!h) return;
@@ -1089,6 +1114,7 @@ function chooseSuggestion(k) {
 }
 function fitHits() {
   if (!S.hits.length) return;
+  hideWorld();
   const b = new maplibregl.LngLatBounds(S.hits[0].ll, S.hits[0].ll); S.hits.forEach(h => b.extend(h.ll));
   map.fitBounds(b, { padding: pad(), maxZoom: 16.5, duration: 700 });
 }
@@ -1102,10 +1128,11 @@ $('#about-m').addEventListener('click', openAbout);
 $('#about-close').addEventListener('click', () => { $('#about').hidden = true; });
 $('#about').addEventListener('click', (e) => { if (e.target.id === 'about') $('#about').hidden = true; });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('#about').hidden = true; });
-$('#zin').addEventListener('click', () => map && map.zoomIn());
-$('#zout').addEventListener('click', () => map && map.zoomOut());
+$('#zin').addEventListener('click', () => { if (!map) return; if (S.world) { enterMap(worldCentre(), 2.6); return; } map.zoomIn(); });
+$('#zout').addEventListener('click', () => { if (!map || S.world) return; if (map.getZoom() <= 2.05) showWorld(); else map.zoomOut(); });
+$('#tworld').addEventListener('click', () => { if (S.world) enterMap(worldCentre(), 2.6); else showWorld(); });
 $('#t3d').addEventListener('click', () => {
-  if (!map) return; S.three = !S.three; $('#t3d').setAttribute('aria-pressed', S.three);
+  if (!map) return; hideWorld(); S.three = !S.three; $('#t3d').setAttribute('aria-pressed', S.three);
   map.setLayoutProperty('buildings-3d', 'visibility', S.three ? 'visible' : 'none');
   if (S.three) { map.dragRotate.enable(); map.touchZoomRotate.enableRotation(); map.easeTo({ pitch: 58, bearing: -18, zoom: Math.max(map.getZoom(), 15.6), duration: 900 }); }
   else { map.dragRotate.disable(); map.touchZoomRotate.disableRotation(); map.easeTo({ pitch: 0, bearing: 0, duration: 700 }); }
@@ -1118,6 +1145,7 @@ function drawTicks() {
   const dpr = devicePixelRatio || 1, w = canvas.clientWidth, h = canvas.clientHeight;
   if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+  if (S.world) return;
   if (map.getZoom() < 6 || map.getPitch() > 0.5 || Math.abs(map.getBearing()) > 0.5) return;
   const tl = map.unproject([0, 0]), br = map.unproject([w, h]);
   const span = br.lng - tl.lng, steps = [5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.005, 0.002, 0.001, 0.0005];
@@ -1140,6 +1168,7 @@ function drawTicks() {
   }
 }
 function updateReadout() {
+  if (S.world) return;
   const c = map.getCenter(), z = map.getZoom(), lng = ((c.lng + 540) % 360) - 180;
   $('#lat').textContent = `${Math.abs(c.lat).toFixed(5)}° ${c.lat >= 0 ? 'N' : 'S'}`;
   $('#lon').textContent = `${Math.abs(lng).toFixed(5)}° ${lng < 0 ? 'W' : 'E'}`;
@@ -1152,14 +1181,129 @@ function updateReadout() {
   $('#rulerlab').textContent = m >= 1000 ? `${fmtCount(m / 1000)} km` : `${m} m`;
 }
 
+// ================================================================== WORLD VIEW (Equal Earth, Natural Earth data)
+const worldCanvas = $('#world'), wctx = worldCanvas.getContext('2d');
+let WORLD = null, worldProj = null;
+const OCEANS = [['Pacific Ocean', -140, 2], ['Atlantic Ocean', -38, 27], ['Indian Ocean', 77, -22], ['Southern Ocean', 30, -60]];
+function decodeWorld(j) {
+  const Q = j.q;
+  const line = (a) => { const out = [[a[0] / Q, a[1] / Q]]; let x = a[0], y = a[1]; for (let i = 2; i < a.length; i += 2) { x += a[i]; y += a[i + 1]; out.push([x / Q, y / Q]); } return out; };
+  const ring = (a) => { const r = line(a); r.push(r[0]); return r; };
+  return {
+    land: { type:'MultiPolygon', coordinates: j.land.map(p => p.map(ring)) },
+    lakes: { type:'MultiPolygon', coordinates: j.lakes.map(p => p.map(ring)) },
+    intl: { type:'MultiLineString', coordinates: j.borders.filter(b => b[0] === 0).map(b => line(b[1])) },
+    disputed: { type:'MultiLineString', coordinates: j.borders.filter(b => b[0] === 1).map(b => line(b[1])) },
+    labels: j.labels,
+  };
+}
+function worldExtent(w, h) {
+  if (MOBILE.matches) {
+    const panelTop = $('#panel').offsetTop, cap = $('#world-cap');
+    const y0 = cap.offsetTop + cap.offsetHeight + 14;
+    return [[12, y0], [w - 62, Math.max(y0 + 80, panelTop - 12)]];
+  }
+  const p = $('#panel'), rd = $('.readout'), strip = $('.strip');
+  const x0 = p.offsetLeft + p.offsetWidth + 40, y0 = rd.offsetTop + rd.offsetHeight + 20;
+  return [[x0, y0], [w - 84, h - (strip ? strip.offsetHeight : 0) - 100]];
+}
+function drawWorld() {
+  if (!WORLD || !S.world || typeof d3 === 'undefined') return;
+  const dpr = devicePixelRatio || 1, w = worldCanvas.clientWidth, h = worldCanvas.clientHeight;
+  if (!w || !h) return;
+  if (worldCanvas.width !== Math.round(w * dpr) || worldCanvas.height !== Math.round(h * dpr)) { worldCanvas.width = Math.round(w * dpr); worldCanvas.height = Math.round(h * dpr); }
+  const g = wctx; g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+  const ext = worldExtent(w, h);
+  worldProj = d3.geoEqualEarth().fitExtent(ext, { type:'Sphere' });
+  const path = d3.geoPath(worldProj, g), C = palette();
+  const ink = tok('--ink'), quiet = tok('--ink-2'), rule = tok('--rule'), mono = tok('--mono'), body = tok('--body');
+  // sea inside the sphere, graticule, land, lakes
+  g.beginPath(); path({ type:'Sphere' }); g.fillStyle = C.water; g.fill();
+  g.beginPath(); path(d3.geoGraticule().step([30, 30])()); g.strokeStyle = rule; g.lineWidth = .6; g.globalAlpha = .7; g.stroke(); g.globalAlpha = 1;
+  g.beginPath(); path(WORLD.land); g.fillStyle = C.land; g.fill(); g.strokeStyle = C['road-case']; g.lineWidth = .6; g.stroke();
+  g.beginPath(); path(WORLD.lakes); g.fillStyle = C.water; g.fill();
+  // borders: settled solid, disputed or unsettled dashed
+  g.beginPath(); path(WORLD.intl); g.strokeStyle = C.border; g.lineWidth = .75; g.setLineDash([]); g.stroke();
+  g.beginPath(); path(WORLD.disputed); g.setLineDash([2.5, 2.5]); g.stroke(); g.setLineDash([]);
+  // sphere outline, the sheet's one heavy line
+  g.beginPath(); path({ type:'Sphere' }); g.strokeStyle = ink; g.lineWidth = 2; g.stroke();
+  const width = worldProj([180, 0])[0] - worldProj([-180, 0])[0];
+  // graticule labels on wide sheets
+  if (width > 560) {
+    g.font = `500 9.5px ${mono}`; g.fillStyle = quiet; g.textBaseline = 'top'; g.textAlign = 'center';
+    for (const lon of [-180, -120, -60, 0, 60, 120, 180]) { const [x, y] = worldProj([lon, -90]); g.fillText(lon === 0 ? '0°' : `${Math.abs(lon)}°${lon < 0 ? 'W' : 'E'}`, x, y + 8); }
+    g.textAlign = 'right'; g.textBaseline = 'middle';
+    for (const lat of [-60, -30, 0, 30, 60]) { const [x, y] = worldProj([-180, lat]); g.fillText(lat === 0 ? '0°' : `${Math.abs(lat)}°${lat < 0 ? 'S' : 'N'}`, x - 8, y); }
+  }
+  // labels: oceans, then countries by rank, skipping any that would collide
+  const placed = [];
+  const fits = (b) => b[0] >= ext[0][0] - 6 && b[2] <= ext[1][0] + 6 && !placed.some(p => b[0] < p[2] && b[2] > p[0] && b[1] < p[3] && b[3] > p[1]);
+  const put = (text, lon, lat, size, weight, colour, halo, spacing, italic) => {
+    const pt = worldProj([lon, lat]); if (!pt) return;
+    g.font = `${italic ? 'italic ' : ''}${weight} ${size}px ${body}`;
+    if ('letterSpacing' in g) g.letterSpacing = spacing;
+    const tw = g.measureText(text).width, b = [pt[0] - tw / 2 - 3, pt[1] - size / 2 - 2, pt[0] + tw / 2 + 3, pt[1] + size / 2 + 2];
+    if (!fits(b)) return; placed.push(b);
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    if (halo) { g.strokeStyle = halo; g.lineWidth = 3; g.lineJoin = 'round'; g.strokeText(text, pt[0], pt[1]); }
+    g.fillStyle = colour; g.fillText(text, pt[0], pt[1]);
+  };
+  const oceanSize = width > 900 ? 12 : width > 560 ? 10.5 : 9;
+  if (width >= 420) for (const [n, lon, lat] of OCEANS) put(n.toUpperCase(), lon, lat, oceanSize, 400, C['water-label'], null, '0.2em', true);
+  const maxRank = width > 900 ? 6 : width > 640 ? 4 : width > 420 ? 3 : 2;
+  for (const [name, lon, lat, rank] of WORLD.labels) {
+    if (rank > maxRank) continue;
+    const size = (rank <= 2 ? 11.5 : rank <= 4 ? 10 : 9) * (width > 900 ? 1.08 : width > 560 ? 1 : .92);
+    put(name.toUpperCase(), lon, lat, size, rank <= 2 ? 600 : 500, C.label, C.land, '0.08em', false);
+  }
+  if ('letterSpacing' in g) g.letterSpacing = '0px';
+}
+function worldCentre() { return [-10, 25]; }
+function setWorldReadout(ll) {
+  $('#lat').textContent = ll ? `${Math.abs(ll[1]).toFixed(5)}° ${ll[1] >= 0 ? 'N' : 'S'}` : 'EQUAL';
+  $('#lon').textContent = ll ? `${Math.abs(ll[0]).toFixed(5)}° ${ll[0] < 0 ? 'W' : 'E'}` : 'EARTH';
+  $('#spec').textContent = 'World view · WGS 84 · area-true';
+}
+function worldPoint(e) {
+  if (!worldProj) return null;
+  const r = worldCanvas.getBoundingClientRect(), ll = worldProj.invert([e.clientX - r.left, e.clientY - r.top]);
+  if (!ll || !isFinite(ll[0]) || !isFinite(ll[1]) || Math.abs(ll[0]) > 180 || Math.abs(ll[1]) > 90) return null;
+  const back = worldProj(ll);
+  return back && Math.hypot(back[0] - (e.clientX - r.left), back[1] - (e.clientY - r.top)) < 1.5 ? ll : null;
+}
+function showWorld() {
+  S.world = true; worldCanvas.hidden = false; $('#world-cap').hidden = false; $('#sheet').classList.add('is-world');
+  $('#tworld').setAttribute('aria-pressed', 'true'); setWorldReadout(null); drawWorld(); drawTicks();
+}
+function hideWorld() {
+  if (!S.world) return;
+  S.world = false; worldCanvas.hidden = true; $('#world-cap').hidden = true; $('#sheet').classList.remove('is-world');
+  $('#tworld').setAttribute('aria-pressed', 'false'); if (map) { updateReadout(); drawTicks(); }
+}
+function enterMap(ll, zoom = 4) {
+  hideWorld(); if (!map) return;
+  map.jumpTo({ center: ll, zoom: Math.min(zoom, 2) });
+  map.flyTo({ center: ll, zoom, duration: 1000, essential: true });
+}
+worldCanvas.addEventListener('pointermove', (e) => setWorldReadout(worldPoint(e)));
+worldCanvas.addEventListener('pointerleave', () => setWorldReadout(null));
+worldCanvas.addEventListener('click', (e) => { const ll = worldPoint(e); if (ll) enterMap(ll, 4); });
+worldCanvas.addEventListener('wheel', (e) => { e.preventDefault(); if (e.deltaY < 0) { const ll = worldPoint(e); if (ll) enterMap(ll, 3); } }, { passive: false });
+new ResizeObserver(() => drawWorld()).observe($('#sheet'));
+S.world = true;
+fetch('data/world.json').then(r => { if (!r.ok) throw new Error(`world.json returned ${r.status}`); return r.json(); })
+  .then(j => { WORLD = decodeWorld(j); drawWorld(); })
+  .catch(err => { console.warn('DATUM world view unavailable:', err.message); hideWorld(); });
+
 // ================================================================== BOOT
 render();
 map = new maplibregl.Map({
   container: 'map', style: buildStyle(palette()), center: START.center, zoom: MOBILE.matches ? START.zoom - 0.6 : START.zoom,
-  minZoom: 0.8, maxZoom: 19, attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false, fadeDuration: 150,
+  minZoom: 1.4, maxZoom: 19, attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false, fadeDuration: 150,
 });
 map.touchZoomRotate.disableRotation();
 map.on('move', () => { updateReadout(); drawTicks(); });
+map.on('zoomend', (e) => { if (!S.world && e.originalEvent && map.getZoom() < 1.6) showWorld(); });
 map.on('resize', drawTicks);
 map.on('click', (e) => {
   const f = map.queryRenderedFeatures(e.point, { layers: ['hits', 'poi-dot', 'poi-label', 'poi-label-near'] })[0];
@@ -1186,10 +1330,11 @@ for (const id of ['poi-dot', 'poi-label', 'poi-label-near', 'hits']) {
 map.on('error', (e) => console.warn('DATUM map error:', e && e.error ? (e.error.message || e.error) : e));
 map.once('load', () => { updateReadout(); drawTicks(); });
 packCached().then(c => { if (c) loadPack(); });
-DARK.addEventListener('change', applyPalette);
-new MutationObserver(applyPalette).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-MOBILE.addEventListener('change', () => { render(); drawTicks(); });
-window.__datum = { S, get map() { return map; }, doSearch, planRoute, loadPack, CONFIG };
+DARK.addEventListener('change', () => { applyPalette(); drawWorld(); });
+new MutationObserver(() => { applyPalette(); drawWorld(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+MOBILE.addEventListener('change', () => { render(); drawTicks(); drawWorld(); });
+showWorld();
+window.__datum = { S, get map() { return map; }, doSearch, planRoute, loadPack, CONFIG, showWorld, hideWorld, get worldReady() { return !!WORLD; }, get worldProj() { return worldProj; } };
 })();
 </script>
 </body>
