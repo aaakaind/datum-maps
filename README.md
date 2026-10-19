@@ -19,6 +19,7 @@ without sending your queries anywhere. No account, no ads, no analytics.
 | World map (globe at low zoom, 3D buildings) | OpenMapTiles vector tiles rendered with MapLibre GL JS 5.24.0 | OpenFreeMap |
 | Search anywhere | Photon geocoder, biased to the map centre | Photon (komoot public server) |
 | Directions anywhere (walk, bike, drive) | Valhalla routing with turn-by-turn steps | Valhalla on the FOSSGIS public server |
+| World view in the Equal Earth projection | Zoomed out, the world is drawn with d3-geo in Equal Earth, the area-true projection the UN General Assembly backed on 4 September 2026; Natural Earth land, lakes and borders, disputed borders dashed | DATUM's own site (`data/world.json`); d3 loads from cdnjs like MapLibre |
 | Category lists (Coffee, Parks, Transit…) | Read from the map tiles already on screen | Nothing sent |
 | Ottawa–Gatineau region pack (3.9 MB) | On-device search of 11,487 places and every named street; on-device A* routing over 64,272 road and path segments | Nothing sent after download; stored in the browser's Cache Storage |
 
@@ -88,11 +89,32 @@ Known limits of on-device routing in v0.2: no turn restrictions, no time-based o
 partial-length access rules, constant speeds (walk 4.9 km/h, bike 15 km/h, car at
 the posted limit or a class default).
 
+## World view
+
+`data/world.json` (152 KB, 50 KB gzipped) is built from Natural Earth, which is in the
+public domain, with `tools/build_world.py`:
+
+```sh
+pip install shapely
+B=https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson
+mkdir -p ne && for f in ne_50m_land ne_50m_admin_0_boundary_lines_land ne_50m_lakes ne_110m_admin_0_countries; do
+  curl -sL -o ne/$f.geojson $B/$f.geojson
+done
+python3 tools/build_world.py ne data/world.json
+```
+
+Borders are Natural Earth's de facto lines. Disputed, indefinite and line-of-control
+segments are drawn dashed, and countries are not coloured individually. Two de facto
+entities that OpenStreetMap does not map as countries (Somaliland, Northern Cyprus) are
+left unlabelled for consistency with the rest of the map. The UN's own map images are
+not used: the UN website licenses them for personal, non-commercial use only.
+
 ## Attribution (required wherever the map is shown)
 
 - Map: OpenFreeMap © OpenMapTiles. Data from © OpenStreetMap contributors (ODbL 1.0).
 - Search: Photon by komoot, OpenStreetMap data.
 - Routing: Valhalla, served by FOSSGIS e.V., OpenStreetMap data.
+- World view: Natural Earth (public domain), drawn with d3-geo (ISC). Equal Earth projection by Šavrič, Patterson and Jenny (2018).
 - Region packs: Overture Maps Foundation (release 2026-09-23.1). Roads, buildings,
   land and water © OpenStreetMap contributors (ODbL 1.0). Places under
   CDLA-Permissive-2.0, including Foursquare Open Source Places (Apache-2.0) and
