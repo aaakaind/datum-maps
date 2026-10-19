@@ -1198,12 +1198,16 @@ function decodeWorld(j) {
   };
 }
 function worldExtent(w, h) {
+  const cap = $('#world-cap'), rd = $('.readout');
   if (MOBILE.matches) {
-    const panelTop = $('#panel').offsetTop, cap = $('#world-cap');
+    // Keep the caption clear of the readout box on narrow screens (a Fold cover screen is 369 px).
+    cap.style.maxWidth = Math.max(180, rd.offsetLeft - cap.offsetLeft - 10) + 'px';
+    const panelTop = $('#panel').offsetTop;
     const y0 = cap.offsetTop + cap.offsetHeight + 14;
     return [[12, y0], [w - 62, Math.max(y0 + 80, panelTop - 12)]];
   }
-  const p = $('#panel'), rd = $('.readout'), strip = $('.strip');
+  cap.style.maxWidth = '';
+  const p = $('#panel'), strip = $('.strip');
   const x0 = p.offsetLeft + p.offsetWidth + 40, y0 = rd.offsetTop + rd.offsetHeight + 20;
   return [[x0, y0], [w - 84, h - (strip ? strip.offsetHeight : 0) - 100]];
 }
