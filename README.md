@@ -109,6 +109,55 @@ entities that OpenStreetMap does not map as countries (Somaliland, Northern Cypr
 left unlabelled for consistency with the rest of the map. The UN's own map images are
 not used: the UN website licenses them for personal, non-commercial use only.
 
+## Android app and Android Auto
+
+`android/` builds DATUM for Android, package `ca.akaind.datum` (Android 8 and up).
+
+- **On the phone** it is this web app, bundled in the APK and served to a WebView from
+  `https://appassets.androidplatform.net`, a secure origin, so region packs and "locate
+  me" work as in a browser. MapLibre GL JS, d3 and the fonts are bundled too
+  (`tools/vendor_web.py`, checked against cdnjs's SRI hashes), so the app opens with no
+  network and makes no requests to a CDN or to Google. Tiles, search and routing use the
+  same servers as the web app. The build copies `index.html`, `data/` and `packs/` from
+  the repository root, so the app always ships the current site.
+- **In the car** it is a native Android Auto navigation app built on the Car App
+  Library 1.7.0. The car screen draws DATUM's own map style (exported from the web app
+  by `tools/export_car_style.py`) with MapLibre Native 13.6.1. It has search and five
+  nearby categories (gas, EV charging, parking, food, coffee), read from the map tiles
+  already on the phone with Photon as the fallback. Route preview offers up to three
+  routes from Valhalla. Guidance is turn by turn, with spoken instructions on the
+  navigation audio stream, rerouting when the car leaves the route, and arrival. Trip
+  details go to the instrument cluster or head-up display where the car has one.
+  "Navigate to…" from Assistant and other apps opens DATUM directly. Location comes
+  from Android's own location service, with no Google Play services.
+
+Build (JDK 17 or newer, Android SDK 36):
+
+```sh
+cd android
+./gradlew testDebugUnitTest      # routing, guidance and car screen tests (Robolectric)
+./gradlew assembleDebug          # app/build/outputs/apk/debug/app-debug.apk
+```
+
+Release builds are signed with the upload key named in `android/keystore.properties`
+(or the file `DATUM_KEYSTORE_PROPERTIES` points to). Both that file and the key are
+git-ignored and must never be committed. Then:
+
+```sh
+./gradlew assembleRelease   # APKs to sideload: one per CPU type plus a universal one
+./gradlew bundleRelease     # AAB for Google Play (run on its own)
+```
+
+Most phones, a Galaxy Z Fold included, take `app-arm64-v8a-release.apk`. Enrol the app in
+Play App Signing so the key in `keystore.properties` is only the upload key: Google
+holds the app signing key, and a lost upload key can be reset from the Play Console.
+
+Trying it in a car: Android Auto only lists apps installed from Google Play unless you
+turn on Android Auto's developer settings (tap *Version* ten times) and enable *Unknown
+sources*. On a computer, Google's Desktop Head Unit stands in for the car. Once
+guidance has started, `adb shell dumpsys activity service
+ca.akaind.datum/.car.DatumCarAppService AUTO_DRIVE` drives the route for you.
+
 ## Attribution (required wherever the map is shown)
 
 - Map: OpenFreeMap © OpenMapTiles. Data from © OpenStreetMap contributors (ODbL 1.0).
