@@ -117,10 +117,9 @@ def actions():
 
 def launcher():
     # Adaptive icon: the web app's favicon, a red datum point in an ink ring on bone.
-    fg = vector([f'    <path android:pathData="M54,54 m-26,0 a26,26 0 1,0 52,0 a26,26 0 1,0 -52,0"'
-                 f' android:fillColor="{RED}" android:strokeColor="{INK}" android:strokeWidth="8"/>'], 108, 108)
-    mono = vector([f'    <path android:pathData="M54,54 m-26,0 a26,26 0 1,0 52,0 a26,26 0 1,0 -52,0"'
-                   f' android:fillColor="#00000000" android:strokeColor="#FF000000" android:strokeWidth="9"/>',
+    ring = '    <path android:pathData="M54,54 m-26,0 a26,26 0 1,0 52,0 a26,26 0 1,0 -52,0"'
+    fg = vector([ring + f' android:fillColor="{RED}" android:strokeColor="{INK}" android:strokeWidth="8"/>'], 108, 108)
+    mono = vector([ring + ' android:fillColor="#00000000" android:strokeColor="#FF000000" android:strokeWidth="9"/>',
                    '    <path android:pathData="M54,54 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" android:fillColor="#FF000000"/>'], 108, 108)
     notif = vector([stroke("M12,12 m-7.5,0 a7.5,7.5 0 1,0 15,0 a7.5,7.5 0 1,0 -15,0", w=2.6),
                     fill("M12,12 m-3.6,0 a3.6,3.6 0 1,0 7.2,0 a3.6,3.6 0 1,0 -7.2,0")], 24, 24)
