@@ -206,6 +206,37 @@ button,input{font:inherit;color:inherit}
 .mk{width:22px;height:22px;border-radius:50%;border:3px solid var(--ink);background:var(--card);display:grid;place-items:center;font:700 10px/1 var(--mono);color:var(--ink)}
 .mk.b{background:var(--red);color:var(--on-red)}
 .mk.sel{background:var(--ochre);color:#1C1A17;width:18px;height:18px}
+.mk.stop{background:var(--ochre);color:#1C1A17}
+.mk.me{width:18px;height:18px;background:var(--blue);border-color:var(--card);box-shadow:0 0 0 2px var(--blue)}
+
+.btn.sm{padding:6px 12px;font-size:12.5px;border-width:1.5px}
+.list-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:-8px}
+.addstop{align-self:flex-start;border:0;background:transparent;cursor:pointer;font:500 11px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);padding:2px 2px}
+.addstop:hover{color:var(--ink)}
+.avoid{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.avoid .label{margin-right:2px}
+.alts{display:flex;flex-direction:column;gap:6px}
+.alt{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:baseline;width:100%;text-align:left;border:2px solid var(--rule);border-radius:14px;background:transparent;padding:8px 12px;cursor:pointer;color:var(--ink)}
+.alt[aria-pressed="true"]{border-color:var(--ink);background:var(--ground)}
+.alt .t{font:700 17px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.alt .d{font:500 11px/1.3 var(--mono);color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums}
+.alt .v{grid-column:1/-1;font-size:12px;color:var(--ink-2);overflow-wrap:anywhere}
+.iso{border:2px solid var(--ink);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--ground)}
+.iso h3{margin:0;font:600 15px/1.2 var(--display);letter-spacing:.02em}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font:500 11px/1.3 var(--mono);font-variant-numeric:tabular-nums}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:16px;height:11px;border:1.5px solid var(--blue);display:inline-block;background:var(--blue)}
+.ctx{position:absolute;z-index:7;width:236px;background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:6px;display:flex;flex-direction:column;box-shadow:4px 4px 0 var(--ink)}
+.ctx[hidden]{display:none}
+.ctx .hd{border:0;border-bottom:1px solid var(--rule);background:transparent;text-align:left;padding:6px 10px 8px;margin-bottom:4px;cursor:pointer;font:500 11px/1.3 var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.ctx .it{border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:10px;font:500 13.5px/1.2 var(--body);cursor:pointer;color:var(--ink)}
+.ctx .it:hover,.ctx .it:focus-visible,.ctx .hd:hover{background:var(--ground)}
+.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:58px;z-index:9;background:var(--ink);color:var(--card);border-radius:var(--r-pill);padding:9px 18px;font:500 13px/1.35 var(--body);max-width:calc(100% - 32px);overflow-wrap:anywhere;text-align:center}
+.toast[hidden]{display:none}
+.measure-box{position:absolute;z-index:5;left:50%;transform:translateX(-50%);top:14px;background:var(--card);border:2px solid var(--ink);border-radius:var(--r-pill);padding:5px 6px 5px 16px;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.measure-box[hidden]{display:none}
+.measure-box .v{font:700 18px/1 var(--display);font-variant-numeric:tabular-nums}
+.tool.busy{opacity:.6}
 
 .about{position:absolute;inset:0;z-index:10;background:color-mix(in srgb,var(--ground) 82%,transparent);display:grid;place-items:center;padding:20px 16px;overflow:auto}
 .about-card{background:var(--card);border:2px solid var(--ink);border-radius:var(--r-card);max-width:640px;width:100%;padding:22px 24px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto}
@@ -228,6 +259,9 @@ button,input{font:inherit;color:inherit}
   .panel-body{padding:12px 16px 16px}
   .tools{bottom:auto;top:74px;right:10px}
   .tool{width:40px;height:40px}
+  #zin,#zout,#tinfo{display:none}
+  .measure-box{top:58px;left:10px;right:58px;transform:none;justify-content:space-between}
+  .toast{bottom:auto;top:58px}
   .strip{display:none}
   .world-cap{left:10px;right:auto;top:58px;bottom:auto;max-width:calc(100% - 80px);padding:6px 9px}
   .world-cap .v{font-size:11.5px}
@@ -259,7 +293,7 @@ button,input{font:inherit;color:inherit}
       <button class="handle" id="handle" aria-label="Expand or collapse panel"></button>
       <div class="brand">
         <div class="wordmark">DATUM<i aria-hidden="true"></i></div>
-        <div class="specline">DTM-02 · v0.2<br>Planet · OSM</div>
+        <div class="specline">DTM-03 · v0.3<br>Planet · OSM</div>
       </div>
       <div class="tabs" role="tablist">
         <button role="tab" id="tab-search" aria-selected="true">Search</button>
@@ -273,15 +307,22 @@ button,input{font:inherit;color:inherit}
     <button class="tool" id="tworld" aria-pressed="true" aria-label="World map, Equal Earth projection"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 5h11c3.6 3.2 3.6 10.8 0 14h-11c-3.6-3.2-3.6-10.8 0-14z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.6 12h16.8" stroke="currentColor" stroke-width="1.5"/></svg></button>
     <button class="tool" id="zin" aria-label="Zoom in">+</button>
     <button class="tool" id="zout" aria-label="Zoom out">−</button>
+    <button class="tool" id="tlocate" aria-pressed="false" aria-label="Show my location"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4" stroke="currentColor" stroke-width="2"/></svg></button>
+    <button class="tool" id="tterrain" aria-pressed="false" aria-label="Toggle terrain relief"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 19.5l6.5-11 4 6.5 2.5-3.5 7 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>
     <button class="tool" id="t3d" aria-pressed="false" aria-label="Toggle 3D buildings">3D</button>
+    <button class="tool" id="tmeasure" aria-pressed="false" aria-label="Measure distance"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 16.5L16.5 3l4.5 4.5L7.5 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7.4 12.1l2 2M10.1 9.4l2 2M12.8 6.7l2 2" stroke="currentColor" stroke-width="1.8"/></svg></button>
     <button class="tool" id="tinfo" aria-label="About DATUM">i</button>
   </div>
 
   <footer class="strip">
     <div class="ruler"><div class="bar" id="rulerbar"><i></i><i></i><i></i><i></i></div><span id="rulerlab">—</span></div>
-    <div class="att"><a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">© OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · Search <a href="https://photon.komoot.io" target="_blank" rel="noopener">Photon</a> · Routing <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> by FOSSGIS · World view <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a><span id="att-pack" hidden> · Region pack: Overture Maps Foundation</span></div>
+    <div class="att"><a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">© OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · Search <a href="https://photon.komoot.io" target="_blank" rel="noopener">Photon</a> · Routing <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> by FOSSGIS · World view <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a><span id="att-pack" hidden> · Region pack: Overture Maps Foundation</span><span id="att-terrain" hidden> · Terrain <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a> (Mapzen, AWS Open Data)</span></div>
     <button id="about-link">About DATUM</button>
   </footer>
+
+  <div class="ctx" id="ctx" role="menu" aria-label="Map point menu" hidden></div>
+  <div class="measure-box" id="measure-box" role="status" hidden><span class="label">Distance</span><span class="v" id="measure-v">—</span><button class="xbtn" id="measure-undo">UNDO</button><button class="btn sm" id="measure-done">Done</button></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <div class="about" id="about" hidden>
     <div class="about-card" role="dialog" aria-modal="true" aria-labelledby="about-h">
@@ -292,7 +333,11 @@ button,input{font:inherit;color:inherit}
         <ul>
           <li>Map tiles load from OpenFreeMap. Like any tile server, it sees your IP address and the area you are viewing.</li>
           <li>Searches go to Photon, komoot's public geocoder, when you type 3 or more characters. Tapping the map sends that point to Photon to look up the nearest address.</li>
-          <li>Routes go to Valhalla on the FOSSGIS public server when you ask for directions.</li>
+          <li>Routes go to Valhalla on the FOSSGIS public server when you ask for directions, and so do the start points of <b>Reachable from here</b> areas.</li>
+          <li>Terrain relief, when you switch it on, loads elevation tiles from the Terrain Tiles dataset on AWS Open Data.</li>
+          <li><b>Locate me</b> asks your browser for your position. It stays on your device; it is only sent when you use it as a route start, like any other point.</li>
+          <li>Saved places and recent searches are kept in this browser's local storage and never leave your device.</li>
+          <li>The address bar holds the view, place or route you are looking at, so a link you copy or share opens the same thing. That link is only sent where you send it.</li>
           <li>Inside a downloaded region pack, search and routing run on your device and nothing is sent.</li>
           <li>Category lists (Coffee, Parks…) are read from the map tiles already on your screen. No request is made.</li>
           <li>DATUM itself adds no accounts, cookies or analytics.</li>
@@ -317,13 +362,14 @@ button,input{font:inherit;color:inherit}
           <li>Search: <a href="https://github.com/komoot/photon" target="_blank" rel="noopener">Photon</a> by komoot, using OpenStreetMap data.</li>
           <li>Routing: <a href="https://github.com/valhalla/valhalla" target="_blank" rel="noopener">Valhalla</a>, served by <a href="https://www.fossgis.de" target="_blank" rel="noopener">FOSSGIS e.V.</a>, using OpenStreetMap data.</li>
           <li>World view: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (public domain), drawn with <a href="https://github.com/d3/d3-geo" target="_blank" rel="noopener">d3-geo</a> (ISC).</li>
+          <li>Terrain: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a> on AWS Open Data, made by Mapzen from SRTM, GMTED2010, ETOPO1 and other sources (<a href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noopener">attribution</a>).</li>
           <li>Region pack data: <a href="https://overturemaps.org" target="_blank" rel="noopener">Overture Maps Foundation</a>. Roads and areas © OpenStreetMap contributors (ODbL 1.0). Places under CDLA-Permissive-2.0, including Foursquare Open Source Places (Apache-2.0) and AllThePlaces (CC0). The pack files are a derivative database, available under ODbL 1.0.</li>
           <li>See something wrong? Fix it at the source on <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a>, and everyone's maps improve.</li>
         </ul>
       </section>
       <section>
         <h3>Build</h3>
-        <p class="mono">DTM-02 · v0.2 · build 2026-10-07 · renderer MapLibre GL JS 5.24.0 · code licence AGPL-3.0</p>
+        <p class="mono">DTM-03 · v0.3 · build 2026-11-11 · renderer MapLibre GL JS 5.24.0 · code licence AGPL-3.0</p>
       </section>
     </div>
   </div>
@@ -342,6 +388,8 @@ const CONFIG = {
   glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
   search: 'https://photon.komoot.io',
   route:  'https://valhalla1.openstreetmap.de/route',
+  isochrone: 'https://valhalla1.openstreetmap.de/isochrone',
+  terrain: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
   packs: [
     { id:'ottawa-gatineau', name:'Ottawa–Gatineau', bbox:[-75.74, 45.38, -75.65, 45.445], base:'packs/ottawa-gatineau/', files:['roads','areas','places'], mb:3.9, release:'Overture 2026-09-23.1' },
   ],
@@ -404,7 +452,33 @@ const S = {
   tab:'search', q:'', chip:null, card:null, hits:[], searching:false, searchErr:null, needZoom:false,
   from:null, to:null, mode:'walk', route:null, activeField:null, draft:'', suggest:[],
   pack:{ status:'none', loaded:{} }, three:false,
+  stops:[], avoid:{ highways:false, tolls:false, ferries:false }, routes:[], alt:0, altWant:0,
+  iso:null, measure:null, terrain:false, me:null, saved:[], recent:[],
 };
+const MAX_STOPS = 5;
+
+// ================================================================== ON-DEVICE STORAGE (saved places, recents)
+// localStorage only: never sent anywhere. Every access is guarded (private windows can throw).
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('datum.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('datum.' + k, JSON.stringify(v)); } catch {} },
+};
+S.saved = store.get('saved', []).filter(x => x && Array.isArray(x.ll));
+S.recent = store.get('recent', []).filter(x => x && Array.isArray(x.ll));
+const keyOf = (c) => `${(+c.ll[0]).toFixed(5)},${(+c.ll[1]).toFixed(5)}`;
+function slim(c) { return { name: c.name, ll: [+(+c.ll[0]).toFixed(6), +(+c.ll[1]).toFixed(6)], cat: c.cat || '', g: c.g || 'place', addr: c.addr || c.near || '', kind: c.kind === 'pin' ? 'pin' : (c.kind || 'place') }; }
+function isSaved(c) { const k = keyOf(c); return S.saved.some(x => keyOf(x) === k); }
+function toggleSave(c) {
+  const k = keyOf(c), was = isSaved(c);
+  S.saved = was ? S.saved.filter(x => keyOf(x) !== k) : [slim(c), ...S.saved].slice(0, 200);
+  store.set('saved', S.saved); render(); toast(was ? 'Removed from saved places' : 'Saved on this device');
+}
+function addRecent(c) {
+  if (!c || c.kind === 'pin') return;
+  const k = keyOf(c); S.recent = [slim(c), ...S.recent.filter(x => keyOf(x) !== k)].slice(0, 8); store.set('recent', S.recent);
+}
+function cardFromSlim(x) { return { kind: x.kind || 'place', src: 'saved', name: x.name, cat: x.cat, g: x.g, addr: x.addr, ll: x.ll }; }
+const asItems = (list, src) => list.map(x => ({ ...x, src, sub: [x.cat, x.addr].filter(Boolean).join(' · '), m: geoDist(centerLL(), x.ll) }));
 let map, markers = {};
 let R, A, P, G, ORIGIN, Q, LOCAL = []; // region pack engine
 
@@ -445,6 +519,7 @@ function palette() {
   const names = ['land','park','wood','pitch','plaza','farm','sand','ice','rock','resid','campus','water','waterline','water-label','bldg','bldg-line','bldg-3d','road','road-case','art','art-case','hwy','hwy-case','path','rail','border','label','label-2','park-label','halo','route','route-case'];
   const C = {}; for (const n of names) C[n] = tok('--m-' + n);
   for (const n of ['food','shop','health','civic','rec','serv','transit']) C['p-' + n] = tok('--p-' + n);
+  C.iso = tok('--blue'); C.alt = tok('--ink-2');
   return C;
 }
 const W = (pairs) => ['interpolate', ['exponential', 1.55], ['zoom'], ...pairs];
@@ -486,6 +561,14 @@ function paintFor(C) {
     'route-link': { 'line-color': C['route-case'], 'line-width': 2, 'line-dasharray': [1, 1.4] },
     'route-case': { 'line-color': C['route-case'], 'line-width': W([5, 4, 11, 6, 15, 10, 18, 18]) },
     'route': { 'line-color': C.route, 'line-width': W([5, 2.2, 11, 3.4, 15, 6, 18, 12]) },
+    'route-alt-case': { 'line-color': C['route-case'], 'line-width': W([5, 3.4, 11, 5, 15, 8.5, 18, 15]), 'line-opacity': .55 },
+    'route-alt': { 'line-color': C.alt, 'line-width': W([5, 1.8, 11, 2.8, 15, 5, 18, 10]) },
+    'iso-fill': { 'fill-color': C.iso, 'fill-opacity': ['match', ['get','k'], 0, .30, 1, .19, .11] },
+    'iso-line': { 'line-color': C.iso, 'line-width': 1.6, 'line-opacity': .9 },
+    'me-acc': { 'fill-color': C.iso, 'fill-opacity': .14 },
+    'measure-line': { 'line-color': C.label, 'line-width': 2.5, 'line-dasharray': [2, 1.5] },
+    'measure-pt': { 'circle-color': C.halo, 'circle-radius': 5, 'circle-stroke-color': C.label, 'circle-stroke-width': 2.5 },
+    'hillshade': { 'hillshade-shadow-color': C['label-2'], 'hillshade-highlight-color': C.halo, 'hillshade-accent-color': C['label-2'], 'hillshade-exaggeration': .32 },
     'pack-edge': { 'line-color': C.route, 'line-width': 1.5, 'line-dasharray': [2, 2], 'line-opacity': W([8, 0, 9, .9, 12, .9, 13, 0]) },
     'water-name': { 'text-color': C['water-label'], 'text-halo-color': C.water, 'text-halo-width': 1 },
     'water-name-line': { 'text-color': C['water-label'], 'text-halo-color': C.water, 'text-halo-width': 1 },
@@ -519,6 +602,7 @@ function buildStyle(C) {
     sources: {
       omt: { type:'vector', url: CONFIG.tiles, attribution: '' },
       route: { type:'geojson', data: EMPTY }, routeLink: { type:'geojson', data: EMPTY }, hits: { type:'geojson', data: EMPTY },
+      routeAlt: { type:'geojson', data: EMPTY }, iso: { type:'geojson', data: EMPTY }, measure: { type:'geojson', data: EMPTY }, meAcc: { type:'geojson', data: EMPTY },
       packs: { type:'geojson', data: packEdgesGeo() },
     },
     layers: [
@@ -543,6 +627,11 @@ function buildStyle(C) {
       L('border-disputed', 'line', 'boundary', { filter: ['all', ['==', ['get','admin_level'], 2], ['!=', ['get','maritime'], 1], ['==', ['get','disputed'], 1]] }),
       L('buildings-3d', 'fill-extrusion', 'building', { minzoom: 14, filter: ['!=', ['get','hide_3d'], true], layout: { visibility: 'none' } }),
       G('pack-edge', 'line', 'packs'),
+      G('iso-fill', 'fill', 'iso'),
+      G('iso-line', 'line', 'iso', { layout: { 'line-join':'round' } }),
+      G('me-acc', 'fill', 'meAcc'),
+      G('route-alt-case', 'line', 'routeAlt', { layout: { 'line-cap':'round', 'line-join':'round' } }),
+      G('route-alt', 'line', 'routeAlt', { layout: { 'line-cap':'round', 'line-join':'round' } }),
       G('route-link', 'line', 'routeLink'),
       G('route-case', 'line', 'route', { layout: { 'line-cap':'round', 'line-join':'round' } }),
       G('route', 'line', 'route', { layout: { 'line-cap':'round', 'line-join':'round' } }),
@@ -567,6 +656,8 @@ function buildStyle(C) {
         layout: { 'text-field': NAME, 'text-font': BO, 'text-transform':'uppercase', 'text-letter-spacing': .16, 'text-size': W([1, ['match', ['coalesce', ['get','rank'], 9], [1, 2], 12, 9.5], 5, ['match', ['coalesce', ['get','rank'], 9], [1, 2], 18, 13]]), 'text-max-width': 7, 'symbol-sort-key': ['coalesce', ['get','rank'], 99] } }),
       G('hits', 'circle', 'hits'),
       G('hits-label', 'symbol', 'hits', { layout: { 'text-field': ['get','n'], 'text-font': BO, 'text-size': 12, 'text-anchor':'top', 'text-offset':[0, .9], 'text-max-width': 10 } }),
+      G('measure-line', 'line', 'measure', { filter: ['==', ['geometry-type'], 'LineString'], layout: { 'line-cap':'round', 'line-join':'round' } }),
+      G('measure-pt', 'circle', 'measure', { filter: ['==', ['geometry-type'], 'Point'] }),
     ],
   };
 }
@@ -914,7 +1005,7 @@ async function reverse(card) {
   } catch {}
 }
 function openCard(card, fly = true) {
-  S.card = card; S.tab = 'search';
+  clearIso(); S.card = card; S.tab = 'search';
   setMarker('sel', { lon: card.ll[0], lat: card.ll[1] }, '', 'sel');
   if (fly && map) {
     hideWorld();
@@ -935,43 +1026,86 @@ function setMarker(key, pt, text, cls) {
 // ================================================================== ROUTING
 let routeCtl, routeSeq = 0;
 const TURN = { 1:'Start', 2:'Start', 3:'Start', 4:'Arrive', 5:'Arrive', 6:'Arrive', 7:'Continue', 8:'Continue', 9:'Slight right', 10:'Turn right', 11:'Sharp right', 12:'U-turn', 13:'U-turn', 14:'Sharp left', 15:'Turn left', 16:'Slight left', 17:'Ramp', 18:'Ramp right', 19:'Ramp left', 20:'Exit right', 21:'Exit left', 22:'Keep straight', 23:'Keep right', 24:'Keep left', 25:'Merge', 26:'Roundabout', 27:'Leave roundabout', 28:'Ferry', 29:'Leave ferry', 37:'Merge right', 38:'Merge left' };
-async function routeValhalla(from, to, mode, signal) {
-  const body = { locations: [{ lat: from.lat, lon: from.lon }, { lat: to.lat, lon: to.lon }], costing: MODES[mode].costing, directions_options: { units: 'kilometers', language: 'en-US' } };
+function routeEps(all) { const l = [S.from, ...S.stops, S.to]; return all ? l : l.filter(Boolean); }
+function parseTrip(trip) {
+  const coords = [], steps = [];
+  trip.legs.forEach((leg, li) => {
+    const shape = decodePolyline6(leg.shape), base = coords.length;
+    coords.push(...(base ? shape.slice(1) : shape));
+    const off = base ? base - 1 : 0, last = trip.legs.length - 1;
+    for (const m of leg.maneuvers) {
+      const stop = li < last && m.type >= 4 && m.type <= 6;
+      steps.push({ turn: stop ? `Stop ${li + 1}` : (TURN[m.type] || 'Continue'), text: stop ? (S.stops.filter(Boolean)[li] || {}).label || m.instruction : m.instruction, len: (m.length || 0) * 1000, at: coords[off + m.begin_shape_index] });
+    }
+  });
+  const names = new Map();
+  for (const leg of trip.legs) for (const m of leg.maneuvers) for (const n of (m.street_names || [])) names.set(n, (names.get(n) || 0) + (m.length || 0));
+  let via = '', vl = 0; for (const [n, l] of names) if (l > vl) { vl = l; via = n; }
+  return { engine:'valhalla', coords, dist: trip.summary.length * 1000, seconds: trip.summary.time, steps, via };
+}
+function costingOptions(mode) {
+  // Soft preferences (0 = avoid where a reasonable alternative exists), so a route is still found when there is none.
+  const o = {};
+  if (S.avoid.ferries) o.use_ferry = 0;
+  if (mode === 'car') { if (S.avoid.highways) o.use_highways = 0; if (S.avoid.tolls) o.use_tolls = 0; }
+  return o;
+}
+async function routeValhalla(locs, mode, signal) {
+  const costing = MODES[mode].costing;
+  const body = { locations: locs.map(p => ({ lat: p.lat, lon: p.lon })), costing, costing_options: { [costing]: costingOptions(mode) }, directions_options: { units: 'kilometers', language: 'en-US' } };
+  if (locs.length === 2) body.alternates = 2;
   const res = await fetch(`${CONFIG.route}?json=${encodeURIComponent(JSON.stringify(body))}`, { signal });
   const j = await res.json().catch(() => ({}));
   if (!res.ok || !j.trip) return { error: j.error ? `Routing service: ${j.error}.` : `Routing service returned ${res.status}.` };
-  const coords = [], steps = [];
-  for (const leg of j.trip.legs) {
-    const shape = decodePolyline6(leg.shape), base = coords.length;
-    coords.push(...shape);
-    for (const m of leg.maneuvers) steps.push({ turn: TURN[m.type] || 'Continue', text: m.instruction, len: (m.length || 0) * 1000, at: coords[base + m.begin_shape_index] });
-  }
-  const names = new Map();
-  for (const leg of j.trip.legs) for (const m of leg.maneuvers) for (const n of (m.street_names || [])) names.set(n, (names.get(n) || 0) + (m.length || 0));
-  let via = '', vl = 0; for (const [n, l] of names) if (l > vl) { vl = l; via = n; }
-  return { engine:'valhalla', coords, dist: j.trip.summary.length * 1000, seconds: j.trip.summary.time, steps, via };
+  return { routes: [j.trip, ...(j.alternates || []).map(a => a && a.trip).filter(Boolean)].map(parseTrip) };
+}
+function routeOnDeviceMulti(locs, mode) {
+  const parts = [];
+  for (let i = 0; i < locs.length - 1; i++) { const r = routeOnDevice(locs[i], locs[i + 1], mode); if (r.error) return r; parts.push(r); }
+  if (parts.length === 1) return { routes: parts };
+  const out = { engine:'device', coords:[], dist:0, seconds:0, visited:0, steps:[], link:[], via: parts[0].via };
+  parts.forEach((r, i) => {
+    out.coords.push(...(out.coords.length ? r.coords.slice(1) : r.coords));
+    out.dist += r.dist; out.seconds += r.seconds; out.visited += r.visited; out.link.push(...r.link);
+    const st = r.steps.slice();
+    if (i < parts.length - 1) { const last = st[st.length - 1]; st[st.length - 1] = { ...last, turn: `Stop ${i + 1}` }; }
+    out.steps.push(...st);
+  });
+  return { routes: [out] };
 }
 async function planRoute(fit = true) {
   const seq = ++routeSeq;
   if (routeCtl) routeCtl.abort();
-  if (!S.from || !S.to) { S.route = null; syncRoute(); render(); return; }
-  const onDevice = S.pack.status === 'ready' && inBBox(S.from, PACK.bbox) && inBBox(S.to, PACK.bbox);
-  if (onDevice) { S.route = routeOnDevice(S.from, S.to, S.mode); }
+  if (!S.from || !S.to) { S.route = null; S.routes = []; syncRoute(); render(); return; }
+  const locs = routeEps(false);
+  const onDevice = S.pack.status === 'ready' && locs.every(p => inBBox(p, PACK.bbox));
+  let res;
+  if (onDevice) res = routeOnDeviceMulti(locs, S.mode);
   else {
-    S.route = { loading: true }; render();
+    S.route = { loading: true }; S.routes = []; syncRoute(); render();
     routeCtl = new AbortController();
-    try { S.route = await routeValhalla(S.from, S.to, S.mode, routeCtl.signal); }
-    catch (e) { if (e.name === 'AbortError') return; S.route = { error: 'Routing service unreachable. Check your connection and try again.' }; }
+    try { res = await routeValhalla(locs, S.mode, routeCtl.signal); }
+    catch (e) { if (e.name === 'AbortError') return; res = { error: 'Routing service unreachable. Check your connection and try again.' }; }
     if (seq !== routeSeq) return;
   }
+  if (res.error) { S.routes = []; S.alt = 0; S.route = res; }
+  else { S.routes = res.routes; S.alt = Math.min(S.altWant || 0, S.routes.length - 1); S.route = S.routes[S.alt]; }
+  S.altWant = 0;
   syncRoute(); render(); if (fit) fitRoute();
+}
+function pickAlt(k) {
+  if (!S.routes[k]) return;
+  S.alt = k; S.route = S.routes[k]; syncRoute(); render();
 }
 function syncRoute() {
   if (!map || !map.getSource('route')) return;
   const r = S.route;
   map.getSource('route').setData(r && r.coords ? { type:'Feature', properties:{}, geometry:{ type:'LineString', coordinates: r.coords } } : EMPTY);
   map.getSource('routeLink').setData(r && r.link ? { type:'FeatureCollection', features: r.link.map(c => ({ type:'Feature', properties:{}, geometry:{ type:'LineString', coordinates: c } })) } : EMPTY);
+  const alts = S.routes.length > 1 ? S.routes.map((x, k) => ({ x, k })).filter(o => o.k !== S.alt && o.x.coords) : [];
+  map.getSource('routeAlt').setData({ type:'FeatureCollection', features: alts.map(o => ({ type:'Feature', properties:{ k: o.k }, geometry:{ type:'LineString', coordinates: o.x.coords } })) });
   setMarker('a', S.from, 'A', ''); setMarker('b', S.to, 'B', 'b');
+  for (let i = 0; i < MAX_STOPS; i++) setMarker('s' + i, S.stops[i], String(i + 1), 'stop');
 }
 function fitRoute() {
   const r = S.route; if (!r || !r.coords || !r.coords.length) return;
@@ -991,10 +1125,11 @@ function render() {
   const body = $('#body'), act = document.activeElement, active = act && act.id, caret = act && act.selectionStart;
   body.innerHTML = S.tab === 'search' ? (S.card ? cardHTML(S.card) : searchHTML()) : dirsHTML();
   if (active && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); if (caret != null && el.setSelectionRange) try { el.setSelectionRange(caret, caret); } catch {} }
+  queueURL();
 }
 const markHTML = (it) => ['place','street','area','water'].includes(it.g) || it.kind !== 'place'
   ? `<span class="sq" style="background:var(${GROUP_TOK[it.g] || '--m-road'})"></span>` : `<span class="dot" style="background:var(${GROUP_TOK[it.g] || '--p-serv'})"></span>`;
-const SRC = { pack:'On device', photon:'Photon', tiles:'From map' };
+const SRC = { pack:'On device', photon:'Photon', tiles:'From map', saved:'Saved', recent:'Recent', me:'' };
 function resultRows(list, attr) {
   return `<ul class="results">${list.map((it, k) => `<li><button class="res" data-${attr}="${k}">${markHTML(it)}<span class="nm">${esc(it.name)}<span class="sub">${esc(it.sub)}</span></span><span class="km">${it.m != null ? fmtKm(it.m) : ''}<span class="src">${SRC[it.src] || ''}</span></span></button></li>`).join('')}</ul>`;
 }
@@ -1019,8 +1154,10 @@ function searchHTML() {
     main = `<div class="label" aria-live="polite">${head}</div>` + (S.searchErr ? `<div class="err">${esc(S.searchErr)}</div>` : '') +
       (S.hits.length ? resultRows(S.hits, 'hit') : (!S.searching && !S.searchErr && norm(S.q).length >= 3 ? `<p class="note">Nothing found for “${esc(S.q)}”. Check the spelling or add a city.</p>` : (norm(S.q).length < 3 ? `<p class="note">Keep typing. Search starts at 3 characters.</p>` : '')));
   } else {
-    main = `<div class="chips"><span class="label" style="align-self:center">Try</span>${TRY.map((t, i) => `<button class="chip try" data-try="${i}">${esc(t)}</button>`).join('')}</div>` + packHTML() +
-      `<p class="note">Tap the map to drop a pin. Category chips read places from the map on your screen. See <b>About</b> for where each request goes.</p>`;
+    const lists = (S.saved.length ? `<div class="list-h"><span class="label">Saved · ${S.saved.length}</span></div>` + resultRows(asItems(S.saved, 'saved'), 'saved') : '')
+      + (S.recent.length ? `<div class="list-h"><span class="label">Recent</span><button class="xbtn" id="recent-clear">CLEAR</button></div>` + resultRows(asItems(S.recent, 'recent'), 'recent') : '');
+    main = `<div class="chips"><span class="label" style="align-self:center">Try</span>${TRY.map((t, i) => `<button class="chip try" data-try="${i}">${esc(t)}</button>`).join('')}</div>` + lists + packHTML() +
+      `<p class="note">Tap the map to drop a pin; right-click or long-press for more. Press <b>/</b> to search. Category chips read places from the map on your screen. See <b>About</b> for where each request goes.</p>`;
   }
   return field + chips + main;
 }
@@ -1036,22 +1173,42 @@ function cardHTML(c) {
   if (srcLine) rows += `<dt>Source</dt><dd>${esc(srcLine)}${c.osm ? ` · <a href="${esc(c.osm)}" target="_blank" rel="noopener">view or edit on OSM</a>` : ''}</dd>`;
   const tag = c.kind === 'place' ? `<span class="label" style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:var(${GROUP_TOK[c.g] || '--p-serv'})"></span>${esc(c.cat || 'Place')}</span>` : `<span class="label">${esc(c.cat || (c.kind === 'pin' ? 'Dropped pin' : 'Place'))}</span>`;
   return `<div class="card"><button class="back" id="back">← ${S.q || S.chip != null ? 'Results' : 'Search'}</button>${tag}<h2>${esc(c.name)}</h2><dl class="kv">${rows}</dl>
-    <div class="btnrow"><button class="btn primary" id="go-to">Directions here</button><button class="btn" id="go-from">Start from here</button></div></div>`;
+    <div class="btnrow"><button class="btn primary" id="go-to">Directions here</button><button class="btn" id="go-from">Start from here</button>${S.from && S.to && S.stops.length < MAX_STOPS ? '<button class="btn" id="go-stop">Add as stop</button>' : ''}</div>
+    <div class="btnrow"><button class="btn sm" id="save" aria-pressed="${isSaved(c)}">${isSaved(c) ? '★ Saved' : '☆ Save'}</button><button class="btn sm" id="share">Share</button>${S.iso ? '' : '<button class="btn sm" id="go-iso">Reachable from here</button>'}</div>${isoHTML()}</div>`;
+}
+const ISO_MIN = { walk:[5, 10, 15], bike:[10, 20, 30], car:[10, 20, 30] };
+const BY = { walk:'on foot', bike:'by bike', car:'by car' };
+function isoHTML() {
+  const iso = S.iso; if (!iso) return '';
+  const modes = `<div class="modes" role="group" aria-label="Travel mode">${Object.entries(MODES).map(([k, m]) => `<button data-isomode="${k}" aria-pressed="${iso.mode === k}">${m.label}</button>`).join('')}</div>`;
+  const op = [.30, .19, .11];
+  const body = iso.loading ? `<p class="busy">Asking Valhalla…</p>` : iso.error ? `<div class="err">${esc(iso.error)}</div>`
+    : `<div class="legend">${iso.mins.map((m, k) => `<span><i style="opacity:${(op[k] * 2.4).toFixed(2)}"></i>${m} min</span>`).join('')}</div>`;
+  return `<div class="iso" id="iso-box"><div class="pack-row"><h3>Reachable ${BY[iso.mode]}</h3><button class="xbtn" id="iso-clear">CLEAR</button></div>${modes}${body}
+    <p class="note">Areas you can reach from this point within ${iso.mins.join(', ')} minutes, from Valhalla on the FOSSGIS public server. No live traffic.</p></div>`;
 }
 function dirsHTML() {
-  const fld = (id, lab, ep) => `<div class="field"><label for="${id}">${lab}</label><input id="${id}" autocomplete="off" spellcheck="false" placeholder="Search or tap the map" value="${esc(ep ? ep.label : (S.activeField === id ? S.draft : ''))}">${ep ? `<button class="xbtn" data-clear="${id}" aria-label="Clear ${lab}">✕</button>` : ''}</div>`;
+  const fld = (id, lab, ep, stopNo) => `<div class="field"><label for="${id}">${lab}</label><input id="${id}" autocomplete="off" spellcheck="false" placeholder="${stopNo ? 'Add a stop' : 'Search or tap the map'}" value="${esc(ep ? ep.label : (S.activeField === id ? S.draft : ''))}">${stopNo ? `<button class="xbtn" data-rmstop="${stopNo - 1}" aria-label="Remove stop ${stopNo}">✕</button>` : ep ? `<button class="xbtn" data-clear="${id}" aria-label="Clear ${lab}">✕</button>` : ''}</div>`;
   const sugg = S.activeField && S.suggest.length ? `<div class="suggest">${resultRows(S.suggest, 'sug')}</div>` : '';
   const modes = `<div class="modes" role="group" aria-label="Travel mode">${Object.entries(MODES).map(([k, m]) => `<button data-mode="${k}" aria-pressed="${S.mode === k}">${m.label}</button>`).join('')}</div>`;
+  const avoidKeys = S.mode === 'car' ? ['highways', 'tolls', 'ferries'] : ['ferries'];
+  const avoid = `<div class="avoid" role="group" aria-label="Avoid"><span class="label">Avoid</span>${avoidKeys.map(k => `<button class="chip" data-avoid="${k}" aria-pressed="${S.avoid[k]}">${pretty(k)}</button>`).join('')}</div>`;
+  const addStop = S.stops.length < MAX_STOPS ? `<button class="addstop" id="addstop">+ Add stop</button>` : '';
   const r = S.route; let out = '';
   if (r && r.loading) out = `<p class="busy">Asking Valhalla for a route…</p>`;
   else if (r && r.error) out = `<div class="err">${esc(r.error)}</div>`;
   else if (r && r.coords) {
     const where = r.engine === 'device' ? 'on your device' : 'by Valhalla';
-    out = `<div class="summary"><div><div class="label">Estimated · ${MODES[S.mode].label.toLowerCase()} · ${where}</div><div class="t">${fmtTime(r.seconds)}</div></div><div class="d">${fmtDist(r.dist)}${r.via ? `<br>via ${esc(r.via)}` : ''}</div></div>`
-      + `<ol class="steps">${r.steps.map((s, k) => `<li data-step="${k}"><span class="n">${String(k + 1).padStart(2, '0')}</span><span class="what"><span class="turn">${esc(s.turn)}</span>${esc(s.text)}</span><span class="len">${s.len ? fmtDist(s.len) : ''}</span></li>`).join('')}</ol>`
-      + `<p class="note">${r.engine === 'device' ? `Computed on your device from the ${esc(PACK.name)} region pack (${fmtCount(r.visited)} intersections searched). Assumes steady speeds; no traffic, signals or turn restrictions.` : 'Route from Valhalla on the FOSSGIS public server, using OpenStreetMap data. No live traffic.'}</p>`;
-  } else out = `<p class="note">Choose a start and a destination: search above, or tap the map and use <b>Start from here</b> or <b>Directions here</b>.</p>`;
-  return `<div class="dirs"><div class="dirs-grid"><div class="dirs-fields">${fld('from', 'From', S.from)}${fld('to', 'To', S.to)}</div><button class="swap" id="swap" aria-label="Swap start and destination">⇅</button></div>${sugg}${modes}</div>${out}`;
+    const alts = S.routes.length > 1 ? `<div class="label">${S.routes.length} routes · tap one, or a grey line on the map</div><div class="alts" role="group" aria-label="Routes">${S.routes.map((x, k) => `<button class="alt" data-alt="${k}" aria-pressed="${k === S.alt}"><span class="t">${fmtTime(x.seconds)}</span><span class="d">${fmtDist(x.dist)}</span>${x.via ? `<span class="v">via ${esc(x.via)}${k === 0 ? ' · fastest' : ''}</span>` : ''}</button>`).join('')}</div>` : '';
+    const stopsNote = S.stops.filter(Boolean).length ? ` · ${S.stops.filter(Boolean).length} stop${S.stops.filter(Boolean).length > 1 ? 's' : ''}` : '';
+    const avoidNote = r.engine === 'device' && Object.values(S.avoid).some(Boolean) ? ' Avoid options apply to Valhalla routes only.' : '';
+    out = `<div class="summary"><div><div class="label">Estimated · ${MODES[S.mode].label.toLowerCase()}${stopsNote} · ${where}</div><div class="t">${fmtTime(r.seconds)}</div></div><div class="d">${fmtDist(r.dist)}${r.via ? `<br>via ${esc(r.via)}` : ''}</div></div>`
+      + `<div class="btnrow"><button class="btn sm" id="share-route">Share route</button></div>` + alts
+      + `<ol class="steps">${r.steps.map((st, k) => `<li data-step="${k}"><span class="n">${String(k + 1).padStart(2, '0')}</span><span class="what"><span class="turn">${esc(st.turn)}</span>${esc(st.text)}</span><span class="len">${st.len ? fmtDist(st.len) : ''}</span></li>`).join('')}</ol>`
+      + `<p class="note">${r.engine === 'device' ? `Computed on your device from the ${esc(PACK.name)} region pack (${fmtCount(r.visited)} intersections searched). Assumes steady speeds; no traffic, signals or turn restrictions.` : 'Route from Valhalla on the FOSSGIS public server, using OpenStreetMap data. No live traffic.'}${avoidNote}</p>`;
+  } else out = `<p class="note">Choose a start and a destination: search above, pick <b>Your location</b>, or tap the map and use <b>Start from here</b> or <b>Directions here</b>. Right-click or long-press the map for a shortcut.</p>`;
+  const fields = fld('from', 'From', S.from) + S.stops.map((st, i) => fld('stop' + i, 'Stop', st, i + 1)).join('') + fld('to', 'To', S.to);
+  return `<div class="dirs"><div class="dirs-grid"><div class="dirs-fields">${fields}</div><button class="swap" id="swap" aria-label="Reverse the route">⇅</button></div>${sugg}${addStop}${modes}${avoid}</div>${out}`;
 }
 
 // ================================================================== EVENTS
@@ -1059,17 +1216,24 @@ let deb;
 $('#body').addEventListener('input', (e) => {
   const id = e.target.id;
   if (id === 'q') { S.q = e.target.value; S.chip = null; S.card = null; clearTimeout(deb); deb = setTimeout(() => doSearch(S.q, 'q'), 280); render(); }
-  else if (id === 'from' || id === 'to') {
+  else if (isEp(id)) {
     S.activeField = id; S.draft = e.target.value;
-    if (S[id]) { S[id] = null; S.route = null; syncRoute(); }
-    clearTimeout(deb); deb = setTimeout(() => doSearch(S.draft, id), 280);
+    if (getEp(id)) { setEp(id, null); S.route = null; S.routes = []; syncRoute(); }
+    clearTimeout(deb);
+    if (!S.draft.trim()) { S.suggest = quickSuggest(); render(); return; }
+    deb = setTimeout(() => doSearch(S.draft, id), 280);
   }
 });
-$('#body').addEventListener('focusin', (e) => { const id = e.target.id; if ((id === 'from' || id === 'to') && S.activeField !== id) { S.activeField = id; S.draft = S[id] ? S[id].label : ''; S.suggest = []; } });
+$('#body').addEventListener('focusin', (e) => {
+  const id = e.target.id; if (!isEp(id) || S.activeField === id) return;
+  S.activeField = id; S.draft = getEp(id) ? getEp(id).label : '';
+  S.suggest = getEp(id) ? [] : quickSuggest();
+  if (S.suggest.length) render();
+});
 $('#body').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     if (e.target.id === 'q') { e.preventDefault(); clearTimeout(deb); if (S.hits.length) chooseHit(S.hits[0]); else doSearch(S.q, 'q'); }
-    if ((e.target.id === 'from' || e.target.id === 'to') && S.suggest.length) { e.preventDefault(); chooseSuggestion(0); }
+    if (isEp(e.target.id) && S.suggest.length) { e.preventDefault(); chooseSuggestion(0); }
   }
   if (e.key === 'Escape' && S.activeField) { S.suggest = []; render(); }
 });
@@ -1082,35 +1246,60 @@ $('#body').addEventListener('click', (e) => {
     if (S.chip == null) { S.hits = []; S.needZoom = false; } else { const r = chipSearch(CHIPS[i]); S.hits = r.list; S.needZoom = r.needZoom; }
     setHits(S.hits); render(); fitHits(); return; }
   if (d.hit != null) { chooseHit(S.hits[+d.hit]); return; }
+  if (d.saved != null) { openCard(cardFromSlim(S.saved[+d.saved])); return; }
+  if (d.recent != null) { openCard(cardFromSlim(S.recent[+d.recent])); return; }
+  if (t.id === 'recent-clear') { S.recent = []; store.set('recent', []); render(); return; }
+  if (t.id === 'save') { toggleSave(S.card); return; }
+  if (t.id === 'share') { shareLink(S.card.name); return; }
+  if (t.id === 'share-route') { shareLink(`Route to ${S.to ? S.to.label : 'destination'}`); return; }
+  if (t.id === 'go-iso') { reachFrom(S.card, S.mode); return; }
+  if (d.isomode) { reachFrom(S.card, d.isomode); return; }
+  if (t.id === 'iso-clear') { clearIso(); render(); return; }
+  if (t.id === 'go-stop') { S.stops.push(endpointFrom(S.card)); S.card = null; setMarker('sel', null); S.tab = 'dirs'; render(); planRoute(); return; }
+  if (t.id === 'addstop') { S.stops.push(null); S.activeField = 'stop' + (S.stops.length - 1); S.draft = ''; S.suggest = quickSuggest(); render(); const f = document.getElementById(S.activeField); f && f.focus(); return; }
+  if (d.rmstop != null) { S.stops.splice(+d.rmstop, 1); S.activeField = null; S.suggest = []; render(); planRoute(false); return; }
+  if (d.avoid) { S.avoid[d.avoid] = !S.avoid[d.avoid]; render(); planRoute(false); return; }
+  if (d.alt != null) { pickAlt(+d.alt); return; }
   if (d.sug != null) { chooseSuggestion(+d.sug); return; }
-  if (t.id === 'back') { S.card = null; setMarker('sel', null); render(); return; }
+  if (t.id === 'back') { clearIso(); S.card = null; setMarker('sel', null); render(); return; }
   if (d.copy != null) { copyText(d.copy, t); return; }
   if (t.id === 'go-to' || t.id === 'go-from') {
     const ep = endpointFrom(S.card);
     if (t.id === 'go-to') S.to = ep; else S.from = ep;
-    S.card = null; setMarker('sel', null); S.tab = 'dirs'; S.activeField = null; S.suggest = [];
+    clearIso(); S.card = null; setMarker('sel', null); S.tab = 'dirs'; S.activeField = null; S.suggest = [];
     render(); planRoute(); if (!S.from || !S.to) { const f = document.getElementById(t.id === 'go-to' ? 'from' : 'to'); f && f.focus(); }
     return;
   }
   if (d.mode) { S.mode = d.mode; render(); planRoute(); return; }
-  if (t.id === 'swap') { [S.from, S.to] = [S.to, S.from]; render(); planRoute(); return; }
-  if (d.clear) { S[d.clear] = null; S.activeField = d.clear; S.draft = ''; S.suggest = []; S.route = null; syncRoute(); render(); document.getElementById(d.clear).focus(); return; }
+  if (t.id === 'swap') { const l = routeEps(true).reverse(); S.from = l[0]; S.to = l[l.length - 1]; S.stops = l.slice(1, -1); render(); planRoute(); return; }
+  if (d.clear) { setEp(d.clear, null); S.activeField = d.clear; S.draft = ''; S.suggest = quickSuggest(); S.route = null; S.routes = []; syncRoute(); render(); document.getElementById(d.clear).focus(); return; }
   if (t.id === 'pack-get') { loadPack(); return; }
   if (t.id === 'pack-remove') { removePack(); return; }
-  if (d.step != null) { const s = S.route.steps[+d.step]; if (s.at) hideWorld(); if (s.at) map.flyTo({ center: s.at, zoom: Math.max(map.getZoom(), 16.5), padding: pad(), duration: 700 }); }
+  if (d.step != null) { const s = S.route.steps[+d.step]; if (!s) return; if (s.at) hideWorld(); if (s.at) map.flyTo({ center: s.at, zoom: Math.max(map.getZoom(), 16.5), padding: pad(), duration: 700 }); }
 });
 function chooseHit(h) {
   if (!h) return;
-  if (h.src === 'pack' && h.kind === 'place') openCard(packPlaceCard(h.i));
-  else { const card = { kind: h.kind, src: h.src, name: h.name, cat: h.cat, g: h.g, addr: h.addr, ll: h.ll, extent: h.extent, type: h.type, osm: h.osm }; openCard(card); if (!card.addr && h.src === 'tiles') reverse(card); }
+  if (h.src === 'pack' && h.kind === 'place') { const c = packPlaceCard(h.i); openCard(c); addRecent(c); }
+  else { const card = { kind: h.kind, src: h.src, name: h.name, cat: h.cat, g: h.g, addr: h.addr, ll: h.ll, extent: h.extent, type: h.type, osm: h.osm }; openCard(card); addRecent(card); if (!card.addr && h.src === 'tiles') reverse(card); }
 }
-function chooseSuggestion(k) {
+const isEp = (id) => id === 'from' || id === 'to' || /^stop\d$/.test(id || '');
+const getEp = (id) => id.startsWith('stop') ? S.stops[+id.slice(4)] : S[id];
+const setEp = (id, v) => { if (id.startsWith('stop')) S.stops[+id.slice(4)] = v; else S[id] = v; };
+function quickSuggest() {
+  const me = { src:'me', kind:'me', g:'place', name:'Your location', sub: S.me ? `Accurate to ${fmtDist(S.me.acc)}` : 'Uses your device location', ll: S.me ? [S.me.lon, S.me.lat] : null };
+  return [me, ...asItems(S.saved, 'saved'), ...asItems(S.recent, 'recent').filter(r => !isSaved(r))].slice(0, 9);
+}
+async function chooseSuggestion(k) {
   const h = S.suggest[k]; if (!h) return;
   const which = S.activeField || (S.from ? 'to' : 'from');
-  S[which] = { lon: h.ll[0], lat: h.ll[1], label: h.name };
   S.suggest = []; S.activeField = null; S.draft = '';
+  if (h.src === 'me') {
+    let me; try { me = await locate(false); } catch { render(); return; }
+    setEp(which, { lon: me.lon, lat: me.lat, label: 'Your location' });
+  } else setEp(which, { lon: h.ll[0], lat: h.ll[1], label: h.name });
   render(); planRoute();
-  if (!S.from || !S.to) { const other = document.getElementById(which === 'from' ? 'to' : 'from'); other && other.focus(); }
+  const next = ['from', ...S.stops.map((_, i) => 'stop' + i), 'to'].find(id => id !== which && !getEp(id) && id.startsWith('stop') === false);
+  if (next) { const el = document.getElementById(next); el && el.focus(); }
 }
 function fitHits() {
   if (!S.hits.length) return;
@@ -1119,7 +1308,7 @@ function fitHits() {
   map.fitBounds(b, { padding: pad(), maxZoom: 16.5, duration: 700 });
 }
 $('#tab-search').addEventListener('click', () => { S.tab = 'search'; render(); });
-$('#tab-dirs').addEventListener('click', () => { S.tab = 'dirs'; S.card = null; setMarker('sel', null); render(); });
+$('#tab-dirs').addEventListener('click', () => { clearIso(); S.tab = 'dirs'; S.card = null; setMarker('sel', null); render(); });
 $('#handle').addEventListener('click', () => $('#panel').classList.toggle('collapsed'));
 const openAbout = () => { $('#about').hidden = false; $('#about-close').focus(); };
 $('#about-link').addEventListener('click', openAbout);
@@ -1127,7 +1316,11 @@ $('#tinfo').addEventListener('click', openAbout);
 $('#about-m').addEventListener('click', openAbout);
 $('#about-close').addEventListener('click', () => { $('#about').hidden = true; });
 $('#about').addEventListener('click', (e) => { if (e.target.id === 'about') $('#about').hidden = true; });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('#about').hidden = true; });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { $('#about').hidden = true; closeCtx(); if (S.measure) stopMeasure(); }
+  const typing = e.target.closest && e.target.closest('input, textarea, [contenteditable]');
+  if (e.key === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); S.tab = 'search'; S.card = null; setMarker('sel', null); $('#panel').classList.remove('collapsed'); render(); const q = $('#q'); q && q.focus(); }
+});
 $('#zin').addEventListener('click', () => { if (!map) return; if (S.world) { enterMap(worldCentre(), 2.6); return; } map.zoomIn(); });
 $('#zout').addEventListener('click', () => { if (!map || S.world) return; if (map.getZoom() <= 2.05) showWorld(); else map.zoomOut(); });
 $('#tworld').addEventListener('click', () => { if (S.world) enterMap(worldCentre(), 2.6); else showWorld(); });
@@ -1135,6 +1328,7 @@ $('#t3d').addEventListener('click', () => {
   if (!map) return; hideWorld(); S.three = !S.three; $('#t3d').setAttribute('aria-pressed', S.three);
   map.setLayoutProperty('buildings-3d', 'visibility', S.three ? 'visible' : 'none');
   if (S.three) { map.dragRotate.enable(); map.touchZoomRotate.enableRotation(); map.easeTo({ pitch: 58, bearing: -18, zoom: Math.max(map.getZoom(), 15.6), duration: 900 }); }
+  else if (S.terrain) map.easeTo({ pitch: 50, duration: 700 });
   else { map.dragRotate.disable(); map.touchZoomRotate.disableRotation(); map.easeTo({ pitch: 0, bearing: 0, duration: 700 }); }
 });
 
@@ -1295,6 +1489,272 @@ fetch('data/world.json').then(r => { if (!r.ok) throw new Error(`world.json retu
   .then(j => { WORLD = decodeWorld(j); drawWorld(); })
   .catch(err => { console.warn('DATUM world view unavailable:', err.message); hideWorld(); });
 
+
+// ================================================================== TOAST
+let toastT;
+function toast(msg, ms = 2600) { const el = $('#toast'); el.textContent = msg; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, ms); }
+
+// ================================================================== SHAREABLE LINKS (state in the URL hash)
+// #map=Z/LAT/LON[/BEARING/PITCH] & pin=LAT,LON & name=… | q=… | r=LAT,LON,LABEL;… & mode=… & avoid=… & alt=N, layers=terrain
+let urlT = null, booted = false;
+const enc = (v) => encodeURIComponent(v).replace(/%20/g, '+').replace(/%2C/g, ',');
+const dec = (v) => { try { return decodeURIComponent(String(v || '').replace(/\+/g, ' ')); } catch { return ''; } };
+function urlState() {
+  const p = [];
+  if (map && !S.world) {
+    const c = map.getCenter(); let v = `${map.getZoom().toFixed(2)}/${c.lat.toFixed(5)}/${(((c.lng + 540) % 360) - 180).toFixed(5)}`;
+    if (map.getPitch() > 1 || Math.abs(map.getBearing()) > 1) v += `/${Math.round(map.getBearing())}/${Math.round(map.getPitch())}`;
+    p.push('map=' + v);
+  }
+  if (S.tab === 'dirs') {
+    const eps = routeEps(true);
+    if (eps.some(Boolean)) {
+      // labels: commas and semicolons are escaped so they never split an entry
+      p.push('r=' + eps.map(e => e ? `${e.lat.toFixed(6)},${e.lon.toFixed(6)},${encodeURIComponent(e.label || '').replace(/%20/g, '+')}` : '').join(';'));
+      p.push('mode=' + S.mode);
+      const av = Object.keys(S.avoid).filter(k => S.avoid[k]); if (av.length) p.push('avoid=' + av.join(','));
+      if (S.alt) p.push('alt=' + S.alt);
+    }
+  } else if (S.card) {
+    p.push(`pin=${S.card.ll[1].toFixed(6)},${S.card.ll[0].toFixed(6)}`);
+    if (S.card.kind !== 'pin') p.push('name=' + enc(S.card.name));
+    if (S.iso && !S.iso.error) p.push('reach=' + S.iso.mode);
+  } else if (S.q) p.push('q=' + enc(S.q));
+  if (S.terrain) p.push('layers=terrain');
+  return p.join('&');
+}
+function writeURL() {
+  clearTimeout(urlT); const st = urlState(), h = st ? '#' + st : '';
+  if (location.hash !== h) try { history.replaceState(null, '', h || location.pathname + location.search); } catch {}
+}
+function queueURL() { if (!booted) return; clearTimeout(urlT); urlT = setTimeout(writeURL, 300); }
+function readURL() {
+  const raw = {}; for (const kv of location.hash.slice(1).split('&')) { const i = kv.indexOf('='); if (i > 0) raw[kv.slice(0, i)] = kv.slice(i + 1); }
+  const get = (k) => dec(raw[k]);
+  let placed = false;
+  const mv = get('map').split('/').map(Number);
+  if (mv.length >= 3 && mv.slice(0, 3).every(Number.isFinite)) {
+    hideWorld(); map.jumpTo({ zoom: mv[0], center: [mv[2], mv[1]], bearing: mv[3] || 0, pitch: mv[4] || 0 });
+    if ((mv[4] || 0) > 1 || mv[3]) { map.dragRotate.enable(); map.touchZoomRotate.enableRotation(); }
+    placed = true;
+  }
+  if (get('layers') === 'terrain') setTerrain(true, !placed);
+  if (raw.r) {
+    const eps = raw.r.split(';').map(x => { if (!x) return null; const [la, lo, ...rest] = x.split(','); const lat = +la, lon = +lo;
+      if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90) return null;
+      const label = dec(rest.join(','));
+      return { lat, lon, label: label || `${lat.toFixed(5)}, ${lon.toFixed(5)}` }; });
+    if (eps.length >= 2) { S.from = eps[0]; S.to = eps[eps.length - 1]; S.stops = eps.slice(1, -1).filter(Boolean).slice(0, MAX_STOPS); }
+    if (MODES[get('mode')]) S.mode = get('mode');
+    for (const k of get('avoid').split(',')) if (k in S.avoid) S.avoid[k] = true;
+    S.altWant = Math.max(0, Math.min(2, +get('alt') || 0));
+    if (!placed && (S.from || S.to)) { const e0 = S.from || S.to; hideWorld(); map.jumpTo({ center: [e0.lon, e0.lat], zoom: 12 }); }
+    S.tab = 'dirs'; render(); if (S.from && S.to) planRoute(!placed); else syncRoute();
+    return;
+  }
+  const pin = get('pin').split(',').map(Number);
+  if (pin.length === 2 && pin.every(Number.isFinite) && Math.abs(pin[0]) <= 90) {
+    const name = get('name');
+    const card = name ? { kind:'place', name, ll:[pin[1], pin[0]], g:'place', cat:'Shared place' } : { kind:'pin', name:'Dropped pin', ll:[pin[1], pin[0]] };
+    openCard(card, !placed); reverse(card);
+    if (MODES[get('reach')]) reachFrom(card, get('reach'), !placed);
+    return;
+  }
+  if (get('q')) { S.q = get('q'); render(); doSearch(S.q, 'q'); }
+}
+async function shareLink(title) {
+  writeURL(); const url = location.href;
+  if (navigator.share && (MOBILE.matches || /Android|iPhone|iPad/.test(navigator.userAgent))) {
+    try { await navigator.share({ title: title ? `${title} · DATUM Maps` : 'DATUM Maps', url }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  try { await navigator.clipboard.writeText(url); toast('Link copied. It opens this exact view.'); }
+  catch { toast(url, 8000); }
+}
+
+// ================================================================== REACHABILITY (Valhalla isochrones)
+let isoCtl;
+function clearIso() { if (isoCtl) isoCtl.abort(); S.iso = null; syncIso(); }
+async function reachFrom(card, mode = S.mode, fit = true) {
+  if (!card) return;
+  if (isoCtl) isoCtl.abort(); isoCtl = new AbortController();
+  S.mode = mode;
+  const iso = S.iso = { ll: card.ll, mode, mins: ISO_MIN[mode], loading: true };
+  syncIso(); render();
+  const body = { locations: [{ lat: card.ll[1], lon: card.ll[0] }], costing: MODES[mode].costing, costing_options: { [MODES[mode].costing]: costingOptions(mode) },
+    contours: iso.mins.map(time => ({ time })), polygons: true, denoise: 0.4, generalize: 30 };
+  try {
+    const res = await fetch(`${CONFIG.isochrone}?json=${encodeURIComponent(JSON.stringify(body))}`, { signal: isoCtl.signal });
+    const j = await res.json().catch(() => ({}));
+    if (S.iso !== iso) return;
+    if (!res.ok || !Array.isArray(j.features)) iso.error = j.error ? `Routing service: ${j.error}.` : `Routing service returned ${res.status}.`;
+    else iso.features = j.features.filter(f => f.geometry && /Polygon$/.test(f.geometry.type)).sort((a, b) => (b.properties.contour || 0) - (a.properties.contour || 0));
+  } catch (e) { if (e.name === 'AbortError') return; if (S.iso === iso) iso.error = 'Routing service unreachable. Check your connection and try again.'; }
+  if (S.iso !== iso) return;
+  iso.loading = false; syncIso(); render();
+  if (fit && iso.features && iso.features.length) {
+    hideWorld();
+    const b = new maplibregl.LngLatBounds(card.ll, card.ll);
+    const ext = (c) => { if (typeof c[0] === 'number') b.extend(c); else c.forEach(ext); };
+    iso.features.forEach(f => ext(f.geometry.coordinates));
+    map.fitBounds(b, { padding: pad(), maxZoom: 16, duration: 900 });
+  }
+}
+function syncIso() {
+  if (!map || !map.getSource('iso')) return;
+  const iso = S.iso, f = iso && iso.features;
+  map.getSource('iso').setData(f ? { type:'FeatureCollection', features: f.map(x => ({ type:'Feature', geometry: x.geometry, properties: { min: x.properties.contour, k: iso.mins.indexOf(x.properties.contour) } })) } : EMPTY);
+}
+
+// ================================================================== MEASURE DISTANCE
+function startMeasure(first) {
+  closeCtx(); hideWorld();
+  S.measure = first ? [first] : [];
+  $('#tmeasure').setAttribute('aria-pressed', 'true'); $('#measure-box').hidden = false;
+  map.getCanvas().style.cursor = 'crosshair'; syncMeasure();
+}
+function stopMeasure() {
+  S.measure = null; $('#tmeasure').setAttribute('aria-pressed', 'false'); $('#measure-box').hidden = true;
+  map.getCanvas().style.cursor = ''; syncMeasure();
+}
+function measureLen(pts) { let m = 0; for (let i = 1; i < pts.length; i++) m += geoDist(pts[i - 1], pts[i]); return m; }
+function syncMeasure() {
+  if (!map || !map.getSource('measure')) return;
+  const pts = S.measure || [];
+  const feats = pts.map(c => ({ type:'Feature', properties:{}, geometry:{ type:'Point', coordinates: c } }));
+  if (pts.length > 1) feats.unshift({ type:'Feature', properties:{}, geometry:{ type:'LineString', coordinates: pts } });
+  map.getSource('measure').setData({ type:'FeatureCollection', features: feats });
+  const m = measureLen(pts);
+  $('#measure-v').textContent = pts.length < 2 ? 'Tap the map' : m < 1000 ? `${m.toFixed(m < 100 ? 1 : 0)} m` : `${(m / 1000).toFixed(m < 100000 ? 2 : 0)} km`;
+  $('#measure-undo').hidden = !pts.length;
+}
+$('#tmeasure').addEventListener('click', () => { if (!map) return; if (S.measure) stopMeasure(); else startMeasure(); });
+$('#measure-done').addEventListener('click', stopMeasure);
+$('#measure-undo').addEventListener('click', () => { if (S.measure) { S.measure.pop(); syncMeasure(); } });
+
+// ================================================================== LOCATE ME
+let watchId = null;
+function geoCircle(c, r) {
+  const mx = 111320 * Math.cos(c.lat * Math.PI / 180), ring = [];
+  for (let i = 0; i <= 48; i++) { const a = i / 48 * 2 * Math.PI; ring.push([c.lon + Math.cos(a) * r / mx, c.lat + Math.sin(a) * r / 111320]); }
+  return { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[ring] } };
+}
+function setMe(pos) {
+  S.me = { lon: pos.coords.longitude, lat: pos.coords.latitude, acc: Math.max(5, pos.coords.accuracy || 0) };
+  if (markers.me) markers.me.setLngLat([S.me.lon, S.me.lat]); else setMarker('me', S.me, '', 'me');
+  if (map.getSource('meAcc')) map.getSource('meAcc').setData(geoCircle(S.me, S.me.acc));
+  $('#tlocate').setAttribute('aria-pressed', 'true');
+}
+function stopLocate() {
+  if (watchId != null) navigator.geolocation.clearWatch(watchId); watchId = null; S.me = null;
+  setMarker('me', null); if (map.getSource('meAcc')) map.getSource('meAcc').setData(EMPTY);
+  $('#tlocate').setAttribute('aria-pressed', 'false');
+}
+function flyToMe() { if (!S.me) return; hideWorld(); map.flyTo({ center: [S.me.lon, S.me.lat], zoom: Math.max(map.getZoom(), S.me.acc > 2000 ? 11 : 15.5), padding: pad(), duration: 1100, essential: true }); }
+function locate(fly = true) {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) { toast('This browser cannot share its location.'); reject(new Error('unsupported')); return; }
+    const btn = $('#tlocate'); btn.classList.add('busy');
+    navigator.geolocation.getCurrentPosition((pos) => {
+      btn.classList.remove('busy'); setMe(pos); if (fly) flyToMe();
+      if (watchId == null) watchId = navigator.geolocation.watchPosition(setMe, () => {}, { enableHighAccuracy: true, maximumAge: 5000 });
+      resolve(S.me);
+    }, (err) => {
+      btn.classList.remove('busy');
+      toast(err && err.code === 1 ? 'Location is blocked. Allow it for this site in your browser settings.' : 'Could not find your location. Try again outdoors or check location services.', 4200);
+      reject(err || new Error('geolocation failed'));
+    }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
+  });
+}
+$('#tlocate').addEventListener('click', () => {
+  if (!map) return;
+  if (S.me) {
+    const p = map.project([S.me.lon, S.me.lat]), c = map.project(map.getCenter());
+    if (!S.world && Math.hypot(p.x - c.x, p.y - c.y) < 40) stopLocate(); else flyToMe();
+    return;
+  }
+  locate(true).catch(() => {});
+});
+
+// ================================================================== TERRAIN (hillshade + 3D relief)
+let styleReady = false;
+function setTerrain(on, ease = true) {
+  if (!map) return;
+  if (!styleReady) { map.once('load', () => setTerrain(on, ease)); return; }
+  S.terrain = on; $('#tterrain').setAttribute('aria-pressed', String(on)); $('#att-terrain').hidden = !on;
+  const dem = { type:'raster-dem', tiles:[CONFIG.terrain], tileSize:256, maxzoom:15, encoding:'terrarium' };
+  if (on) {
+    hideWorld();
+    if (!map.getSource('dem')) { map.addSource('dem', dem); map.addSource('dem-hs', dem); }
+    if (!map.getLayer('hillshade')) map.addLayer({ id:'hillshade', type:'hillshade', source:'dem-hs', paint: paintFor(palette()).hillshade }, 'buildings');
+    try { map.setTerrain({ source:'dem', exaggeration: 1.35 }); } catch (e) { console.warn('DATUM terrain unavailable:', e.message); }
+    map.dragRotate.enable(); map.touchZoomRotate.enableRotation();
+    if (ease && map.getPitch() < 30) map.easeTo({ pitch: 50, duration: 900 });
+  } else {
+    if (map.getLayer('hillshade')) map.removeLayer('hillshade');
+    try { map.setTerrain(null); } catch {}
+    if (!S.three) { map.dragRotate.disable(); map.touchZoomRotate.disableRotation(); if (ease) map.easeTo({ pitch: 0, bearing: 0, duration: 700 }); }
+  }
+  queueURL();
+}
+$('#tterrain').addEventListener('click', () => setTerrain(!S.terrain));
+
+// ================================================================== MAP POINT MENU (right-click / long-press)
+let ctxLL = null, suppressClick = false;
+function closeCtx() { const el = $('#ctx'); if (!el.hidden) { el.hidden = true; ctxLL = null; } }
+function openCtx(pt, ll) {
+  if (S.measure) return;
+  ctxLL = [((ll[0] + 540) % 360) - 180, ll[1]];
+  const el = $('#ctx'), coord = `${ctxLL[1].toFixed(5)}, ${ctxLL[0].toFixed(5)}`;
+  const items = [['here', 'What’s here?'], ['from', 'Directions from here'], ['to', 'Directions to here']];
+  if (S.from && S.to && S.stops.length < MAX_STOPS) items.push(['stop', 'Add as a stop']);
+  items.push(['reach', 'Reachable from here'], ['measure', 'Measure distance'], ['share', 'Share this spot']);
+  el.innerHTML = `<button class="hd" data-ctx="copy" role="menuitem">${coord} · copy</button>` + items.map(([k, l]) => `<button class="it" role="menuitem" data-ctx="${k}">${esc(l)}</button>`).join('');
+  el.hidden = false;
+  const sheet = $('#sheet').getBoundingClientRect(), mr = $('#map').getBoundingClientRect();
+  let x = pt.x + mr.left - sheet.left + 6, y = pt.y + mr.top - sheet.top + 6;
+  x = Math.max(8, Math.min(x, sheet.width - el.offsetWidth - 8)); y = Math.max(8, Math.min(y, sheet.height - el.offsetHeight - 8));
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  el.querySelector('.it').focus({ preventScroll: true });
+}
+async function reverseLabel(ll) {
+  try {
+    const res = await fetch(`${CONFIG.search}/reverse?lon=${ll[0].toFixed(6)}&lat=${ll[1].toFixed(6)}&lang=en&limit=1`);
+    if (!res.ok) return null; const f = ((await res.json()).features || [])[0]; return f ? photonToItem(f).name : null;
+  } catch { return null; }
+}
+function dropPin(ll) {
+  if (S.pack.status === 'ready' && inBBox({ lon: ll[0], lat: ll[1] }, PACK.bbox)) {
+    // nearest street from the pack, no request needed
+    let best = -1, bd = Infinity; for (let i = 0; i < G.nN; i++) { if (G.anyName[i] < 0) continue; const d = distM(ll, [G.nx[i], G.ny[i]]); if (d < bd) { bd = d; best = i; } }
+    const near = best >= 0 && bd < 250 ? R.names[G.anyName[best]] : '';
+    const card = { kind:'pin', src:'pack', name: near ? `Near ${near}` : 'Dropped pin', near, ll }; openCard(card, false); return card;
+  }
+  const card = { kind:'pin', name:'Dropped pin', ll }; openCard(card, false); reverse(card); return card;
+}
+function setEndpointAt(which, ll) {
+  const ep = { lon: ll[0], lat: ll[1], label: `${ll[1].toFixed(5)}, ${ll[0].toFixed(5)}` };
+  if (which === 'stop') S.stops.push(ep); else S[which] = ep;
+  clearIso(); S.card = null; setMarker('sel', null); S.tab = 'dirs'; S.activeField = null; S.suggest = [];
+  if (MOBILE.matches) $('#panel').classList.remove('collapsed');
+  render(); planRoute();
+  reverseLabel(ll).then(n => { if (n && routeEps(true).includes(ep)) { ep.label = n; render(); } });
+}
+$('#ctx').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-ctx]'); if (!b || !ctxLL) return;
+  const ll = ctxLL, k = b.dataset.ctx; closeCtx();
+  if (k === 'copy') { const t = `${ll[1].toFixed(6)}, ${ll[0].toFixed(6)}`; navigator.clipboard.writeText(t).then(() => toast(`Copied ${t}`), () => toast(t, 6000)); return; }
+  if (k === 'here') { dropPin(ll); return; }
+  if (k === 'from' || k === 'to' || k === 'stop') { setEndpointAt(k, ll); return; }
+  if (k === 'reach') { reachFrom(dropPin(ll)); return; }
+  if (k === 'measure') { startMeasure(ll); return; }
+  if (k === 'share') { const c = dropPin(ll); shareLink(c.name); }
+});
+$('#ctx').addEventListener('keydown', (e) => {
+  const items = [...$('#ctx').querySelectorAll('button')], i = items.indexOf(document.activeElement);
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus(); }
+});
+document.addEventListener('pointerdown', (e) => { if (!e.target.closest('#ctx')) closeCtx(); }, true);
+
 // ================================================================== BOOT
 render();
 map = new maplibregl.Map({
@@ -1306,6 +1766,12 @@ map.on('move', () => { updateReadout(); drawTicks(); });
 map.on('zoomend', (e) => { if (!S.world && e.originalEvent && map.getZoom() < 1.6) showWorld(); });
 map.on('resize', drawTicks);
 map.on('click', (e) => {
+  if (suppressClick) { suppressClick = false; return; }
+  closeCtx();
+  if (S.measure) { S.measure.push([((e.lngLat.lng + 540) % 360) - 180, e.lngLat.lat]); syncMeasure(); return; }
+  const near = [[e.point.x - 6, e.point.y - 6], [e.point.x + 6, e.point.y + 6]];
+  const alt = S.routes.length > 1 ? map.queryRenderedFeatures(near, { layers: ['route-alt'] })[0] : null;
+  if (alt) { pickAlt(alt.properties.k); return; }
   const f = map.queryRenderedFeatures(e.point, { layers: ['hits', 'poi-dot', 'poi-label', 'poi-label-near'] })[0];
   if (f && f.layer.id === 'hits') { chooseHit(S.hits[f.properties.k]); return; }
   if (f && f.properties.name) {
@@ -1314,27 +1780,41 @@ map.on('click', (e) => {
     const card = { kind:'place', src:'tiles', name: f.properties.name, cat: pretty(f.properties.subclass || f.properties.class), g: g ? g[0] : 'serv', ll };
     openCard(card, false); reverse(card); return;
   }
-  const ll = [((e.lngLat.lng + 540) % 360) - 180, e.lngLat.lat];
-  if (S.pack.status === 'ready' && inBBox({ lon: ll[0], lat: ll[1] }, PACK.bbox)) {
-    // nearest street from the pack, no request needed
-    let best = -1, bd = Infinity; for (let i = 0; i < G.nN; i++) { if (G.anyName[i] < 0) continue; const d = distM(ll, [G.nx[i], G.ny[i]]); if (d < bd) { bd = d; best = i; } }
-    const near = best >= 0 && bd < 250 ? R.names[G.anyName[best]] : '';
-    openCard({ kind:'pin', src:'pack', name: near ? `Near ${near}` : 'Dropped pin', near, ll }, false); return;
-  }
-  const card = { kind:'pin', name:'Dropped pin', ll }; openCard(card, false); reverse(card);
+  dropPin([((e.lngLat.lng + 540) % 360) - 180, e.lngLat.lat]);
 });
+map.on('contextmenu', (e) => { if (e.originalEvent) e.originalEvent.preventDefault(); openCtx(e.point, [e.lngLat.lng, e.lngLat.lat]); });
+map.on('movestart', (e) => { if (e.originalEvent) closeCtx(); });
+map.on('moveend', queueURL);
+{ // long-press on touch screens opens the same menu (iOS Safari fires no contextmenu event)
+  const cv = map.getCanvasContainer(); let lp = null;
+  cv.addEventListener('touchstart', (e) => {
+    if (lp) clearTimeout(lp.t); lp = null;
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0], r = cv.getBoundingClientRect(), pt = { x: t.clientX - r.left, y: t.clientY - r.top };
+    lp = { x: t.clientX, y: t.clientY, t: setTimeout(() => { if (!lp) return; lp.fired = true; suppressClick = true; setTimeout(() => { suppressClick = false; }, 900); const ll = map.unproject([pt.x, pt.y]); openCtx(pt, [ll.lng, ll.lat]); }, 550) };
+  }, { passive: true });
+  cv.addEventListener('touchmove', (e) => { if (lp && Math.hypot(e.touches[0].clientX - lp.x, e.touches[0].clientY - lp.y) > 10) { clearTimeout(lp.t); lp = null; } }, { passive: true });
+  cv.addEventListener('touchend', () => { if (lp) clearTimeout(lp.t); lp = null; }, { passive: true });
+}
+for (const id of ['route-alt']) {
+  map.on('mouseenter', id, () => { if (!S.measure) map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', id, () => { if (!S.measure) map.getCanvas().style.cursor = ''; });
+}
 for (const id of ['poi-dot', 'poi-label', 'poi-label-near', 'hits']) {
-  map.on('mouseenter', id, () => map.getCanvas().style.cursor = 'pointer');
-  map.on('mouseleave', id, () => map.getCanvas().style.cursor = '');
+  map.on('mouseenter', id, () => { if (!S.measure) map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', id, () => { if (!S.measure) map.getCanvas().style.cursor = ''; });
 }
 map.on('error', (e) => console.warn('DATUM map error:', e && e.error ? (e.error.message || e.error) : e));
-map.once('load', () => { updateReadout(); drawTicks(); });
+map.once('load', () => { styleReady = true; updateReadout(); drawTicks(); syncRoute(); syncIso(); syncMeasure(); });
 packCached().then(c => { if (c) loadPack(); });
 DARK.addEventListener('change', () => { applyPalette(); drawWorld(); });
 new MutationObserver(() => { applyPalette(); drawWorld(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 MOBILE.addEventListener('change', () => { render(); drawTicks(); drawWorld(); });
 showWorld();
-window.__datum = { S, get map() { return map; }, doSearch, planRoute, loadPack, CONFIG, showWorld, hideWorld, get worldReady() { return !!WORLD; }, get worldProj() { return worldProj; } };
+booted = true;
+readURL();
+addEventListener('hashchange', () => { if (location.hash.slice(1) !== urlState()) location.reload(); });
+window.__datum = { S, get map() { return map; }, doSearch, planRoute, loadPack, CONFIG, showWorld, hideWorld, urlState, reachFrom, setTerrain, startMeasure, openCtx, get worldReady() { return !!WORLD; }, get worldProj() { return worldProj; } };
 })();
 </script>
 </body>
