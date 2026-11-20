@@ -4,7 +4,7 @@ A free, open map of the world. Search places, get walking, cycling and driving
 directions with turn-by-turn navigation, and keep **any part of the world** on your
 device to use with no connection. No account, no ads, no analytics.
 
-`DTM-03 · v0.3 · build 2026-11-20` — an AI² Lab project by AKA IND Technologies Inc.
+`DTM-04 · v0.4 · build 2026-11-20` — an AI² Lab project by AKA IND Technologies Inc.
 
 ![DATUM: Louvre to Eiffel Tower walking route](docs/screenshots/paris-route.png)
 
@@ -14,7 +14,7 @@ device to use with no connection. No account, no ads, no analytics.
 
 ![Turn-by-turn navigation preview](docs/screenshots/navigation.png)
 
-## What works in v0.3
+## What works in v0.4
 
 | Feature | How it works | Where the request goes |
 |---|---|---|
@@ -31,6 +31,13 @@ device to use with no connection. No account, no ads, no analytics.
 | Directions anywhere | Valhalla routing with turn-by-turn steps and alternatives, when the trip is not inside one downloaded area | Valhalla on the FOSSGIS public server |
 | World view in the Equal Earth projection | Zoomed out, the world is drawn with d3-geo in Equal Earth, the area-true projection the UN General Assembly backed on 4 September 2026 | DATUM's own site (`data/world.json`) |
 | Installable, starts offline | Web app manifest and a service worker that keeps the app shell | DATUM's own site |
+| Shareable links | The address bar holds the view, the open place, a route (with stops, mode and avoid options) or a search; **Share** copies it or opens the phone's share sheet. See [Link format](#link-format) | Nowhere, unless you send the link |
+| Map point menu (right-click, or long-press on touch) | What's here, directions from or to here, add as a stop, reachable from here, measure, share, copy coordinates | Photon to name the point, or the device inside a downloaded area |
+| Multi-stop routes (up to 5 stops) | Each leg goes through the same chain as any route (live traffic, on-device, Valhalla) and the legs are joined; navigation announces each stop and a reroute skips stops already reached | As for each leg |
+| Reachable from here | Valhalla isochrones: 5/10/15 min on foot, 10/20/30 min by bike or car, honouring the avoid options | Valhalla (`/isochrone`); needs a connection |
+| Measure distance | Great-circle distance along points you tap, with undo | Nothing sent |
+| Saved places and recent searches | `localStorage` in this browser; listed on the search home and offered as quick picks in directions | Nothing sent |
+| Terrain | Hillshade and 3D relief from Terrain Tiles (Terrarium encoding) | AWS Open Data (`elevation-tiles-prod`) |
 | Ottawa–Gatineau region pack (3.9 MB) | 11,487 places with phone and web details from Overture; routed by the same on-device router | Nothing sent after download |
 
 ## Run it
@@ -115,7 +122,7 @@ about what it shows:
 ## Services and swapping them
 
 Every external service is in the `CONFIG` block at the top of the script in
-`index.html` (`tiles`, `glyphs`, `search`, `route`, `traffic`).
+`index.html` (`tiles`, `glyphs`, `search`, `route`, `isochrone`, `terrain`, `traffic`).
 
 - **OpenFreeMap** states it is free for any use, with no API keys and no limits on
   map views; attribution is required.
@@ -124,6 +131,8 @@ Every external service is in the `CONFIG` block at the top of the script in
 - **Valhalla** on the FOSSGIS server: a community-run public instance. Read the
   FOSSGIS terms at <https://www.fossgis.de/arbeitsgruppen/osm-server/nutzungsbedingungen/>
   before sending real traffic.
+- **Terrain Tiles** on AWS Open Data (`terrain`): free to use with attribution
+  (<https://github.com/tilezen/joerd/blob/master/docs/attribution.md>); only loaded while terrain is on.
 
 All three are open source (OpenFreeMap, Photon, Valhalla) and can be self-hosted.
 **Before a public launch with real traffic, point `tiles`, `search` and `route` at our
@@ -231,6 +240,22 @@ sources*. On a computer, Google's Desktop Head Unit stands in for the car. Once
 guidance has started, `adb shell dumpsys activity service
 ca.akaind.datum/.car.DatumCarAppService AUTO_DRIVE` drives the route for you.
 
+## Link format
+
+Everything after `#` is the state of the page, so any view can be bookmarked or shared:
+
+| Key | Example | Meaning |
+|---|---|---|
+| `map` | `15.00/48.85840/2.29450[/bearing/pitch]` | zoom / latitude / longitude; bearing and pitch when tilted |
+| `pin`, `name` | `pin=48.858400,2.294500&name=Eiffel+Tower` | open place card (no `name` for a dropped pin) |
+| `reach` | `reach=walk` | show the reachable areas from that place |
+| `r`, `mode`, `avoid`, `alt` | `r=LAT,LON,Label;LAT,LON,Label&mode=car&avoid=tolls&alt=1` | a route: start, stops and destination, travel mode, avoid options, chosen alternative |
+| `q` | `q=coffee+ottawa` | a search |
+| `layers` | `layers=terrain` | terrain relief on |
+
+Without `map`, DATUM fits the map to the shared place or route. Inside the Android app the page
+runs from `appassets.androidplatform.net`, so links shared from there do not open the public site yet.
+
 ## Attribution (required wherever the map is shown)
 
 - Map: OpenFreeMap © OpenMapTiles. Data from © OpenStreetMap contributors (ODbL 1.0).
@@ -239,6 +264,8 @@ ca.akaind.datum/.car.DatumCarAppService AUTO_DRIVE` drives the route for you.
 - World view: Natural Earth (public domain), drawn with d3-geo (ISC). Equal Earth projection by Šavrič, Patterson and Jenny (2018).
 - Offline areas: the same OpenFreeMap tiles, © OpenStreetMap contributors (ODbL 1.0). Download catalog: Natural Earth (public domain).
 - Live traffic, when a key is set: © TomTom.
+- Terrain, while it is on: Terrain Tiles on AWS Open Data, made by Mapzen from SRTM, GMTED2010,
+  ETOPO1 and other sources.
 - Region packs: Overture Maps Foundation (release 2026-09-23.1). Roads, buildings,
   land and water © OpenStreetMap contributors (ODbL 1.0). Places under
   CDLA-Permissive-2.0, including Foursquare Open Source Places (Apache-2.0) and

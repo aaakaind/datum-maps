@@ -208,6 +208,27 @@ button,input{font:inherit;color:inherit}
 .mk{width:22px;height:22px;border-radius:50%;border:3px solid var(--ink);background:var(--card);display:grid;place-items:center;font:700 10px/1 var(--mono);color:var(--ink)}
 .mk.b{background:var(--red);color:var(--on-red)}
 .mk.sel{background:var(--ochre);color:#1C1A17;width:18px;height:18px}
+.mk.stop{background:var(--ochre);color:#1C1A17}
+
+.btn.sm{padding:6px 12px;font-size:12.5px;border-width:1.5px}
+.list-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:-8px}
+.addstop{align-self:flex-start;border:0;background:transparent;cursor:pointer;font:500 11px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);padding:2px 2px}
+.addstop:hover{color:var(--ink)}
+.iso{border:2px solid var(--ink);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--ground)}
+.iso h3{margin:0;font:600 15px/1.2 var(--display);letter-spacing:.02em}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font:500 11px/1.3 var(--mono);font-variant-numeric:tabular-nums}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:16px;height:11px;border:1.5px solid var(--blue);display:inline-block;background:var(--blue)}
+.ctx{position:absolute;z-index:7;width:236px;background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:6px;display:flex;flex-direction:column;box-shadow:4px 4px 0 var(--ink)}
+.ctx[hidden]{display:none}
+.ctx .hd{border:0;border-bottom:1px solid var(--rule);background:transparent;text-align:left;padding:6px 10px 8px;margin-bottom:4px;cursor:pointer;font:500 11px/1.3 var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.ctx .it{border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:10px;font:500 13.5px/1.2 var(--body);cursor:pointer;color:var(--ink)}
+.ctx .it:hover,.ctx .it:focus-visible,.ctx .hd:hover{background:var(--ground)}
+.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:58px;z-index:9;background:var(--ink);color:var(--card);border-radius:var(--r-pill);padding:9px 18px;font:500 13px/1.35 var(--body);max-width:calc(100% - 32px);overflow-wrap:anywhere;text-align:center}
+.toast[hidden]{display:none}
+.measure-box{position:absolute;z-index:5;left:50%;transform:translateX(-50%);top:14px;background:var(--card);border:2px solid var(--ink);border-radius:var(--r-pill);padding:5px 6px 5px 16px;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.measure-box[hidden]{display:none}
+.measure-box .v{font:700 18px/1 var(--display);font-variant-numeric:tabular-nums}
 
 .about{position:absolute;inset:0;z-index:10;background:color-mix(in srgb,var(--ground) 82%,transparent);display:grid;place-items:center;padding:20px 16px;overflow:auto}
 .about-card{background:var(--card);border:2px solid var(--ink);border-radius:var(--r-card);max-width:640px;width:100%;padding:22px 24px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto}
@@ -283,6 +304,9 @@ a.btn.primary{color:var(--on-red)}
   .panel-body{padding:12px 16px 16px}
   .tools{bottom:auto;top:74px;right:10px;gap:6px}
   .tool{width:38px;height:38px}
+  #zin,#zout,#tinfo{display:none}
+  .measure-box{top:58px;left:10px;right:58px;transform:none;justify-content:space-between}
+  .toast{bottom:auto;top:58px}
   .nav-top{top:8px;left:8px;right:8px;padding:10px 12px;grid-template-columns:52px 1fr;gap:12px}
   .nav-arrow{width:52px;height:52px}
   .nav-arrow svg{width:30px;height:30px}
@@ -331,7 +355,7 @@ a.btn.primary{color:var(--on-red)}
       <button class="handle" id="handle" aria-label="Expand or collapse panel"></button>
       <div class="brand">
         <div class="wordmark">DATUM<i aria-hidden="true"></i></div>
-        <div class="specline">DTM-03 · v0.3<br>Planet · OSM</div>
+        <div class="specline">DTM-04 · v0.4<br>Planet · OSM</div>
       </div>
       <div class="tabs" role="tablist">
         <button role="tab" id="tab-search" aria-selected="true">Search</button>
@@ -349,14 +373,20 @@ a.btn.primary{color:var(--on-red)}
     <button class="tool" id="zout" aria-label="Zoom out">−</button>
     <button class="tool" id="t3d" aria-pressed="false" aria-label="Toggle 3D buildings">3D</button>
     <button class="tool" id="tloc" aria-pressed="false" aria-label="Show my location"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor" stroke-width="2"/></svg></button>
+    <button class="tool" id="tterrain" aria-pressed="false" aria-label="Toggle terrain relief"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 19.5l6.5-11 4 6.5 2.5-3.5 7 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>
+    <button class="tool" id="tmeasure" aria-pressed="false" aria-label="Measure distance"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 16.5L16.5 3l4.5 4.5L7.5 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7.4 12.1l2 2M10.1 9.4l2 2M12.8 6.7l2 2" stroke="currentColor" stroke-width="1.8"/></svg></button>
     <button class="tool" id="tinfo" aria-label="About DATUM">i</button>
   </div>
 
   <footer class="strip">
     <div class="ruler"><div class="bar" id="rulerbar"><i></i><i></i><i></i><i></i></div><span id="rulerlab">—</span></div>
-    <div class="att"><a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">© OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · Search <a href="https://photon.komoot.io" target="_blank" rel="noopener">Photon</a> · Routing <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> by FOSSGIS · World view <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a><span id="att-pack" hidden> · Region pack: Overture Maps Foundation</span><span id="att-traffic" hidden> · Traffic © TomTom</span></div>
+    <div class="att"><a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">© OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · Search <a href="https://photon.komoot.io" target="_blank" rel="noopener">Photon</a> · Routing <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> by FOSSGIS · World view <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a><span id="att-pack" hidden> · Region pack: Overture Maps Foundation</span><span id="att-traffic" hidden> · Traffic © TomTom</span><span id="att-terrain" hidden> · Terrain <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a> (Mapzen, AWS Open Data)</span></div>
     <button id="about-link">About DATUM</button>
   </footer>
+
+  <div class="ctx" id="ctx" role="menu" aria-label="Map point menu" hidden></div>
+  <div class="measure-box" id="measure-box" role="status" hidden><span class="label">Distance</span><span class="v" id="measure-v">—</span><button class="xbtn" id="measure-undo">UNDO</button><button class="btn sm" id="measure-done">Done</button></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <div class="about" id="about" hidden>
     <div class="about-card" role="dialog" aria-modal="true" aria-labelledby="about-h">
@@ -367,7 +397,10 @@ a.btn.primary{color:var(--on-red)}
         <ul>
           <li>Map tiles load from OpenFreeMap. Like any tile server, it sees your IP address and the area you are viewing.</li>
           <li>Searches go to Photon, komoot's public geocoder, when you type 3 or more characters. Tapping the map sends that point to Photon to look up the nearest address.</li>
-          <li>Routes go to Valhalla on the FOSSGIS public server when you ask for directions.</li>
+          <li>Routes go to Valhalla on the FOSSGIS public server when you ask for directions, and so do the start points of <b>Reachable from here</b> areas.</li>
+          <li>Terrain relief, when you switch it on, loads elevation tiles from the Terrain Tiles dataset on AWS Open Data.</li>
+          <li>Saved places and recent searches are kept in this browser's local storage and never leave your device.</li>
+          <li>The address bar holds the view, place or route you are looking at, so a link you copy or share opens the same thing. That link is only sent where you send it.</li>
           <li>Inside a downloaded area, search and routing run on your device and nothing is sent. Downloading an area fetches its map tiles from OpenFreeMap, and label fonts from the same server.</li>
           <li>Your position, when you turn it on, stays in the page. It is only sent as a route start if you ask for directions from it outside a downloaded area.</li>
           <li>Live traffic is off unless you add your own TomTom key in Directions → Options. With a key, driving routes and traffic map tiles are requested from TomTom.</li>
@@ -404,6 +437,7 @@ a.btn.primary{color:var(--on-red)}
           <li>Search: <a href="https://github.com/komoot/photon" target="_blank" rel="noopener">Photon</a> by komoot, using OpenStreetMap data.</li>
           <li>Routing: <a href="https://github.com/valhalla/valhalla" target="_blank" rel="noopener">Valhalla</a>, served by <a href="https://www.fossgis.de" target="_blank" rel="noopener">FOSSGIS e.V.</a>, using OpenStreetMap data.</li>
           <li>World view: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (public domain), drawn with <a href="https://github.com/d3/d3-geo" target="_blank" rel="noopener">d3-geo</a> (ISC).</li>
+          <li>Terrain: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a> on AWS Open Data, made by Mapzen from SRTM, GMTED2010, ETOPO1 and other sources (<a href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noopener">attribution</a>).</li>
           <li>Offline areas: the same OpenFreeMap tiles as the map, © OpenStreetMap contributors (ODbL 1.0). Download catalog: Natural Earth (public domain).</li>
           <li>Region pack data: <a href="https://overturemaps.org" target="_blank" rel="noopener">Overture Maps Foundation</a>. Roads and areas © OpenStreetMap contributors (ODbL 1.0). Places under CDLA-Permissive-2.0, including Foursquare Open Source Places (Apache-2.0) and AllThePlaces (CC0). The pack files are a derivative database, available under ODbL 1.0.</li>
           <li>See something wrong? Fix it at the source on <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a>, and everyone's maps improve.</li>
@@ -411,7 +445,7 @@ a.btn.primary{color:var(--on-red)}
       </section>
       <section>
         <h3>Build</h3>
-        <p class="mono">DTM-03 · v0.3 · build 2026-11-20 · renderer MapLibre GL JS 5.24.0 · code licence AGPL-3.0</p>
+        <p class="mono">DTM-04 · v0.4 · build 2026-11-20 · renderer MapLibre GL JS 5.24.0 · code licence AGPL-3.0</p>
       </section>
     </div>
   </div>
@@ -433,6 +467,8 @@ const CONFIG = {
   glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
   search: 'https://photon.komoot.io',
   route:  'https://valhalla1.openstreetmap.de/route',
+  isochrone: 'https://valhalla1.openstreetmap.de/isochrone',
+  terrain: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
   // Live traffic is optional and needs the user's own key (Directions → Options). Nothing is requested without one.
   traffic: { route: 'https://api.tomtom.com/routing/1/calculateRoute', flow: 'https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?tileSize=256&key=', incidents: 'https://api.tomtom.com/traffic/map/4/tile/incidents/s3/{z}/{x}/{y}.png?tileSize=256&key=' },
   packs: [
@@ -504,6 +540,30 @@ const S = {
   off:{ cat:null, catErr:null, path:[], filter:'', target:null, plan:null, progress:null, err:null, done:null, usage:null, resume:null },
 };
 try { S.live.key = localStorage.getItem('datum-traffic-key') || ''; } catch {}
+Object.assign(S, { stops:[], altWant:0, iso:null, measure:null, terrain:false, saved:[], recent:[] });
+const MAX_STOPS = 5;
+
+// ---- saved places and recent searches: localStorage only, never sent anywhere
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('datum.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('datum.' + k, JSON.stringify(v)); } catch {} },
+};
+S.saved = store.get('saved', []).filter(x => x && Array.isArray(x.ll));
+S.recent = store.get('recent', []).filter(x => x && Array.isArray(x.ll));
+const keyOf = (c) => `${(+c.ll[0]).toFixed(5)},${(+c.ll[1]).toFixed(5)}`;
+function slim(c) { return { name: c.name, ll: [+(+c.ll[0]).toFixed(6), +(+c.ll[1]).toFixed(6)], cat: c.cat || '', g: c.g || 'place', addr: c.addr || c.near || '', kind: c.kind === 'pin' ? 'pin' : (c.kind || 'place') }; }
+function isSaved(c) { const k = keyOf(c); return S.saved.some(x => keyOf(x) === k); }
+function toggleSave(c) {
+  const k = keyOf(c), was = isSaved(c);
+  S.saved = was ? S.saved.filter(x => keyOf(x) !== k) : [slim(c), ...S.saved].slice(0, 200);
+  store.set('saved', S.saved); render(); toast(was ? 'Removed from saved places' : 'Saved on this device');
+}
+function addRecent(c) {
+  if (!c || c.kind === 'pin') return;
+  const k = keyOf(c); S.recent = [slim(c), ...S.recent.filter(x => keyOf(x) !== k)].slice(0, 8); store.set('recent', S.recent);
+}
+function cardFromSlim(x) { return { kind: x.kind || 'place', src: 'saved', name: x.name, cat: x.cat, g: x.g, addr: x.addr, ll: x.ll }; }
+const asItems = (list, src) => list.map(x => ({ ...x, src, sub: [x.cat, x.addr].filter(Boolean).join(' · '), m: geoDist(centerLL(), x.ll) }));
 let map, markers = {};
 let R, A, P, ORIGIN, Q, LOCAL = []; // featured region pack (places + street names)
 
@@ -544,6 +604,7 @@ function palette() {
   const names = ['land','park','wood','pitch','plaza','farm','sand','ice','rock','resid','campus','water','waterline','water-label','bldg','bldg-line','bldg-3d','road','road-case','art','art-case','hwy','hwy-case','path','rail','border','label','label-2','park-label','halo','route','route-case'];
   const C = {}; for (const n of names) C[n] = tok('--m-' + n);
   for (const n of ['food','shop','health','civic','rec','serv','transit']) C['p-' + n] = tok('--p-' + n);
+  C.iso = tok('--blue');
   return C;
 }
 const W = (pairs) => ['interpolate', ['exponential', 1.55], ['zoom'], ...pairs];
@@ -585,6 +646,11 @@ function paintFor(C) {
     'route-link': { 'line-color': C['route-case'], 'line-width': 2, 'line-dasharray': [1, 1.4] },
     'route-case': { 'line-color': C['route-case'], 'line-width': W([5, 4, 11, 6, 15, 10, 18, 18]) },
     'route': { 'line-color': C.route, 'line-width': W([5, 2.2, 11, 3.4, 15, 6, 18, 12]) },
+    'iso-fill': { 'fill-color': C.iso, 'fill-opacity': ['match', ['get','k'], 0, .30, 1, .19, .11] },
+    'iso-line': { 'line-color': C.iso, 'line-width': 1.6, 'line-opacity': .9 },
+    'measure-line': { 'line-color': C.label, 'line-width': 2.5, 'line-dasharray': [2, 1.5] },
+    'measure-pt': { 'circle-color': C.halo, 'circle-radius': 5, 'circle-stroke-color': C.label, 'circle-stroke-width': 2.5 },
+    'hillshade': { 'hillshade-shadow-color': C['label-2'], 'hillshade-highlight-color': C.halo, 'hillshade-accent-color': C['label-2'], 'hillshade-exaggeration': .32 },
     'route-alt-case': { 'line-color': C['route-case'], 'line-width': W([5, 3.4, 11, 5, 15, 8.5, 18, 15]), 'line-opacity': .6 },
     'route-alt': { 'line-color': C.halo, 'line-width': W([5, 1.6, 11, 2.6, 15, 5, 18, 10]) },
     'pack-edge': { 'line-color': C.route, 'line-width': 1.5, 'line-dasharray': [2, 2], 'line-opacity': W([4, 0, 5, .9, 13, .9, 14.5, 0]) },
@@ -622,6 +688,7 @@ function buildStyle(C) {
       omt: { type:'vector', tiles: ['datum://tiles/{z}/{x}/{y}'], minzoom: 0, maxzoom: 14, attribution: '' },
       route: { type:'geojson', data: EMPTY }, routeLink: { type:'geojson', data: EMPTY }, hits: { type:'geojson', data: EMPTY },
       routeAlt: { type:'geojson', data: EMPTY }, dl: { type:'geojson', data: EMPTY },
+      iso: { type:'geojson', data: EMPTY }, measure: { type:'geojson', data: EMPTY },
       areas: { type:'geojson', data: areasGeo() },
     },
     layers: [
@@ -647,6 +714,8 @@ function buildStyle(C) {
       L('buildings-3d', 'fill-extrusion', 'building', { minzoom: 14, filter: ['!=', ['get','hide_3d'], true], layout: { visibility: 'none' } }),
       G('pack-edge', 'line', 'areas'),
       G('dl-edge', 'line', 'dl'),
+      G('iso-fill', 'fill', 'iso'),
+      G('iso-line', 'line', 'iso', { layout: { 'line-join':'round' } }),
       G('route-link', 'line', 'routeLink'),
       G('route-alt-case', 'line', 'routeAlt', { layout: { 'line-cap':'round', 'line-join':'round' } }),
       G('route-alt', 'line', 'routeAlt', { layout: { 'line-cap':'round', 'line-join':'round' } }),
@@ -672,6 +741,8 @@ function buildStyle(C) {
       L('place-country', 'symbol', 'place', { maxzoom: 9, filter: ['==', ['get','class'], 'country'],
         layout: { 'text-field': NAME, 'text-font': BO, 'text-transform':'uppercase', 'text-letter-spacing': .16, 'text-size': W([1, ['match', ['coalesce', ['get','rank'], 9], [1, 2], 12, 9.5], 5, ['match', ['coalesce', ['get','rank'], 9], [1, 2], 18, 13]]), 'text-max-width': 7, 'symbol-sort-key': ['coalesce', ['get','rank'], 99] } }),
       G('hits', 'circle', 'hits'),
+      G('measure-line', 'line', 'measure', { filter: ['==', ['geometry-type'], 'LineString'], layout: { 'line-cap':'round', 'line-join':'round' } }),
+      G('measure-pt', 'circle', 'measure', { filter: ['==', ['geometry-type'], 'Point'] }),
       G('hits-label', 'symbol', 'hits', { layout: { 'text-field': ['get','n'], 'text-font': BO, 'text-size': 12, 'text-anchor':'top', 'text-offset':[0, .9], 'text-max-width': 10 } }),
     ],
   };
@@ -881,7 +952,7 @@ function nearStreet(card) {
   OFF.engine('nearestName', { lon: card.ll[0], lat: card.ll[1] }).then(r => { if (!r || S.card !== card) return; card.near = r.name; if (card.kind === 'pin') card.name = `Near ${r.name}`; render(); }).catch(() => {});
 }
 function openCard(card, fly = true) {
-  S.card = card; S.tab = 'search';
+  clearIso(); S.card = card; S.tab = 'search';
   setMarker('sel', { lon: card.ll[0], lat: card.ll[1] }, '', 'sel');
   if (fly && map) {
     hideWorld();
@@ -964,33 +1035,77 @@ async function routeLive(from, to, signal) {
 }
 const activeRoute = () => { const r = S.route; return r && r.coords ? (S.alt > 0 && r.alts && r.alts[S.alt - 1] ? r.alts[S.alt - 1] : r) : null; };
 const coveredOnDevice = (pt) => OFF.covering(pt.lon, pt.lat, S.mode).length > 0 || (S.pack.status === 'ready' && inBBox(pt, PACK.bbox));
+const routeEps = (all) => { const l = [S.from, ...S.stops, S.to]; return all ? l : l.filter(Boolean); };
+// One leg, through the same chain as before: live traffic → on-device → Valhalla. null when superseded.
+async function routePair(from, to, signal, stale) {
+  const online = navigator.onLine !== false, device = coveredOnDevice(from) && coveredOnDevice(to);
+  let r = null;
+  if (S.mode === 'car' && S.live.key && online) {
+    try { r = await routeLive(from, to, signal); } catch (e) { if (e.name === 'AbortError') throw e; r = null; }
+    if (stale()) return null;
+    if (r && r.error) { S.live.err = r.error; r = null; } else if (r) S.live.err = null;
+  }
+  if (!r && device) {
+    try { r = await OFF.engine('route', { from, to, opts: routeOpts() }); } catch (e) { r = { error: e.message }; }
+    if (stale()) return null;
+    if (r && (r.none || (r.error && online))) { S.deviceErr = r.error || null; r = null; }
+  }
+  if (!r) {
+    try { r = await routeValhalla(from, to, S.mode, signal); }
+    catch (e) {
+      if (e.name === 'AbortError') throw e;
+      r = { error: online ? 'Routing service unreachable. Check your connection and try again.' : 'You are offline and this trip is not inside one downloaded area. Download an area that covers both ends from the Offline tab.' };
+    }
+    if (stale()) return null;
+  }
+  return r;
+}
+// Join legs into one route that navigation can follow; each stop becomes an 'arrive' step named after it.
+function joinLegs(parts, stops) {
+  const out = { engine: parts.every(p => p.engine === parts[0].engine) ? parts[0].engine : 'mixed', coords: [], steps: [], dist: 0, seconds: 0, link: [], alts: [], via: '', legs: parts.length };
+  const names = new Map(), hasFree = parts.every(p => p.free != null); let free = 0, ms = 0;
+  parts.forEach((p, i) => {
+    const base = out.coords.length ? out.coords.length - 1 : 0;
+    out.coords.push(...(out.coords.length ? p.coords.slice(1) : p.coords));
+    p.steps.forEach((st, k) => {
+      const x = { ...st, ci: (st.ci || 0) + base };
+      if (k === p.steps.length - 1 && i < parts.length - 1) Object.assign(x, { turn: `Stop ${i + 1}`, text: stops[i].label, type: 'arrive', stop: stops[i].label });
+      out.steps.push(x);
+    });
+    out.dist += p.dist; out.seconds += p.seconds; if (hasFree) free += p.free; ms += p.ms || 0;
+    if (p.link) out.link.push(...p.link);
+    if (p.via) names.set(p.via, (names.get(p.via) || 0) + p.dist);
+    if (p.areaName) out.areaName = p.areaName; if (p.level) out.level = p.level;
+  });
+  let vl = 0; for (const [n, l] of names) if (l > vl) { vl = l; out.via = n; }
+  if (hasFree) out.free = free; out.ms = ms;
+  return out;
+}
 async function planRoute(fit = true, quiet = false) {
   const seq = ++routeSeq;
   if (routeCtl) routeCtl.abort();
   S.alt = 0;
   if (!S.from || !S.to) { S.route = null; syncRoute(); render(); return; }
-  routeCtl = new AbortController(); const signal = routeCtl.signal;
-  const online = navigator.onLine !== false, device = coveredOnDevice(S.from) && coveredOnDevice(S.to);
-  let r = null;
+  routeCtl = new AbortController(); const signal = routeCtl.signal, stale = () => seq !== routeSeq;
+  const locs = routeEps(false), device = locs.every(coveredOnDevice);
   if (!quiet) { S.route = { loading: true, where: device ? 'device' : 'net' }; render(); }
-  if (S.mode === 'car' && S.live.key && online) {
-    try { r = await routeLive(S.from, S.to, signal); } catch (e) { if (e.name === 'AbortError') return; r = null; }
-    if (seq !== routeSeq) return;
-    if (r && r.error) { S.live.err = r.error; r = null; } else if (r) S.live.err = null;
-  }
-  if (!r && device) {
-    try { r = await OFF.engine('route', { from: S.from, to: S.to, opts: routeOpts() }); } catch (e) { r = { error: e.message }; }
-    if (seq !== routeSeq) return;
-    if (r && (r.none || (r.error && online))) { S.deviceErr = r.error || null; r = null; }
-  }
-  if (!r) {
-    try { r = await routeValhalla(S.from, S.to, S.mode, signal); }
-    catch (e) {
-      if (e.name === 'AbortError') return;
-      r = { error: online ? 'Routing service unreachable. Check your connection and try again.' : 'You are offline and this trip is not inside one downloaded area. Download an area that covers both ends from the Offline tab.' };
+  let r = null;
+  try {
+    if (locs.length === 2) r = await routePair(S.from, S.to, signal, stale);
+    else {
+      const parts = [];
+      for (let i = 0; i < locs.length - 1; i++) {
+        const p = await routePair(locs[i], locs[i + 1], signal, stale);
+        if (!p) return;
+        if (p.error) { r = { error: `Leg ${i + 1} of ${locs.length - 1}: ${p.error}` }; break; }
+        parts.push(p);
+      }
+      if (!r) r = joinLegs(parts, locs.slice(1, -1));
     }
-    if (seq !== routeSeq) return;
-  }
+  } catch (e) { if (e.name === 'AbortError') return; throw e; }
+  if (!r || stale()) return;
+  if (r.coords) { S.alt = Math.min(S.altWant || 0, (r.alts || []).length); }
+  S.altWant = 0;
   S.route = r; syncRoute(); render(); if (fit) fitRoute();
 }
 function syncRoute() {
@@ -1001,6 +1116,7 @@ function syncRoute() {
   map.getSource('routeAlt').setData({ type:'FeatureCollection', features: all.map((x, k) => k === S.alt ? null : line(x.coords, { k })).filter(Boolean) });
   map.getSource('routeLink').setData(r && r.link ? { type:'FeatureCollection', features: r.link.map(c => line(c)) } : EMPTY);
   setMarker('a', S.from, 'A', ''); setMarker('b', S.to, 'B', 'b');
+  for (let i = 0; i < MAX_STOPS; i++) setMarker('s' + i, S.stops[i], String(i + 1), 'stop');
 }
 function fitRoute() {
   const r = activeRoute(); if (!r || !r.coords.length) return;
@@ -1023,6 +1139,7 @@ function render() {
   body.innerHTML = S.tab === 'search' ? (S.card ? cardHTML(S.card) : searchHTML()) : S.tab === 'off' ? offHTML() : S.tab === 'sos' ? sosHTML() : dirsHTML();
   if (S.tab === 'off') body.scrollTop = keep;
   if (active && document.getElementById(active)) { const el = document.getElementById(active); el.focus(); if (caret != null && el.setSelectionRange) try { el.setSelectionRange(caret, caret); } catch {} }
+  queueURL();
 }
 const markHTML = (it) => ['place','street','area','water'].includes(it.g) || it.kind !== 'place'
   ? `<span class="sq" style="background:var(${GROUP_TOK[it.g] || '--m-road'})"></span>` : `<span class="dot" style="background:var(${GROUP_TOK[it.g] || '--p-serv'})"></span>`;
@@ -1033,7 +1150,7 @@ function handoffHTML(to, from) {
   const a = from ? `https://maps.apple.com/?saddr=${ll(from)}&daddr=${ll(to)}${ap ? '&dirflg=' + ap : ''}` : `https://maps.apple.com/?ll=${ll(to)}&q=${encodeURIComponent(to.label || 'Pin')}`;
   return `<div class="handoff"><span class="label">Open in</span><a href="${esc(g)}" target="_blank" rel="noopener">Google Maps</a><a href="${esc(a)}" target="_blank" rel="noopener">Apple Maps</a><a href="geo:${ll(to)}?q=${ll(to)}">Other app</a></div>`;
 }
-const SRC = { pack:'On device', area:'On device', photon:'Photon', tiles:'From map', gaz:'Offline list' };
+const SRC = { pack:'On device', area:'On device', photon:'Photon', tiles:'From map', gaz:'Offline list', saved:'Saved', recent:'Recent' };
 function resultRows(list, attr) {
   return `<ul class="results">${list.map((it, k) => `<li><button class="res" data-${attr}="${k}">${markHTML(it)}<span class="nm">${esc(it.name)}<span class="sub">${esc(it.sub)}</span></span><span class="km">${it.m != null ? fmtKm(it.m) : ''}<span class="src">${SRC[it.src] || ''}</span></span></button></li>`).join('')}</ul>`;
 }
@@ -1058,8 +1175,10 @@ function searchHTML() {
     main = `<div class="label" aria-live="polite">${head}</div>` + (S.searchErr ? `<div class="err">${esc(S.searchErr)}</div>` : '') +
       (S.hits.length ? resultRows(S.hits, 'hit') : (!S.searching && !S.searchErr && norm(S.q).length >= 3 ? `<p class="note">Nothing found for “${esc(S.q)}”. Check the spelling or add a city.</p>` : (norm(S.q).length < 3 ? `<p class="note">Keep typing. Search starts at 3 characters.</p>` : '')));
   } else {
-    main = `<div class="chips"><span class="label" style="align-self:center">Try</span>${TRY.map((t, i) => `<button class="chip try" data-try="${i}">${esc(t)}</button>`).join('')}</div>` + packHTML() +
-      `<p class="note">Tap the map to drop a pin. Category chips read places from the map on your screen. Any part of the world can be kept on this device from the <b>Offline</b> tab. See <b>About</b> for where each request goes.</p>`;
+    const lists = (S.saved.length ? `<div class="list-h"><span class="label">Saved · ${S.saved.length}</span></div>` + resultRows(asItems(S.saved, 'saved'), 'saved') : '')
+      + (S.recent.length ? `<div class="list-h"><span class="label">Recent</span><button class="xbtn" id="recent-clear">CLEAR</button></div>` + resultRows(asItems(S.recent, 'recent'), 'recent') : '');
+    main = `<div class="chips"><span class="label" style="align-self:center">Try</span>${TRY.map((t, i) => `<button class="chip try" data-try="${i}">${esc(t)}</button>`).join('')}</div>` + lists + packHTML() +
+      `<p class="note">Tap the map to drop a pin; right-click or long-press for more. Press <b>/</b> to search. Category chips read places from the map on your screen. Any part of the world can be kept on this device from the <b>Offline</b> tab. See <b>About</b> for where each request goes.</p>`;
   }
   return field + chips + main;
 }
@@ -1075,7 +1194,19 @@ function cardHTML(c) {
   if (srcLine) rows += `<dt>Source</dt><dd>${esc(srcLine)}${c.osm ? ` · <a href="${esc(c.osm)}" target="_blank" rel="noopener">view or edit on OSM</a>` : ''}</dd>`;
   const tag = c.kind === 'place' ? `<span class="label" style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:var(${GROUP_TOK[c.g] || '--p-serv'})"></span>${esc(c.cat || 'Place')}</span>` : `<span class="label">${esc(c.cat || (c.kind === 'pin' ? 'Dropped pin' : 'Place'))}</span>`;
   return `<div class="card"><button class="back" id="back">← ${S.q || S.chip != null ? 'Results' : 'Search'}</button>${tag}<h2>${esc(c.name)}</h2><dl class="kv">${rows}</dl>
-    <div class="btnrow"><button class="btn primary" id="go-to">Directions here</button><button class="btn" id="go-from">Start from here</button>${c.kind === 'area' || c.kind === 'pin' ? `<button class="btn" id="go-dl">Download this area</button>` : ''}</div>${handoffHTML({ lon: c.ll[0], lat: c.ll[1], label: c.name })}</div>`;
+    <div class="btnrow"><button class="btn primary" id="go-to">Directions here</button><button class="btn" id="go-from">Start from here</button>${S.from && S.to && S.stops.length < MAX_STOPS ? '<button class="btn" id="go-stop">Add as stop</button>' : ''}${c.kind === 'area' || c.kind === 'pin' ? `<button class="btn" id="go-dl">Download this area</button>` : ''}</div>
+    <div class="btnrow"><button class="btn sm" id="save" aria-pressed="${isSaved(c)}">${isSaved(c) ? '★ Saved' : '☆ Save'}</button><button class="btn sm" id="share">Share</button>${S.iso ? '' : '<button class="btn sm" id="go-iso">Reachable from here</button>'}</div>${isoHTML()}${handoffHTML({ lon: c.ll[0], lat: c.ll[1], label: c.name })}</div>`;
+}
+const ISO_MIN = { walk:[5, 10, 15], bike:[10, 20, 30], car:[10, 20, 30] };
+const BY = { walk:'on foot', bike:'by bike', car:'by car' };
+function isoHTML() {
+  const iso = S.iso; if (!iso) return '';
+  const modes = `<div class="modes" role="group" aria-label="Travel mode">${Object.entries(MODES).map(([k, m]) => `<button data-isomode="${k}" aria-pressed="${iso.mode === k}">${m.label}</button>`).join('')}</div>`;
+  const op = [.30, .19, .11];
+  const body = iso.loading ? `<p class="busy">Asking Valhalla…</p>` : iso.error ? `<div class="err">${esc(iso.error)}</div>`
+    : `<div class="legend">${iso.mins.map((m, k) => `<span><i style="opacity:${(op[k] * 2.4).toFixed(2)}"></i>${m} min</span>`).join('')}</div>`;
+  return `<div class="iso" id="iso-box"><div class="pack-row"><h3>Reachable ${BY[iso.mode]}</h3><button class="xbtn" id="iso-clear">CLEAR</button></div>${modes}${body}
+    <p class="note">Areas you can reach from this point within ${iso.mins.join(', ')} minutes, from Valhalla on the FOSSGIS public server. Needs a connection; no live traffic.</p></div>`;
 }
 function trafficHTML(r) {
   if (S.mode !== 'car') return '';
@@ -1098,7 +1229,8 @@ function optsHTML() {
   return h + `</div>`;
 }
 function dirsHTML() {
-  const fld = (id, lab, ep) => `<div class="field"><label for="${id}">${lab}</label><input id="${id}" autocomplete="off" spellcheck="false" placeholder="Search or tap the map" value="${esc(ep ? ep.label : (S.activeField === id ? S.draft : ''))}">${ep ? `<button class="xbtn" data-clear="${id}" aria-label="Clear ${lab}">✕</button>` : (id === 'from' && navigator.geolocation ? `<button class="xbtn" id="from-me" aria-label="Start from my location">MY LOCATION</button>` : '')}</div>`;
+  const fld = (id, lab, ep, stopNo) => `<div class="field"><label for="${id}">${lab}</label><input id="${id}" autocomplete="off" spellcheck="false" placeholder="${stopNo ? 'Add a stop' : 'Search or tap the map'}" value="${esc(ep ? ep.label : (S.activeField === id ? S.draft : ''))}">${stopNo ? `<button class="xbtn" data-rmstop="${stopNo - 1}" aria-label="Remove stop ${stopNo}">✕</button>` : ep ? `<button class="xbtn" data-clear="${id}" aria-label="Clear ${lab}">✕</button>` : (id === 'from' && navigator.geolocation ? `<button class="xbtn" id="from-me" aria-label="Start from my location">MY LOCATION</button>` : '')}</div>`;
+  const addStop = S.stops.length < MAX_STOPS ? `<button class="addstop" id="addstop">+ Add stop</button>` : '';
   const sugg = S.activeField && S.suggest.length ? `<div class="suggest">${resultRows(S.suggest, 'sug')}</div>` : '';
   const modes = `<div class="modes" role="group" aria-label="Travel mode">${Object.entries(MODES).map(([k, m]) => `<button data-mode="${k}" aria-pressed="${S.mode === k}">${m.label}</button>`).join('')}</div>`;
   const R0 = S.route, r = activeRoute(); let out = '';
@@ -1109,14 +1241,15 @@ function dirsHTML() {
     const where = r.engine === 'device' ? 'on your device' : r.engine === 'live' ? 'live traffic' : 'by Valhalla';
     const all = [R0, ...(R0.alts || [])];
     out += `<div class="summary"><div><div class="label">Estimated · ${MODES[S.mode].label.toLowerCase()} · ${where}</div><div class="t">${fmtTime(r.seconds)}</div></div><div class="d">${fmtDist(r.dist)}${r.via ? `<br>via ${esc(r.via)}` : ''}</div></div>`
-      + `<div class="btnrow"><button class="btn primary" id="nav-go">Start</button><button class="btn" id="nav-sim">Preview drive</button><button class="btn" id="opts-toggle" aria-expanded="${S.optsOpen}">Options</button></div>`
+      + `<div class="btnrow"><button class="btn primary" id="nav-go">Start</button><button class="btn" id="nav-sim">Preview drive</button><button class="btn" id="opts-toggle" aria-expanded="${S.optsOpen}">Options</button><button class="btn" id="share-route">Share</button></div>`
       + (S.optsOpen ? optsHTML() : '')
       + (all.length > 1 ? `<div class="alts" role="group" aria-label="Routes">${all.map((x, k) => `<button class="alt" data-alt="${k}" aria-pressed="${S.alt === k}"><b>${fmtTime(x.seconds)}</b><span>${fmtDist(x.dist)}${x.via ? ` · via ${esc(x.via)}` : ''}</span></button>`).join('')}</div>` : '')
       + trafficHTML(r) + handoffHTML(S.to, S.from)
       + `<ol class="steps">${r.steps.map((s, k) => `<li data-step="${k}"><span class="n">${String(k + 1).padStart(2, '0')}</span><span class="what"><span class="turn">${esc(s.turn)}</span>${esc(s.text)}</span><span class="len">${s.len ? fmtDist(s.len) : ''}</span></li>`).join('')}</ol>`
       + `<p class="note">${r.engine === 'device' ? `Computed on your device from ${esc(R0.areaName || 'a downloaded area')}${R0.level === 'roads' ? ' (roads level: through roads only, so the last streets may be missing)' : ''} in ${R0.ms} ms. Turn costs and junction delays are estimated; turn restrictions are not in the data.` : r.engine === 'live' ? 'Route and live traffic from TomTom.' : 'Route from Valhalla on the FOSSGIS public server, using OpenStreetMap data.'}</p>`;
   } else out += `<p class="note">Choose a start and a destination: search above, or tap the map and use <b>Start from here</b> or <b>Directions here</b>.</p>` + (S.optsOpen ? optsHTML() : `<div class="btnrow"><button class="btn" id="opts-toggle" aria-expanded="false">Options</button></div>`);
-  return `<div class="dirs"><div class="dirs-grid"><div class="dirs-fields">${fld('from', 'From', S.from)}${fld('to', 'To', S.to)}</div><button class="swap" id="swap" aria-label="Swap start and destination">⇅</button></div>${sugg}${modes}</div>${out}`;
+  const fields = fld('from', 'From', S.from) + S.stops.map((st, i) => fld('stop' + i, 'Stop', st, i + 1)).join('') + fld('to', 'To', S.to);
+  return `<div class="dirs"><div class="dirs-grid"><div class="dirs-fields">${fields}</div><button class="swap" id="swap" aria-label="Reverse the route">⇅</button></div>${sugg}${addStop}${modes}</div>${out}`;
 }
 
 // ================================================================== SOS: EMERGENCY MODE (offline first)
@@ -1323,21 +1456,28 @@ let deb;
 $('#body').addEventListener('input', (e) => {
   const id = e.target.id;
   if (id === 'q') { S.q = e.target.value; S.chip = null; S.card = null; clearTimeout(deb); deb = setTimeout(() => doSearch(S.q, 'q'), 280); render(); }
-  else if (id === 'from' || id === 'to') {
+  else if (isEp(id)) {
     S.activeField = id; S.draft = e.target.value;
-    if (S[id]) { S[id] = null; S.route = null; syncRoute(); }
-    clearTimeout(deb); deb = setTimeout(() => doSearch(S.draft, id), 280);
+    if (getEp(id)) { setEp(id, null); S.route = null; syncRoute(); }
+    clearTimeout(deb);
+    if (!S.draft.trim()) { S.suggest = quickSuggest(); render(); return; }
+    deb = setTimeout(() => doSearch(S.draft, id), 280);
   }
   else if (id === 'offq') { S.off.filter = e.target.value; render(); }
 });
 $('#body').addEventListener('change', (e) => {
   if (e.target.id === 'depart') { const v = e.target.value; S.opts.depart = v ? new Date(v).getTime() : null; render(); planRoute(false); }
 });
-$('#body').addEventListener('focusin', (e) => { const id = e.target.id; if ((id === 'from' || id === 'to') && S.activeField !== id) { S.activeField = id; S.draft = S[id] ? S[id].label : ''; S.suggest = []; } });
+$('#body').addEventListener('focusin', (e) => {
+  const id = e.target.id; if (!isEp(id) || S.activeField === id) return;
+  S.activeField = id; S.draft = getEp(id) ? getEp(id).label : '';
+  S.suggest = getEp(id) ? [] : quickSuggest();
+  if (S.suggest.length) render();
+});
 $('#body').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     if (e.target.id === 'q') { e.preventDefault(); clearTimeout(deb); if (S.hits.length) chooseHit(S.hits[0]); else doSearch(S.q, 'q'); }
-    if ((e.target.id === 'from' || e.target.id === 'to') && S.suggest.length) { e.preventDefault(); chooseSuggestion(0); }
+    if (isEp(e.target.id) && S.suggest.length) { e.preventDefault(); chooseSuggestion(0); }
   }
   if (e.key === 'Escape' && S.activeField) { S.suggest = []; render(); }
 });
@@ -1351,18 +1491,30 @@ $('#body').addEventListener('click', (e) => {
     setHits(S.hits); render(); fitHits(); return; }
   if (d.hit != null) { chooseHit(S.hits[+d.hit]); return; }
   if (d.sug != null) { chooseSuggestion(+d.sug); return; }
-  if (t.id === 'back') { S.card = null; setMarker('sel', null); render(); return; }
+  if (d.saved != null) { openCard(cardFromSlim(S.saved[+d.saved])); return; }
+  if (d.recent != null) { openCard(cardFromSlim(S.recent[+d.recent])); return; }
+  if (t.id === 'recent-clear') { S.recent = []; store.set('recent', []); render(); return; }
+  if (t.id === 'save') { toggleSave(S.card); return; }
+  if (t.id === 'share') { shareLink(S.card.name); return; }
+  if (t.id === 'share-route') { shareLink(`Route to ${S.to ? S.to.label : 'destination'}`); return; }
+  if (t.id === 'go-iso') { reachFrom(S.card, S.mode); return; }
+  if (d.isomode) { reachFrom(S.card, d.isomode); return; }
+  if (t.id === 'iso-clear') { clearIso(); render(); return; }
+  if (t.id === 'go-stop') { S.stops.push(endpointFrom(S.card)); S.card = null; setMarker('sel', null); S.tab = 'dirs'; render(); planRoute(); return; }
+  if (t.id === 'addstop') { S.stops.push(null); S.activeField = 'stop' + (S.stops.length - 1); S.draft = ''; S.suggest = quickSuggest(); render(); const f = document.getElementById(S.activeField); f && f.focus(); return; }
+  if (d.rmstop != null) { S.stops.splice(+d.rmstop, 1); S.activeField = null; S.suggest = []; render(); planRoute(false); return; }
+  if (t.id === 'back') { clearIso(); S.card = null; setMarker('sel', null); render(); return; }
   if (d.copy != null) { copyText(d.copy, t); return; }
   if (t.id === 'go-to' || t.id === 'go-from') {
     const ep = endpointFrom(S.card);
     if (t.id === 'go-to') S.to = ep; else S.from = ep;
-    S.card = null; setMarker('sel', null); S.tab = 'dirs'; S.activeField = null; S.suggest = [];
+    clearIso(); S.card = null; setMarker('sel', null); S.tab = 'dirs'; S.activeField = null; S.suggest = [];
     render(); planRoute(); if (!S.from || !S.to) { const f = document.getElementById(t.id === 'go-to' ? 'from' : 'to'); f && f.focus(); }
     return;
   }
   if (d.mode) { S.mode = d.mode; render(); planRoute(); return; }
-  if (t.id === 'swap') { [S.from, S.to] = [S.to, S.from]; render(); planRoute(); return; }
-  if (d.clear) { S[d.clear] = null; S.activeField = d.clear; S.draft = ''; S.suggest = []; S.route = null; syncRoute(); render(); document.getElementById(d.clear).focus(); return; }
+  if (t.id === 'swap') { const l = routeEps(true).reverse(); S.from = l[0]; S.to = l[l.length - 1]; S.stops = l.slice(1, -1); render(); planRoute(); return; }
+  if (d.clear) { setEp(d.clear, null); S.activeField = d.clear; S.draft = ''; S.suggest = quickSuggest(); S.route = null; syncRoute(); render(); document.getElementById(d.clear).focus(); return; }
   if (d.sos != null) { S.sos.kind = +d.sos; sosRefresh(); return; }
   if (d.sosgo != null) {
     const it = S.sos.list[+d.sosgo], pt = sosPoint();
@@ -1424,20 +1576,25 @@ $('#body').addEventListener('click', (e) => {
   }
   if (t.id === 'pack-get') { loadPack(); return; }
   if (t.id === 'pack-remove') { removePack(); return; }
-  if (d.step != null) { const s = activeRoute().steps[+d.step]; if (s.at) hideWorld(); if (s.at) map.flyTo({ center: s.at, zoom: Math.max(map.getZoom(), 16.5), padding: pad(), duration: 700 }); }
+  if (d.step != null) { const s = activeRoute() && activeRoute().steps[+d.step]; if (!s) return; if (s.at) hideWorld(); if (s.at) map.flyTo({ center: s.at, zoom: Math.max(map.getZoom(), 16.5), padding: pad(), duration: 700 }); }
 });
 function chooseHit(h) {
   if (!h) return;
   if (h.src === 'pack' && h.kind === 'place') openCard(packPlaceCard(h.i));
-  else { const card = { kind: h.kind, src: h.src, name: h.name, cat: h.cat, g: h.g, addr: h.addr, ll: h.ll, extent: h.extent, type: h.type, osm: h.osm, zoom: h.zoom }; openCard(card); if (!card.addr && h.src === 'tiles') reverse(card); }
+  else { const card = { kind: h.kind, src: h.src, name: h.name, cat: h.cat, g: h.g, addr: h.addr, ll: h.ll, extent: h.extent, type: h.type, osm: h.osm, zoom: h.zoom }; openCard(card); addRecent(card); if (!card.addr && h.src === 'tiles') reverse(card); }
 }
+const isEp = (id) => id === 'from' || id === 'to' || /^stop\d$/.test(id || '');
+const getEp = (id) => id.startsWith('stop') ? S.stops[+id.slice(4)] : S[id];
+const setEp = (id, v) => { if (id.startsWith('stop')) S.stops[+id.slice(4)] = v; else S[id] = v; };
+const quickSuggest = () => [...asItems(S.saved, 'saved'), ...asItems(S.recent, 'recent').filter(r => !isSaved(r))].slice(0, 8);
 function chooseSuggestion(k) {
   const h = S.suggest[k]; if (!h) return;
   const which = S.activeField || (S.from ? 'to' : 'from');
-  S[which] = { lon: h.ll[0], lat: h.ll[1], label: h.name };
+  setEp(which, { lon: h.ll[0], lat: h.ll[1], label: h.name });
   S.suggest = []; S.activeField = null; S.draft = '';
   render(); planRoute();
-  if (!S.from || !S.to) { const other = document.getElementById(which === 'from' ? 'to' : 'from'); other && other.focus(); }
+  const next = ['from', 'to'].find(id => id !== which && !getEp(id));
+  if (next) { const el = document.getElementById(next); el && el.focus(); }
 }
 // A readable default name for "Download this view": the biggest catalog city inside it, if any.
 function viewName(bb) {
@@ -1452,7 +1609,7 @@ function fitHits() {
   map.fitBounds(b, { padding: pad(), maxZoom: 16.5, duration: 700 });
 }
 $('#tab-search').addEventListener('click', () => { S.tab = 'search'; render(); });
-$('#tab-dirs').addEventListener('click', () => { S.tab = 'dirs'; S.card = null; setMarker('sel', null); render(); });
+$('#tab-dirs').addEventListener('click', () => { clearIso(); S.tab = 'dirs'; S.card = null; setMarker('sel', null); render(); });
 $('#tab-off').addEventListener('click', openOffline);
 $('#tab-sos').addEventListener('click', openSOS);
 $('#handle').addEventListener('click', () => $('#panel').classList.toggle('collapsed'));
@@ -1462,7 +1619,11 @@ $('#tinfo').addEventListener('click', openAbout);
 $('#about-m').addEventListener('click', openAbout);
 $('#about-close').addEventListener('click', () => { $('#about').hidden = true; });
 $('#about').addEventListener('click', (e) => { if (e.target.id === 'about') $('#about').hidden = true; });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('#about').hidden = true; });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { $('#about').hidden = true; closeCtx(); if (S.measure) stopMeasure(); }
+  const typing = e.target.closest && e.target.closest('input, textarea, select, [contenteditable]');
+  if (e.key === '/' && !typing && !NAV.on && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); S.tab = 'search'; S.card = null; setMarker('sel', null); $('#panel').classList.remove('collapsed'); render(); const q = $('#q'); q && q.focus(); }
+});
 $('#zin').addEventListener('click', () => { if (!map) return; if (S.world) { enterMap(worldCentre(), 2.6); return; } map.zoomIn(); });
 $('#zout').addEventListener('click', () => { if (!map || S.world) return; if (map.getZoom() <= 2.05) showWorld(); else map.zoomOut(); });
 $('#tworld').addEventListener('click', () => { if (S.world) enterMap(worldCentre(), 2.6); else showWorld(); });
@@ -1470,6 +1631,7 @@ $('#t3d').addEventListener('click', () => {
   if (!map) return; hideWorld(); S.three = !S.three; $('#t3d').setAttribute('aria-pressed', S.three);
   map.setLayoutProperty('buildings-3d', 'visibility', S.three ? 'visible' : 'none');
   if (S.three) { map.dragRotate.enable(); map.touchZoomRotate.enableRotation(); map.easeTo({ pitch: 58, bearing: -18, zoom: Math.max(map.getZoom(), 15.6), duration: 900 }); }
+  else if (S.terrain) map.easeTo({ pitch: 50, duration: 700 });
   else { map.dragRotate.disable(); map.touchZoomRotate.disableRotation(); map.easeTo({ pitch: 0, bearing: 0, duration: 700 }); }
 });
 
@@ -1685,6 +1847,10 @@ function startNav(sim) {
 }
 async function reroute(lon, lat) {
   NAV.busy = true; NAV.lastRe = Date.now(); speak('Rerouting'); $('#nav-road').textContent = 'Rerouting…';
+  { // stops already reached are not routed back to
+    const r0 = activeRoute(), passed = r0 ? r0.steps.filter((x, k) => x.stop && k <= (NAV.step || 0)).length : 0;
+    S.stops = S.stops.filter(Boolean).slice(passed);
+  }
   S.from = { lon, lat, label: 'My location' };
   try { await planRoute(false, true); } catch {}
   NAV.busy = false; const r = activeRoute();
@@ -1694,6 +1860,7 @@ function navFix(lon, lat, acc, speed, heading, initial) {
   if (!NAV.on || !NAV.tr) return;
   const r = activeRoute(); if (!r) return;
   const st = NAV.tr.update(lon, lat), tol = Math.max(45, (acc || 0) * 1.5), on = st.off <= tol;
+  NAV.step = st.step;
   S.me = { lon, lat };
   if (!NAV.sim && !initial && !on && !NAV.busy) { NAV.offN++; if ((NAV.offN >= 3 || st.off > 250) && Date.now() - NAV.lastRe > 6000) { reroute(lon, lat); return; } } else if (on) NAV.offN = 0;
   const pos = on ? st.pt : [lon, lat], brg = on ? st.bearing : (heading != null && !isNaN(heading) ? heading : st.bearing);
@@ -1715,7 +1882,7 @@ function navPaint(st, speed) {
   const rot = DATUM.nav.arrow(ns);
   $('#nav-arrow').innerHTML = rot == null ? FLAG : ARROW; const svg = $('#nav-arrow svg'); if (rot != null) svg.style.transform = `rotate(${rot}deg)`;
   $('#nav-dist').textContent = NAV.arrived ? 'Arrived' : fmtDist(st.toNext);
-  $('#nav-road').textContent = NAV.arrived ? (S.to ? S.to.label : '') : ns.type === 'arrive' ? `Arrive ${S.to ? '· ' + S.to.label : ''}` : `${ns.turn}${ns.name ? ' · ' + ns.name : ns.text && ns.text.length < 60 ? ' ' + ns.text : ''}`;
+  $('#nav-road').textContent = NAV.arrived ? (S.to ? S.to.label : '') : ns.stop ? `${ns.turn} · ${ns.stop}` : ns.type === 'arrive' ? `Arrive ${S.to ? '· ' + S.to.label : ''}` : `${ns.turn}${ns.name ? ' · ' + ns.name : ns.text && ns.text.length < 60 ? ' ' + ns.text : ''}`;
   const after = r.steps[st.next + 1];
   $('#nav-then').textContent = !NAV.arrived && after && after.type !== 'arrive' && ns.len < 250 && ns.len > 0 ? `Then ${after.turn.toLowerCase()}` : NAV.sim ? `Preview · ${NAV.simRate}× speed` : '';
   const eta = new Date(Date.now() + st.remainingS * 1000);
@@ -1753,6 +1920,227 @@ function setTrafficOverlay(on) {
   map.addLayer({ id: 'tinc', type: 'raster', source: 'tinc', minzoom: 8 }, 'pack-edge');
 }
 
+
+// ================================================================== TOAST
+let toastT;
+function toast(msg, ms = 2600) { const el = $('#toast'); el.textContent = msg; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, ms); }
+
+// ================================================================== SHAREABLE LINKS (state in the URL hash)
+// #map=Z/LAT/LON[/BEARING/PITCH] & pin=LAT,LON & name=… & reach=MODE | q=… | r=LAT,LON,LABEL;… & mode=… & avoid=… & alt=N, layers=terrain
+let urlT = null, booted = false;
+const enc = (v) => encodeURIComponent(v).replace(/%20/g, '+').replace(/%2C/g, ',');
+const dec = (v) => { try { return decodeURIComponent(String(v || '').replace(/\+/g, ' ')); } catch { return ''; } };
+function urlState() {
+  const p = [];
+  if (map && !S.world) {
+    const c = map.getCenter(); let v = `${map.getZoom().toFixed(2)}/${c.lat.toFixed(5)}/${(((c.lng + 540) % 360) - 180).toFixed(5)}`;
+    if (!NAV.on && (map.getPitch() > 1 || Math.abs(map.getBearing()) > 1)) v += `/${Math.round(map.getBearing())}/${Math.round(map.getPitch())}`;
+    p.push('map=' + v);
+  }
+  if (S.tab === 'dirs') {
+    const eps = routeEps(true);
+    if (eps.some(Boolean)) {
+      // in labels, commas and semicolons stay escaped so they never split an entry
+      p.push('r=' + eps.map(e => e ? `${e.lat.toFixed(6)},${e.lon.toFixed(6)},${encodeURIComponent(e.label || '').replace(/%20/g, '+')}` : '').join(';'));
+      p.push('mode=' + S.mode);
+      const av = Object.keys(S.opts.avoid).filter(k => S.opts.avoid[k]); if (av.length) p.push('avoid=' + av.join(','));
+      if (S.alt) p.push('alt=' + S.alt);
+    }
+  } else if (S.tab === 'search' && S.card) {
+    p.push(`pin=${S.card.ll[1].toFixed(6)},${S.card.ll[0].toFixed(6)}`);
+    if (S.card.kind !== 'pin') p.push('name=' + enc(S.card.name));
+    if (S.iso && !S.iso.error) p.push('reach=' + S.iso.mode);
+  } else if (S.tab === 'search' && S.q) p.push('q=' + enc(S.q));
+  if (S.terrain) p.push('layers=terrain');
+  return p.join('&');
+}
+function writeURL() {
+  clearTimeout(urlT); const st = urlState(), h = st ? '#' + st : '';
+  if (location.hash !== h) try { history.replaceState(null, '', h || location.pathname + location.search); } catch {}
+}
+function queueURL() { if (!booted) return; clearTimeout(urlT); urlT = setTimeout(writeURL, 300); }
+function readURL() {
+  const raw = {}; for (const kv of location.hash.slice(1).split('&')) { const i = kv.indexOf('='); if (i > 0) raw[kv.slice(0, i)] = kv.slice(i + 1); }
+  const get = (k) => dec(raw[k]);
+  let placed = false;
+  const mv = get('map').split('/').map(Number);
+  if (mv.length >= 3 && mv.slice(0, 3).every(Number.isFinite)) {
+    hideWorld(); map.jumpTo({ zoom: mv[0], center: [mv[2], mv[1]], bearing: mv[3] || 0, pitch: mv[4] || 0 });
+    if ((mv[4] || 0) > 1 || mv[3]) { map.dragRotate.enable(); map.touchZoomRotate.enableRotation(); }
+    placed = true;
+  }
+  if (get('layers') === 'terrain') setTerrain(true, !placed);
+  if (raw.r) {
+    const eps = raw.r.split(';').map(x => { if (!x) return null; const [la, lo, ...rest] = x.split(','); const lat = +la, lon = +lo;
+      if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90) return null;
+      return { lat, lon, label: dec(rest.join(',')) || `${lat.toFixed(5)}, ${lon.toFixed(5)}` }; });
+    if (eps.length >= 2) { S.from = eps[0]; S.to = eps[eps.length - 1]; S.stops = eps.slice(1, -1).filter(Boolean).slice(0, MAX_STOPS); }
+    if (MODES[get('mode')]) S.mode = get('mode');
+    for (const k of get('avoid').split(',')) if (k in S.opts.avoid) S.opts.avoid[k] = true;
+    S.altWant = Math.max(0, Math.min(2, +get('alt') || 0));
+    if (!placed && (S.from || S.to)) { const e0 = S.from || S.to; hideWorld(); map.jumpTo({ center: [e0.lon, e0.lat], zoom: 12 }); }
+    S.tab = 'dirs'; render(); if (S.from && S.to) planRoute(!placed); else syncRoute();
+    return;
+  }
+  const pin = get('pin').split(',').map(Number);
+  if (pin.length === 2 && pin.every(Number.isFinite) && Math.abs(pin[0]) <= 90) {
+    const name = get('name');
+    const card = name ? { kind:'place', name, ll:[pin[1], pin[0]], g:'place', cat:'Shared place' } : { kind:'pin', name:'Dropped pin', ll:[pin[1], pin[0]] };
+    openCard(card, !placed); reverse(card);
+    if (MODES[get('reach')]) reachFrom(card, get('reach'), !placed);
+    return;
+  }
+  if (get('q')) { S.q = get('q'); render(); doSearch(S.q, 'q'); }
+}
+async function shareLink(title) {
+  writeURL(); const url = location.href;
+  if (navigator.share && (MOBILE.matches || /Android|iPhone|iPad/.test(navigator.userAgent))) {
+    try { await navigator.share({ title: title ? `${title} · DATUM Maps` : 'DATUM Maps', url }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  try { await navigator.clipboard.writeText(url); toast('Link copied. It opens this exact view.'); }
+  catch { toast(url, 8000); }
+}
+
+// ================================================================== REACHABILITY (Valhalla isochrones)
+let isoCtl;
+function clearIso() { if (isoCtl) isoCtl.abort(); S.iso = null; syncIso(); }
+async function reachFrom(card, mode = S.mode, fit = true) {
+  if (!card) return;
+  if (isoCtl) isoCtl.abort(); isoCtl = new AbortController();
+  S.mode = mode;
+  const iso = S.iso = { ll: card.ll, mode, mins: ISO_MIN[mode], loading: true };
+  syncIso(); render();
+  const costing = MODES[mode].costing, av = S.opts.avoid, co = {};
+  if (av.ferries) co.use_ferry = 0; if (mode === 'car') { if (av.tolls) co.use_tolls = 0; if (av.highways) co.use_highways = 0; }
+  const body = { locations: [{ lat: card.ll[1], lon: card.ll[0] }], costing, contours: iso.mins.map(time => ({ time })), polygons: true, denoise: 0.4, generalize: 30 };
+  if (Object.keys(co).length) body.costing_options = { [costing]: co };
+  try {
+    const res = await fetch(`${CONFIG.isochrone}?json=${encodeURIComponent(JSON.stringify(body))}`, { signal: isoCtl.signal });
+    const j = await res.json().catch(() => ({}));
+    if (S.iso !== iso) return;
+    if (!res.ok || !Array.isArray(j.features)) iso.error = j.error ? `Routing service: ${j.error}.` : `Routing service returned ${res.status}.`;
+    else iso.features = j.features.filter(f => f.geometry && /Polygon$/.test(f.geometry.type)).sort((a, b) => (b.properties.contour || 0) - (a.properties.contour || 0));
+  } catch (e) { if (e.name === 'AbortError') return; if (S.iso === iso) iso.error = navigator.onLine === false ? 'Reachable areas need a connection.' : 'Routing service unreachable. Check your connection and try again.'; }
+  if (S.iso !== iso) return;
+  iso.loading = false; syncIso(); render();
+  if (fit && iso.features && iso.features.length) {
+    hideWorld();
+    const b = new maplibregl.LngLatBounds(card.ll, card.ll);
+    const ext = (c) => { if (typeof c[0] === 'number') b.extend(c); else c.forEach(ext); };
+    iso.features.forEach(f => ext(f.geometry.coordinates));
+    map.fitBounds(b, { padding: pad(), maxZoom: 16, duration: 900 });
+  }
+}
+function syncIso() {
+  if (!map || !map.getSource('iso')) return;
+  const iso = S.iso, f = iso && iso.features;
+  map.getSource('iso').setData(f ? { type:'FeatureCollection', features: f.map(x => ({ type:'Feature', geometry: x.geometry, properties: { min: x.properties.contour, k: iso.mins.indexOf(x.properties.contour) } })) } : EMPTY);
+}
+
+// ================================================================== MEASURE DISTANCE
+function startMeasure(first) {
+  closeCtx(); hideWorld();
+  S.measure = first ? [first] : [];
+  $('#tmeasure').setAttribute('aria-pressed', 'true'); $('#measure-box').hidden = false;
+  map.getCanvas().style.cursor = 'crosshair'; syncMeasure();
+}
+function stopMeasure() {
+  S.measure = null; $('#tmeasure').setAttribute('aria-pressed', 'false'); $('#measure-box').hidden = true;
+  map.getCanvas().style.cursor = ''; syncMeasure();
+}
+function syncMeasure() {
+  if (!map || !map.getSource('measure')) return;
+  const pts = S.measure || [];
+  const feats = pts.map(c => ({ type:'Feature', properties:{}, geometry:{ type:'Point', coordinates: c } }));
+  if (pts.length > 1) feats.unshift({ type:'Feature', properties:{}, geometry:{ type:'LineString', coordinates: pts } });
+  map.getSource('measure').setData({ type:'FeatureCollection', features: feats });
+  let m = 0; for (let i = 1; i < pts.length; i++) m += geoDist(pts[i - 1], pts[i]);
+  $('#measure-v').textContent = pts.length < 2 ? 'Tap the map' : m < 1000 ? `${m.toFixed(m < 100 ? 1 : 0)} m` : `${(m / 1000).toFixed(m < 100000 ? 2 : 0)} km`;
+  $('#measure-undo').hidden = !pts.length;
+}
+$('#tmeasure').addEventListener('click', () => { if (!map || NAV.on) return; if (S.measure) stopMeasure(); else startMeasure(); });
+$('#measure-done').addEventListener('click', stopMeasure);
+$('#measure-undo').addEventListener('click', () => { if (S.measure) { S.measure.pop(); syncMeasure(); } });
+
+// ================================================================== TERRAIN (hillshade + 3D relief)
+let styleReady = false;
+function setTerrain(on, ease = true) {
+  if (!map) return;
+  if (!styleReady) { map.once('load', () => setTerrain(on, ease)); return; }
+  S.terrain = on; $('#tterrain').setAttribute('aria-pressed', String(on)); $('#att-terrain').hidden = !on;
+  const dem = { type:'raster-dem', tiles:[CONFIG.terrain], tileSize:256, maxzoom:15, encoding:'terrarium' };
+  if (on) {
+    hideWorld();
+    if (!map.getSource('dem')) { map.addSource('dem', dem); map.addSource('dem-hs', dem); }
+    if (!map.getLayer('hillshade')) map.addLayer({ id:'hillshade', type:'hillshade', source:'dem-hs', paint: paintFor(palette()).hillshade }, 'buildings');
+    try { map.setTerrain({ source:'dem', exaggeration: 1.35 }); } catch (e) { console.warn('DATUM terrain unavailable:', e.message); }
+    map.dragRotate.enable(); map.touchZoomRotate.enableRotation();
+    if (ease && !NAV.on && map.getPitch() < 30) map.easeTo({ pitch: 50, duration: 900 });
+  } else {
+    if (map.getLayer('hillshade')) map.removeLayer('hillshade');
+    try { map.setTerrain(null); } catch {}
+    if (!S.three && !NAV.on) { map.dragRotate.disable(); map.touchZoomRotate.disableRotation(); if (ease) map.easeTo({ pitch: 0, bearing: 0, duration: 700 }); }
+  }
+  queueURL();
+}
+$('#tterrain').addEventListener('click', () => setTerrain(!S.terrain));
+
+// ================================================================== MAP POINT MENU (right-click / long-press)
+let ctxLL = null, suppressClick = false;
+function closeCtx() { const el = $('#ctx'); if (!el.hidden) { el.hidden = true; ctxLL = null; } }
+function openCtx(pt, ll) {
+  if (S.measure || NAV.on) return;
+  ctxLL = [((ll[0] + 540) % 360) - 180, ll[1]];
+  const el = $('#ctx'), coord = `${ctxLL[1].toFixed(5)}, ${ctxLL[0].toFixed(5)}`;
+  const items = [['here', 'What’s here?'], ['from', 'Directions from here'], ['to', 'Directions to here']];
+  if (S.from && S.to && S.stops.length < MAX_STOPS) items.push(['stop', 'Add as a stop']);
+  items.push(['reach', 'Reachable from here'], ['measure', 'Measure distance'], ['share', 'Share this spot']);
+  el.innerHTML = `<button class="hd" data-ctx="copy" role="menuitem">${coord} · copy</button>` + items.map(([k, l]) => `<button class="it" role="menuitem" data-ctx="${k}">${esc(l)}</button>`).join('');
+  el.hidden = false;
+  const sheet = $('#sheet').getBoundingClientRect(), mr = $('#map').getBoundingClientRect();
+  let x = pt.x + mr.left - sheet.left + 6, y = pt.y + mr.top - sheet.top + 6;
+  x = Math.max(8, Math.min(x, sheet.width - el.offsetWidth - 8)); y = Math.max(8, Math.min(y, sheet.height - el.offsetHeight - 8));
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  el.querySelector('.it').focus({ preventScroll: true });
+}
+async function reverseLabel(ll) {
+  try {
+    const res = await fetch(`${CONFIG.search}/reverse?lon=${ll[0].toFixed(6)}&lat=${ll[1].toFixed(6)}&lang=en&limit=1`);
+    if (res.ok) { const f = ((await res.json()).features || [])[0]; if (f) return photonToItem(f).name; }
+  } catch {}
+  try { const r = await OFF.engine('nearestName', { lon: ll[0], lat: ll[1] }); return r && r.name ? `Near ${r.name}` : null; } catch { return null; }
+}
+// A pin card at a point: the street name comes from the device inside a downloaded area, else from Photon.
+function dropPin(ll) {
+  if (navigator.onLine === false || OFF.covering(ll[0], ll[1], 'car').length || (S.pack.status === 'ready' && inBBox({ lon: ll[0], lat: ll[1] }, PACK.bbox))) {
+    const card = { kind:'pin', src:'device', name:'Dropped pin', ll }; openCard(card, false); nearStreet(card); return card;
+  }
+  const card = { kind:'pin', name:'Dropped pin', ll }; openCard(card, false); reverse(card); return card;
+}
+function setEndpointAt(which, ll) {
+  const ep = { lon: ll[0], lat: ll[1], label: `${ll[1].toFixed(5)}, ${ll[0].toFixed(5)}` };
+  if (which === 'stop') S.stops.push(ep); else S[which] = ep;
+  clearIso(); S.card = null; setMarker('sel', null); S.tab = 'dirs'; S.activeField = null; S.suggest = [];
+  if (MOBILE.matches) $('#panel').classList.remove('collapsed');
+  render(); planRoute();
+  reverseLabel(ll).then(n => { if (n && routeEps(true).includes(ep)) { ep.label = n; render(); } });
+}
+$('#ctx').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-ctx]'); if (!b || !ctxLL) return;
+  const ll = ctxLL, k = b.dataset.ctx; closeCtx();
+  if (k === 'copy') { const t = `${ll[1].toFixed(6)}, ${ll[0].toFixed(6)}`; navigator.clipboard.writeText(t).then(() => toast(`Copied ${t}`), () => toast(t, 6000)); return; }
+  if (k === 'here') { dropPin(ll); return; }
+  if (k === 'from' || k === 'to' || k === 'stop') { setEndpointAt(k, ll); return; }
+  if (k === 'reach') { reachFrom(dropPin(ll)); return; }
+  if (k === 'measure') { startMeasure(ll); return; }
+  if (k === 'share') { const c = dropPin(ll); shareLink(c.name); }
+});
+$('#ctx').addEventListener('keydown', (e) => {
+  const items = [...$('#ctx').querySelectorAll('button')], i = items.indexOf(document.activeElement);
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus(); }
+});
+document.addEventListener('pointerdown', (e) => { if (!e.target.closest('#ctx')) closeCtx(); }, true);
+
 // ================================================================== BOOT
 maplibregl.addProtocol('datum', OFF.protocol);
 OFF.O.onchange = () => { syncAreas(); if (S.tab === 'off' && !S.off.progress) render(); };
@@ -1772,6 +2160,9 @@ map.on('resize', drawTicks);
 map.on('dragstart', () => { if (NAV.on) { NAV.follow = false; $('#nav-center').hidden = false; } });
 map.on('click', (e) => {
   if (NAV.on) return;
+  if (suppressClick) { suppressClick = false; return; }
+  closeCtx();
+  if (S.measure) { S.measure.push([((e.lngLat.lng + 540) % 360) - 180, e.lngLat.lat]); syncMeasure(); return; }
   const alt = map.queryRenderedFeatures([[e.point.x - 6, e.point.y - 6], [e.point.x + 6, e.point.y + 6]], { layers: ['route-alt-case'] })[0];
   if (alt) { S.alt = alt.properties.k; syncRoute(); render(); return; }
   const f = map.queryRenderedFeatures(e.point, { layers: ['hits', 'poi-dot', 'poi-label', 'poi-label-near'] })[0];
@@ -1782,25 +2173,37 @@ map.on('click', (e) => {
     const card = { kind:'place', src:'tiles', name: f.properties.name, cat: pretty(f.properties.subclass || f.properties.class), g: g ? g[0] : 'serv', ll };
     openCard(card, false); reverse(card); return;
   }
-  const ll = [((e.lngLat.lng + 540) % 360) - 180, e.lngLat.lat];
-  if (navigator.onLine === false || OFF.covering(ll[0], ll[1], 'car').length || (S.pack.status === 'ready' && inBBox({ lon: ll[0], lat: ll[1] }, PACK.bbox))) {
-    // inside a downloaded area the nearest street comes from the device, with no request
-    const card = { kind:'pin', src:'device', name:'Dropped pin', ll }; openCard(card, false); nearStreet(card); return;
-  }
-  const card = { kind:'pin', name:'Dropped pin', ll }; openCard(card, false); reverse(card);
+  dropPin([((e.lngLat.lng + 540) % 360) - 180, e.lngLat.lat]);
 });
+map.on('contextmenu', (e) => { if (e.originalEvent) e.originalEvent.preventDefault(); openCtx(e.point, [e.lngLat.lng, e.lngLat.lat]); });
+map.on('movestart', (e) => { if (e.originalEvent) closeCtx(); });
+map.on('moveend', () => { if (!NAV.on) queueURL(); });
+{ // long-press on touch screens opens the same menu (iOS Safari fires no contextmenu event)
+  const cv = map.getCanvasContainer(); let lp = null;
+  cv.addEventListener('touchstart', (e) => {
+    if (lp) clearTimeout(lp.t); lp = null;
+    if (e.touches.length !== 1 || NAV.on) return;
+    const t = e.touches[0], r = cv.getBoundingClientRect(), pt = { x: t.clientX - r.left, y: t.clientY - r.top };
+    lp = { x: t.clientX, y: t.clientY, t: setTimeout(() => { if (!lp) return; suppressClick = true; setTimeout(() => { suppressClick = false; }, 900); const ll = map.unproject([pt.x, pt.y]); openCtx(pt, [ll.lng, ll.lat]); }, 550) };
+  }, { passive: true });
+  cv.addEventListener('touchmove', (e) => { if (lp && Math.hypot(e.touches[0].clientX - lp.x, e.touches[0].clientY - lp.y) > 10) { clearTimeout(lp.t); lp = null; } }, { passive: true });
+  cv.addEventListener('touchend', () => { if (lp) clearTimeout(lp.t); lp = null; }, { passive: true });
+}
 for (const id of ['poi-dot', 'poi-label', 'poi-label-near', 'hits']) {
-  map.on('mouseenter', id, () => map.getCanvas().style.cursor = 'pointer');
-  map.on('mouseleave', id, () => map.getCanvas().style.cursor = '');
+  map.on('mouseenter', id, () => { if (!S.measure) map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', id, () => { if (!S.measure) map.getCanvas().style.cursor = ''; });
 }
 map.on('error', (e) => console.warn('DATUM map error:', e && e.error ? (e.error.message || e.error) : e));
-map.once('load', () => { updateReadout(); drawTicks(); syncAreas(); });
+map.once('load', () => { styleReady = true; updateReadout(); drawTicks(); syncAreas(); syncRoute(); syncIso(); syncMeasure(); });
 packCached().then(c => { if (c) loadPack(); });
 DARK.addEventListener('change', () => { applyPalette(); drawWorld(); });
 new MutationObserver(() => { applyPalette(); drawWorld(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 MOBILE.addEventListener('change', () => { render(); drawTicks(); drawWorld(); });
 showWorld();
-window.__datum = { S, NAV, OFF, openSOS, sosRefresh, get map() { return map; }, doSearch, planRoute, loadPack, startNav, endNav, navFix, setTarget, startDownload, pickCatalog, openOffline, activeRoute, CONFIG, showWorld, hideWorld, get worldReady() { return !!WORLD; }, get worldProj() { return worldProj; } };
+booted = true;
+readURL();
+addEventListener('hashchange', () => { if (location.hash.slice(1) !== urlState()) location.reload(); });
+window.__datum = { S, NAV, OFF, urlState, reachFrom, setTerrain, startMeasure, openCtx, openSOS, sosRefresh, get map() { return map; }, doSearch, planRoute, loadPack, startNav, endNav, navFix, setTarget, startDownload, pickCatalog, openOffline, activeRoute, CONFIG, showWorld, hideWorld, get worldReady() { return !!WORLD; }, get worldProj() { return worldProj; } };
 })();
 </script>
 </body>
