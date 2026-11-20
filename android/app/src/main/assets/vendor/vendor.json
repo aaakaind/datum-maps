@@ -1,0 +1,5 @@
+{
+ "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.24.0/maplibre-gl.js": "vendor/maplibre-gl-5.24.0.js",
+ "https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js": "vendor/d3-7.9.0.min.js",
+ "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Jost:wght@500;600;700&display=swap": "vendor/fonts/fonts.css"
+}
