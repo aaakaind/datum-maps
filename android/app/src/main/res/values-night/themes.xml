@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Datum" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/datum_night</item>
+        <item name="android:colorAccent">@color/datum_red</item>
+    </style>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DATUM</string>
+    <string name="nav_channel">Navigation</string>
+    <string name="nav_notification">Navigating to %1$s</string>
+
+    <string name="car_search">Search</string>
+    <string name="car_search_hint">Search places and addresses</string>
+    <string name="car_search_failed">Search is not reachable right now</string>
+    <string name="car_no_results">Nothing found for “%1$s”</string>
+    <string name="car_none_nearby">No %1$s found nearby</string>
+    <string name="car_go">Go</string>
+    <string name="car_via">via %1$s</string>
+    <string name="car_retry">Try again</string>
+    <string name="car_route_failed">The routing server is not reachable</string>
+    <string name="car_no_route">No route found. %1$s</string>
+    <string name="car_exit">Exit</string>
+    <string name="car_done">Done</string>
+    <string name="car_arrived">You have arrived</string>
+    <string name="car_allow">Allow on phone</string>
+    <string name="car_location_title">Location</string>
+    <string name="car_location_why">DATUM uses your location to show where you are and to guide you. It stays on your phone; searches and routes send only the places involved to the open search and routing servers.</string>
+    <string name="car_location_denied">Location is off for DATUM. Allow it on your phone to see where you are and get directions.</string>
+</resources>

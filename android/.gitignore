@@ -1,0 +1,10 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.kotlin/
+# Release signing: the upload key and its passwords never go in the repo.
+keystore.properties
+*.jks
+*.keystore
