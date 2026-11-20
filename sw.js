@@ -1,7 +1,7 @@
 // DATUM · service worker: keeps the app shell available with no connection.
 // Map tiles, fonts and road graphs live in IndexedDB (see js/offline.js); this
 // only handles the page, its scripts and the small world/catalog data files.
-const VERSION = 'datum-shell-v3';
+const VERSION = 'datum-shell-v4';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'js/idb.js', 'js/mvt.js', 'js/graph.js', 'js/router.js', 'js/search.js', 'js/nav.js', 'js/offline.js', 'js/worker.js',
   'data/world.json', 'icons/icon-192.png', 'icons/icon-512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.24.0/maplibre-gl.js', 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js'];

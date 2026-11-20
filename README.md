@@ -23,6 +23,8 @@ device to use with no connection. No account, no ads, no analytics.
 | On-device directions (walk, bike, drive) | A road graph is built **in the browser** from the downloaded tiles, then searched with an edge-based A* with turn and junction costs, alternatives and avoid options (`js/graph.js`, `js/router.js`) | Nothing sent |
 | On-device search | Places, streets, parks and water names collected from the same tiles (`js/search.js`) | Nothing sent |
 | Turn-by-turn navigation | Follows your position along the route, speaks each turn, re-routes when you leave the route; "Preview drive" plays a route back without GPS (`js/nav.js`) | Position stays in the page |
+| Emergency (SOS) tab | Your coordinates in large type, the country's emergency number, and the nearest hospitals, clinics, pharmacies, police, fire stations, shelters and fuel with one-tap directions. Inside a downloaded area it all works with no connection; elsewhere it asks Photon | Nothing sent inside a downloaded area. "Share position" uses the phone's own share sheet or SMS |
+| Open in Google Maps / Apple Maps | Links on every place card and route hand the place or trip to another maps app | Opens that app; it needs its own connection |
 | Typical traffic | A time-of-day and day-of-week congestion model by road type, applied to on-device driving times. A model, not a feed | Nothing sent |
 | Live traffic (optional) | With your own TomTom key: traffic-aware driving routes and a flow and incident overlay | TomTom, only once a key is saved |
 | Search anywhere | Photon geocoder, biased to the map centre; falls back to downloaded areas and the city catalog when offline | Photon (komoot public server) |
@@ -77,6 +79,22 @@ at both ends. Roads-level areas have no street names for minor streets.
 **Size of the world.** The public tile server is donation-funded, so downloads are
 capped per area rather than offering a whole continent at street level. Hosting our own
 tiles (OpenFreeMap publishes the full planet) would lift that.
+
+## Emergency use
+
+![SOS tab with the network off](docs/screenshots/sos.png)
+
+The point of the SOS tab is that it keeps working when the network does not, so
+**download the area you live or travel in before you need it** (SOS → "Download 25 km
+around", or the Offline tab). Then, with no signal at all, the device still has the map,
+your GPS position, the nearest emergency places and routes to them.
+
+What it cannot do: it does not contact emergency services for you, and it does not send
+your position anywhere. "Call" opens the phone dialler; "Share position" and "Text it"
+hand a message to the phone's own apps, which need a mobile signal. Emergency numbers are
+built in for about 50 countries; elsewhere it shows 112, which mobile networks in most
+countries connect to the local service. Places come from OpenStreetMap and can be
+missing or out of date.
 
 ## Traffic
 
