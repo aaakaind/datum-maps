@@ -4,7 +4,7 @@ A free, open map of the world. Search places, get walking, cycling and driving
 directions with turn-by-turn navigation, and keep **any part of the world** on your
 device to use with no connection. No account, no ads, no analytics.
 
-`DTM-03 · v0.3 · build 2026-11-11` — an AI² Lab project by AKA IND Technologies Inc.
+`DTM-04 · v0.4 · build 2026-11-20` — an AI² Lab project by AKA IND Technologies Inc.
 
 ![DATUM: Louvre to Eiffel Tower walking route](docs/screenshots/paris-route.png)
 
@@ -12,26 +12,33 @@ device to use with no connection. No account, no ads, no analytics.
 |---|---|---|
 | ![Opening globe](docs/screenshots/globe.png) | ![Ottawa region pack routing on-device](docs/screenshots/ottawa-phone.png) | ![Midtown Manhattan in 3D](docs/screenshots/nyc-3d.png) |
 
-## What works in v0.3
+![Turn-by-turn navigation preview](docs/screenshots/navigation.png)
+
+## What works in v0.4
 
 | Feature | How it works | Where the request goes |
 |---|---|---|
-| World map (globe at low zoom, 3D buildings) | OpenMapTiles vector tiles rendered with MapLibre GL JS 5.24.0 | OpenFreeMap |
-| Search anywhere | Photon geocoder, biased to the map centre | Photon (komoot public server) |
-| Directions anywhere (walk, bike, drive) | Valhalla routing with turn-by-turn steps | Valhalla on the FOSSGIS public server |
-| World view in the Equal Earth projection | Zoomed out, the world is drawn with d3-geo in Equal Earth, the area-true projection the UN General Assembly backed on 4 September 2026; Natural Earth land, lakes and borders, disputed borders dashed | DATUM's own site (`data/world.json`); d3 loads from cdnjs like MapLibre |
-| Category lists (Coffee, Parks, Transit…) | Read from the map tiles already on screen | Nothing sent |
-| Locate me | The browser's geolocation, shown as a dot with its accuracy circle; also offered as **Your location** in directions | Nothing sent (until you route from it) |
-| Shareable links | The address bar holds the view, the open place, a route (with stops, mode and avoid options) or a search; **Share** copies it or opens the phone's share sheet | Nowhere, unless you send the link |
-| Map point menu (right-click, or long-press on touch) | What's here, directions from or to here, add as a stop, reachable from here, measure, share, copy coordinates | Photon, to name the point |
-| Multi-stop routes (up to 5 stops) | Valhalla with several locations, or chained on-device A* inside a region pack | Valhalla, or nothing inside a pack |
-| Alternative routes | Up to 3 routes from Valhalla (`alternates: 2`), listed with time and distance; tap a list item or a grey line | Valhalla |
-| Avoid highways, tolls, ferries | Valhalla costing preferences (`use_highways`, `use_tolls`, `use_ferry` = 0): avoided when a reasonable alternative exists | Valhalla |
-| Reachable from here | Valhalla isochrones: 5/10/15 min on foot, 10/20/30 min by bike or car | Valhalla (`/isochrone`) |
-| Measure distance | Great-circle distance along points you tap | Nothing sent |
+| World map (globe at low zoom, 3D buildings) | OpenMapTiles vector tiles rendered with MapLibre GL JS 5.24.0 | OpenFreeMap, or the device for downloaded areas |
+| Offline areas, anywhere on Earth | The Offline tab lists 242 countries and territories, 4,535 states and provinces and 7,324 cities, and can also download whatever is on screen. Tiles go into IndexedDB and are served back to the map through a `datum://` protocol, stored copy first | OpenFreeMap, once, at download |
+| On-device directions (walk, bike, drive) | A road graph is built **in the browser** from the downloaded tiles, then searched with an edge-based A* with turn and junction costs, alternatives and avoid options (`js/graph.js`, `js/router.js`) | Nothing sent |
+| On-device search | Places, streets, parks and water names collected from the same tiles (`js/search.js`) | Nothing sent |
+| Turn-by-turn navigation | Follows your position along the route, speaks each turn, re-routes when you leave the route; "Preview drive" plays a route back without GPS (`js/nav.js`) | Position stays in the page |
+| Emergency (SOS) tab | Your coordinates in large type, the country's emergency number, and the nearest hospitals, clinics, pharmacies, police, fire stations, shelters and fuel with one-tap directions. Inside a downloaded area it all works with no connection; elsewhere it asks Photon | Nothing sent inside a downloaded area. "Share position" uses the phone's own share sheet or SMS |
+| Open in Google Maps / Apple Maps | Links on every place card and route hand the place or trip to another maps app | Opens that app; it needs its own connection |
+| Typical traffic | A time-of-day and day-of-week congestion model by road type, applied to on-device driving times. A model, not a feed | Nothing sent |
+| Live traffic (optional) | With your own TomTom key: traffic-aware driving routes and a flow and incident overlay | TomTom, only once a key is saved |
+| Search anywhere | Photon geocoder, biased to the map centre; falls back to downloaded areas and the city catalog when offline | Photon (komoot public server) |
+| Directions anywhere | Valhalla routing with turn-by-turn steps and alternatives, when the trip is not inside one downloaded area | Valhalla on the FOSSGIS public server |
+| World view in the Equal Earth projection | Zoomed out, the world is drawn with d3-geo in Equal Earth, the area-true projection the UN General Assembly backed on 4 September 2026 | DATUM's own site (`data/world.json`) |
+| Installable, starts offline | Web app manifest and a service worker that keeps the app shell | DATUM's own site |
+| Shareable links | The address bar holds the view, the open place, a route (with stops, mode and avoid options) or a search; **Share** copies it or opens the phone's share sheet. See [Link format](#link-format) | Nowhere, unless you send the link |
+| Map point menu (right-click, or long-press on touch) | What's here, directions from or to here, add as a stop, reachable from here, measure, share, copy coordinates | Photon to name the point, or the device inside a downloaded area |
+| Multi-stop routes (up to 5 stops) | Each leg goes through the same chain as any route (live traffic, on-device, Valhalla) and the legs are joined; navigation announces each stop and a reroute skips stops already reached | As for each leg |
+| Reachable from here | Valhalla isochrones: 5/10/15 min on foot, 10/20/30 min by bike or car, honouring the avoid options | Valhalla (`/isochrone`); needs a connection |
+| Measure distance | Great-circle distance along points you tap, with undo | Nothing sent |
 | Saved places and recent searches | `localStorage` in this browser; listed on the search home and offered as quick picks in directions | Nothing sent |
 | Terrain | Hillshade and 3D relief from Terrain Tiles (Terrarium encoding) | AWS Open Data (`elevation-tiles-prod`) |
-| Ottawa–Gatineau region pack (3.9 MB) | On-device search of 11,487 places and every named street; on-device A* routing over 64,272 road and path segments | Nothing sent after download; stored in the browser's Cache Storage |
+| Ottawa–Gatineau region pack (3.9 MB) | 11,487 places with phone and web details from Overture; routed by the same on-device router | Nothing sent after download |
 
 ## Run it
 
@@ -115,19 +122,7 @@ about what it shows:
 ## Services and swapping them
 
 Every external service is in the `CONFIG` block at the top of the script in
-`index.html`:
-
-```js
-const CONFIG = {
-  tiles:  'https://tiles.openfreemap.org/planet',
-  glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
-  search: 'https://photon.komoot.io',
-  route:  'https://valhalla1.openstreetmap.de/route',
-  isochrone: 'https://valhalla1.openstreetmap.de/isochrone',
-  terrain: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
-  packs:  [ /* region packs */ ],
-};
-```
+`index.html` (`tiles`, `glyphs`, `search`, `route`, `isochrone`, `terrain`, `traffic`).
 
 - **OpenFreeMap** states it is free for any use, with no API keys and no limits on
   map views; attribution is required.
@@ -136,9 +131,8 @@ const CONFIG = {
 - **Valhalla** on the FOSSGIS server: a community-run public instance. Read the
   FOSSGIS terms at <https://www.fossgis.de/arbeitsgruppen/osm-server/nutzungsbedingungen/>
   before sending real traffic.
-
-- **Terrain Tiles** on AWS Open Data: free to use with attribution
-  (<https://github.com/tilezen/joerd/blob/master/docs/attribution.md>); requests go to Amazon S3.
+- **Terrain Tiles** on AWS Open Data (`terrain`): free to use with attribution
+  (<https://github.com/tilezen/joerd/blob/master/docs/attribution.md>); only loaded while terrain is on.
 
 All three are open source (OpenFreeMap, Photon, Valhalla) and can be self-hosted.
 **Before a public launch with real traffic, point `tiles`, `search` and `route` at our
@@ -246,27 +240,6 @@ sources*. On a computer, Google's Desktop Head Unit stands in for the car. Once
 guidance has started, `adb shell dumpsys activity service
 ca.akaind.datum/.car.DatumCarAppService AUTO_DRIVE` drives the route for you.
 
-## Attribution (required wherever the map is shown)
-
-- Map: OpenFreeMap © OpenMapTiles. Data from © OpenStreetMap contributors (ODbL 1.0).
-- Search: Photon by komoot, OpenStreetMap data.
-- Routing: Valhalla, served by FOSSGIS e.V., OpenStreetMap data.
-- World view: Natural Earth (public domain), drawn with d3-geo (ISC). Equal Earth projection by Šavrič, Patterson and Jenny (2018).
-- Terrain: Terrain Tiles on AWS Open Data, made by Mapzen from SRTM, GMTED2010, ETOPO1 and other sources
-  (shown in the footer while terrain is on).
-- Region packs: Overture Maps Foundation (release 2026-09-23.1). Roads, buildings,
-  land and water © OpenStreetMap contributors (ODbL 1.0). Places under
-  CDLA-Permissive-2.0, including Foursquare Open Source Places (Apache-2.0) and
-  AllThePlaces (CC0).
-
-## Licences
-
-- Code: GNU AGPL-3.0 (see `LICENSE`).
-- Region pack files: a derivative database of ODbL data, available under ODbL 1.0.
-- The Canada address points in Overture (source `ca/countrywide`) are tagged
-  `LicenseRef-Proprietary` in the row data, while Overture's documentation lists the
-  source as openly licensed. They are left out of packs until that is resolved.
-
 ## Link format
 
 Everything after `#` is the state of the page, so any view can be bookmarked or shared:
@@ -280,4 +253,28 @@ Everything after `#` is the state of the page, so any view can be bookmarked or 
 | `q` | `q=coffee+ottawa` | a search |
 | `layers` | `layers=terrain` | terrain relief on |
 
-Without `map`, DATUM fits the map to the shared place or route.
+Without `map`, DATUM fits the map to the shared place or route. Inside the Android app the page
+runs from `appassets.androidplatform.net`, so links shared from there do not open the public site yet.
+
+## Attribution (required wherever the map is shown)
+
+- Map: OpenFreeMap © OpenMapTiles. Data from © OpenStreetMap contributors (ODbL 1.0).
+- Search: Photon by komoot, OpenStreetMap data.
+- Routing: Valhalla, served by FOSSGIS e.V., OpenStreetMap data.
+- World view: Natural Earth (public domain), drawn with d3-geo (ISC). Equal Earth projection by Šavrič, Patterson and Jenny (2018).
+- Offline areas: the same OpenFreeMap tiles, © OpenStreetMap contributors (ODbL 1.0). Download catalog: Natural Earth (public domain).
+- Live traffic, when a key is set: © TomTom.
+- Terrain, while it is on: Terrain Tiles on AWS Open Data, made by Mapzen from SRTM, GMTED2010,
+  ETOPO1 and other sources.
+- Region packs: Overture Maps Foundation (release 2026-09-23.1). Roads, buildings,
+  land and water © OpenStreetMap contributors (ODbL 1.0). Places under
+  CDLA-Permissive-2.0, including Foursquare Open Source Places (Apache-2.0) and
+  AllThePlaces (CC0).
+
+## Licences
+
+- Code: GNU AGPL-3.0 (see `LICENSE`).
+- Region pack files: a derivative database of ODbL data, available under ODbL 1.0.
+- The Canada address points in Overture (source `ca/countrywide`) are tagged
+  `LicenseRef-Proprietary` in the row data, while Overture's documentation lists the
+  source as openly licensed. They are left out of packs until that is resolved.

@@ -9,7 +9,8 @@ let it build the style in light and dark, and serialise what the map is using.
 
 Writes style-light.json and style-dark.json. Changes for the car:
   - no globe projection (MapLibre Native draws Web Mercator);
-  - web-only sources and layers (region pack outlines, route links) removed;
+  - web-only sources and layers (region pack outlines, route links, reachable
+    areas, measuring line) removed;
   - empty GeoJSON sources the car app fills in: route, route-alt, dest, hits;
   - labels 10% larger, since a car screen is read from further away.
 """
@@ -26,8 +27,8 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
 EMPTY = {"type": "geojson", "data": {"type": "FeatureCollection", "features": []}}
-DROP_SOURCES = {"packs", "routeLink"}
-DROP_LAYERS = {"pack-edge", "route-link"}
+DROP_SOURCES = {"packs", "routeLink", "iso", "measure"}
+DROP_LAYERS = {"pack-edge", "route-link", "iso-fill", "iso-line", "measure-line", "measure-pt"}
 TEXT_SCALE = 1.1
 
 
