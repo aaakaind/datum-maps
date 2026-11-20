@@ -33,7 +33,7 @@ function typicalFactor(cls, urban, localMs) {
 function congestionLevel(localMs) { const d = new Date(localMs); return PROFILE[d.getUTCDay() * 96 + d.getUTCHours() * 4 + (d.getUTCMinutes() / 15 | 0)]; }
 
 // free-flow car speeds (km/h) for graphs built from tiles, which carry no speed limits
-const URBAN_KMH = [88, 62, 46, 42, 38, 28, 14, 12, 0, 0, 0, 0, 0, 20, 12];
+const URBAN_KMH = [88, 60, 43, 39, 35, 26, 13, 12, 0, 0, 0, 0, 0, 18, 12];
 const RURAL_KMH = [108, 88, 72, 64, 54, 40, 15, 14, 0, 0, 0, 0, 0, 20, 12];
 const TUNE = { ramp: 5, yieldU: 9, yieldR: 6, signalU: 7, signalR: 3, minor: 1.5, throughU: 1.2, sharp: 6, turn: 3.5 };
 const WALK_MULT = [9, 2.2, 1.45, 1.3, 1.15, 1.05, 1.05, 1.05, 1, 1, 1.05, 1, 1.15, 1, 1];
@@ -250,6 +250,7 @@ Router.prototype._profile = function (mode, o) {
   const edgeCost = (e, el) => { let c = secPerM(e, el) * costMult(e); if (pen && pen[e]) c *= 1 + pen[e]; return c; };
   // seconds lost at the node between two arcs
   const turn = (inArc, outArc, v) => {
+    if ((g.eflag[outArc >> 1] & F.FERRY) && !(g.eflag[inArc >> 1] & F.FERRY)) return 300; // waiting to board
     if ((inArc >> 1) === (outArc >> 1)) return mode === 'walk' ? 2 : (self.off[v + 1] - self.off[v] <= 1 ? 12 : 90); // U-turn
     if (mode !== 'car') {
       if (mode === 'walk') { const c = g.ecls[outArc >> 1], ci = g.ecls[inArc >> 1]; return (g.eflag[outArc >> 1] & F.CROSSING) ? 6 : 0; }
@@ -405,7 +406,7 @@ Router.prototype._steps = function (legs, mode, destLabel) {
       else if (choices > 0 && ad >= 28) { type = 'turn'; mod = ad < 55 ? 'slight ' + side : ad < 140 ? side : 'sharp ' + side; }
       else if (choices > 0 && ad < 28 && Math.abs(rival) < 32 && mode === 'car' && (g.ecls[l.e] <= C.trunk || k === 'link' || !sameName)) { type = 'fork'; mod = rivalSide > 0 ? 'right' : 'left'; }
       else if (!sameName && (name || cur.name) && !(g.eflag[l.e] & F.CROSSING) && !(g.eflag[p.e] & F.CROSSING)) { if (name) { type = 'continue'; } }
-      if (type) { cur = { type, mod, name, kind: k, len: 0, sec: 0, ci: l.ci, at: l.coords[0], bear: head(l), cls: g.ecls[l.e], e: l.e, angle: d }; steps.push(cur); }
+      if (type) { const stay = type === 'fork' && name && name === cur.name; cur = { stay, type, mod, name, kind: k, len: 0, sec: 0, ci: l.ci, at: l.coords[0], bear: head(l), cls: g.ecls[l.e], e: l.e, angle: d }; steps.push(cur); }
       else if (!cur.name && name) cur.name = name;
     }
     cur.len += l.len; cur.sec += l.sec;
@@ -428,7 +429,7 @@ Router.prototype._steps = function (legs, mode, destLabel) {
     switch (s.type) {
       case 'depart': turn = 'Head ' + COMPASS[Math.round(s.bear / 45) % 8]; text = 'on ' + on(s); break;
       case 'turn': turn = s.mod.startsWith('slight') ? 'Slight ' + s.mod.slice(7) : s.mod.startsWith('sharp') ? 'Sharp ' + s.mod.slice(6) : 'Turn ' + s.mod; text = 'onto ' + on(s); break;
-      case 'fork': turn = 'Keep ' + s.mod; text = s.name ? 'onto ' + s.name : 'at the fork'; break;
+      case 'fork': turn = 'Keep ' + s.mod; text = s.name ? (s.stay ? 'to stay on ' : 'onto ') + s.name : 'at the fork'; break;
       case 'exit': turn = 'Take the exit'; text = s.name ? 'toward ' + s.name : (s.mod ? 'on the ' + s.mod : ''); break;
       case 'ramp': turn = 'Take the ramp'; text = s.name ? 'toward ' + s.name : (s.mod ? 'on the ' + s.mod : ''); break;
       case 'merge': turn = 'Merge'; text = 'onto ' + on(s); break;

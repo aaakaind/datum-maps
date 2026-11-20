@@ -411,6 +411,17 @@ GraphBuilder.prototype.finish = function () {
     adj[v] = null;
   }
 
+  // ---- ferries: the tiles do not say which ones carry cars. Keep driving only on ferry
+  // lines that land on a drivable road at two or more places; passenger boats land on paths.
+  {
+    const fp = new Map(), ff = (n) => { let r = n; while (fp.get(r) !== r) r = fp.get(r); fp.set(n, r); return r; };
+    const carNode = new Set();
+    for (const e of edges) { if (e.dead) continue; if (e.c === C.ferry) { for (const n of [e.a, e.b]) if (!fp.has(n)) fp.set(n, n); fp.set(ff(e.a), ff(e.b)); } else if ((e.f & (F.CAR_F | F.CAR_B)) && e.c <= C.service) { carNode.add(e.a); carNode.add(e.b); } }
+    const landings = new Map();
+    for (const n of fp.keys()) if (carNode.has(n)) { const r = ff(n); landings.set(r, (landings.get(r) || 0) + 1); }
+    for (const e of edges) if (!e.dead && e.c === C.ferry && (landings.get(ff(e.a)) || 0) < 2) e.f &= ~(F.CAR_F | F.CAR_B);
+  }
+
   // ---- pack into typed arrays
   const live = edges.filter(e => !e.dead);
   const remap = new Int32Array(nN0).fill(-1); let nN = 0;
