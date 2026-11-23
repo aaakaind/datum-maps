@@ -199,6 +199,11 @@ button,input{font:inherit;color:inherit}
 .ruler .bar i:nth-child(odd){background:var(--ink)}
 .matt{display:none}
 #world{position:absolute;inset:0;z-index:2;background:var(--card);cursor:crosshair;touch-action:manipulation;width:100%;height:100%;display:block}
+.map-err{position:absolute;left:414px;right:74px;top:14px;z-index:5;background:var(--card);border:2px solid var(--red);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;max-width:460px}
+.map-err[hidden]{display:none}
+.map-err b{font:600 15px/1.25 var(--display)}
+.map-err p{margin:0;font-size:13px;line-height:1.45;color:var(--ink-2)}
+.map-err code{font:500 11px/1.4 var(--mono);color:var(--ink);overflow-wrap:anywhere}
 .world-cap{position:absolute;left:414px;bottom:48px;z-index:3;background:var(--card);border:2px solid var(--ink);padding:8px 12px;max-width:360px;display:flex;flex-direction:column;gap:3px}
 .world-cap .k{font:500 10.5px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
 .world-cap .v{font:400 12.5px/1.4 var(--body);color:var(--ink-2)}
@@ -314,6 +319,7 @@ a.btn.primary{color:var(--on-red)}
   .nav-bot{left:8px;right:8px;bottom:8px;padding:10px 12px}
   .offline-flag{top:auto;bottom:calc(58% + 8px)}
   .strip{display:none}
+  .map-err{left:10px;right:58px;top:58px}
   .world-cap{left:10px;right:auto;top:58px;bottom:auto;max-width:calc(100% - 80px);padding:6px 9px}
   .world-cap .v{font-size:11.5px}
   .world-cap .hint{display:none}
@@ -328,6 +334,7 @@ a.btn.primary{color:var(--on-red)}
   <div id="map" role="region" aria-label="World map"></div>
   <canvas id="ticks" aria-hidden="true"></canvas>
   <canvas id="world" role="img" aria-label="World map in the Equal Earth projection. Click a place to zoom in."></canvas>
+  <div class="map-err" id="map-err" role="alert" hidden><b>The street map could not start</b><p id="map-err-why"></p><code id="map-err-code"></code></div>
   <div class="world-cap" id="world-cap">
     <span class="k">Equal Earth · areas true to scale</span>
     <span class="v">The world projection backed by the UN General Assembly on 4 September 2026.<span class="hint"> Click a place to zoom in.</span></span>
@@ -916,7 +923,7 @@ async function doSearch(q, target) { // target: 'q' | 'from' | 'to'
   if (seq === searchSeq) { S.searching = false; render(); }
 }
 function chipSearch(chip) {
-  if (map.getZoom() < 13.5) return { needZoom: true, list: [] };
+  if (!map || map.getZoom() < 13.5) return { needZoom: true, list: [] };
   const set = new Set(chip.cls), c = centerLL(), seen = new Set(), list = [];
   for (const f of map.querySourceFeatures('omt', { sourceLayer: 'poi' })) {
     const pr = f.properties; if (!set.has(pr.class) || !pr.name || f.geometry.type !== 'Point') continue;
@@ -1122,7 +1129,7 @@ function fitRoute() {
   const r = activeRoute(); if (!r || !r.coords.length) return;
   hideWorld();
   const b = new maplibregl.LngLatBounds(r.coords[0], r.coords[0]); r.coords.forEach(c => b.extend(c));
-  map.fitBounds(b, { padding: pad(), maxZoom: 17, duration: 900 });
+  if (map) map.fitBounds(b, { padding: pad(), maxZoom: 17, duration: 900 });
 }
 function pad() {
   const el = $('#panel');
@@ -1281,7 +1288,7 @@ function sosLocate() {
   if (!navigator.geolocation) { S.sos.err = 'This browser does not share a location. The map centre is used instead.'; return; }
   navigator.geolocation.getCurrentPosition((p) => {
     S.me = { lon: p.coords.longitude, lat: p.coords.latitude }; S.sos.acc = p.coords.accuracy; S.sos.err = null;
-    setPuck([S.me.lon, S.me.lat], null); hideWorld(); map.easeTo({ center: [S.me.lon, S.me.lat], zoom: Math.max(map.getZoom(), 14), padding: pad(), duration: 600 });
+    setPuck([S.me.lon, S.me.lat], null); hideWorld(); if (map) map.easeTo({ center: [S.me.lon, S.me.lat], zoom: Math.max(map.getZoom(), 14), padding: pad(), duration: 600 });
     sosRefresh();
   }, (e) => { S.sos.err = geoErr(e) + ' The map centre is used instead: move the map to where you are.'; if (S.tab === 'sos') render(); }, { enableHighAccuracy: true, maximumAge: 15000, timeout: 20000 });
 }
@@ -1576,7 +1583,7 @@ $('#body').addEventListener('click', (e) => {
   }
   if (t.id === 'pack-get') { loadPack(); return; }
   if (t.id === 'pack-remove') { removePack(); return; }
-  if (d.step != null) { const s = activeRoute() && activeRoute().steps[+d.step]; if (!s) return; if (s.at) hideWorld(); if (s.at) map.flyTo({ center: s.at, zoom: Math.max(map.getZoom(), 16.5), padding: pad(), duration: 700 }); }
+  if (d.step != null) { const s = activeRoute() && activeRoute().steps[+d.step]; if (!s || !map) return; if (s.at) hideWorld(); if (s.at) map.flyTo({ center: s.at, zoom: Math.max(map.getZoom(), 16.5), padding: pad(), duration: 700 }); }
 });
 function chooseHit(h) {
   if (!h) return;
@@ -1606,7 +1613,7 @@ function fitHits() {
   if (!S.hits.length) return;
   hideWorld();
   const b = new maplibregl.LngLatBounds(S.hits[0].ll, S.hits[0].ll); S.hits.forEach(h => b.extend(h.ll));
-  map.fitBounds(b, { padding: pad(), maxZoom: 16.5, duration: 700 });
+  if (map) map.fitBounds(b, { padding: pad(), maxZoom: 16.5, duration: 700 });
 }
 $('#tab-search').addEventListener('click', () => { S.tab = 'search'; render(); });
 $('#tab-dirs').addEventListener('click', () => { clearIso(); S.tab = 'dirs'; S.card = null; setMarker('sel', null); render(); });
@@ -1777,7 +1784,7 @@ function showWorld() {
   $('#tworld').setAttribute('aria-pressed', 'true'); setWorldReadout(null); drawWorld(); drawTicks();
 }
 function hideWorld() {
-  if (!S.world) return;
+  if (!S.world || !map) return; // no street map (e.g. no WebGL): keep the world view
   S.world = false; worldCanvas.hidden = true; $('#world-cap').hidden = true; $('#sheet').classList.remove('is-world');
   $('#tworld').setAttribute('aria-pressed', 'false'); if (map) { updateReadout(); drawTicks(); }
 }
@@ -1815,7 +1822,7 @@ function locate() {
   locWatch = navigator.geolocation.watchPosition((p) => {
     S.me = { lon: p.coords.longitude, lat: p.coords.latitude };
     if (!NAV.on) setPuck([S.me.lon, S.me.lat], p.coords.heading != null && !isNaN(p.coords.heading) && p.coords.speed > 1 ? p.coords.heading : null);
-    if (first) { first = false; hideWorld(); map.flyTo({ center: [S.me.lon, S.me.lat], zoom: Math.max(map.getZoom(), 15), padding: pad(), duration: 900, essential: true }); }
+    if (first && map) { first = false; hideWorld(); map.flyTo({ center: [S.me.lon, S.me.lat], zoom: Math.max(map.getZoom(), 15), padding: pad(), duration: 900, essential: true }); }
   }, (e) => { navigator.geolocation.clearWatch(locWatch); locWatch = null; $('#tloc').setAttribute('aria-pressed', 'false'); S.navErr = geoErr(e); S.tab = 'dirs'; render(); }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
 }
 function fromMyLocation() {
@@ -1829,6 +1836,7 @@ function speak(text) {
 }
 function startNav(sim) {
   const r = activeRoute(); if (!r) return;
+  if (!map) { S.navErr = 'Navigation needs the street map, which could not start in this browser. The steps below still list every turn.'; render(); return; }
   if (!sim && !navigator.geolocation) { S.navErr = 'This browser does not share a location, so navigation cannot follow you. Use Preview drive instead.'; render(); return; }
   hideWorld(); S.navErr = null;
   Object.assign(NAV, { on: true, sim: !!sim, tr: new DATUM.nav.Tracker(r), offN: 0, said: new Set(), follow: true, simM: 0, arrived: false, busy: false, lastRe: Date.now() });
@@ -2023,7 +2031,7 @@ async function reachFrom(card, mode = S.mode, fit = true) {
   } catch (e) { if (e.name === 'AbortError') return; if (S.iso === iso) iso.error = navigator.onLine === false ? 'Reachable areas need a connection.' : 'Routing service unreachable. Check your connection and try again.'; }
   if (S.iso !== iso) return;
   iso.loading = false; syncIso(); render();
-  if (fit && iso.features && iso.features.length) {
+  if (fit && map && iso.features && iso.features.length) {
     hideWorld();
     const b = new maplibregl.LngLatBounds(card.ll, card.ll);
     const ext = (c) => { if (typeof c[0] === 'number') b.extend(c); else c.forEach(ext); };
@@ -2142,17 +2150,33 @@ $('#ctx').addEventListener('keydown', (e) => {
 document.addEventListener('pointerdown', (e) => { if (!e.target.closest('#ctx')) closeCtx(); }, true);
 
 // ================================================================== BOOT
-maplibregl.addProtocol('datum', OFF.protocol);
-OFF.O.onchange = () => { syncAreas(); if (S.tab === 'off' && !S.off.progress) render(); };
-OFF.init(CONFIG);
+// A failure here must not stop the map, search or directions from starting: report it and carry on.
+function bootError(what, e) {
+  console.error(`DATUM: ${what} failed:`, e);
+  let msg = (e && (e.message || e.statusMessage)) || String(e);
+  try { const j = JSON.parse(msg); msg = [j.message, j.statusMessage].filter(Boolean).join(': ') || msg; } catch {}
+  if (what !== 'map') { S.off.err = `Offline areas are unavailable in this browser: ${msg}`; return; }
+  const gl2 = (() => { try { return !!document.createElement('canvas').getContext('webgl2'); } catch { return false; } })();
+  $('#map-err-why').textContent = gl2
+    ? 'Search, directions and the world view still work. Reload the page; if this stays, open DATUM in Chrome or Firefox.'
+    : 'This browser did not give the page WebGL 2, which the street map needs. Turn on hardware acceleration (and WebGL, if your browser has a setting for it), or open DATUM in Chrome or Firefox. Search, directions and the world view still work.';
+  $('#map-err-code').textContent = msg;
+  $('#map-err').hidden = false;
+}
+try {
+  maplibregl.addProtocol('datum', OFF.protocol);
+  OFF.O.onchange = () => { syncAreas(); if (S.tab === 'off' && !S.off.progress) render(); };
+  OFF.init(CONFIG);
+} catch (e) { bootError('offline storage', e); }
 const netFlag = () => { $('#offline-flag').hidden = navigator.onLine !== false; };
 addEventListener('online', netFlag); addEventListener('offline', netFlag); netFlag();
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) navigator.serviceWorker.register('sw.js').catch((e) => console.warn('DATUM offline shell unavailable:', e.message));
 render();
-map = new maplibregl.Map({
+try { map = new maplibregl.Map({
   container: 'map', style: buildStyle(palette()), center: START.center, zoom: MOBILE.matches ? START.zoom - 0.6 : START.zoom,
   minZoom: 1.4, maxZoom: 19, attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false, fadeDuration: 150,
-});
+}); } catch (e) { map = null; bootError('map', e); }
+if (map) {
 map.touchZoomRotate.disableRotation();
 map.on('move', () => { updateReadout(); drawTicks(); });
 map.on('zoomend', (e) => { if (!S.world && e.originalEvent && map.getZoom() < 1.6) showWorld(); });
@@ -2195,13 +2219,14 @@ for (const id of ['poi-dot', 'poi-label', 'poi-label-near', 'hits']) {
 }
 map.on('error', (e) => console.warn('DATUM map error:', e && e.error ? (e.error.message || e.error) : e));
 map.once('load', () => { styleReady = true; updateReadout(); drawTicks(); syncAreas(); syncRoute(); syncIso(); syncMeasure(); });
+} // if (map)
 packCached().then(c => { if (c) loadPack(); });
 DARK.addEventListener('change', () => { applyPalette(); drawWorld(); });
 new MutationObserver(() => { applyPalette(); drawWorld(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 MOBILE.addEventListener('change', () => { render(); drawTicks(); drawWorld(); });
 showWorld();
 booted = true;
-readURL();
+if (map) readURL();
 addEventListener('hashchange', () => { if (location.hash.slice(1) !== urlState()) location.reload(); });
 window.__datum = { S, NAV, OFF, urlState, reachFrom, setTerrain, startMeasure, openCtx, openSOS, sosRefresh, get map() { return map; }, doSearch, planRoute, loadPack, startNav, endNav, navFix, setTarget, startDownload, pickCatalog, openOffline, activeRoute, CONFIG, showWorld, hideWorld, get worldReady() { return !!WORLD; }, get worldProj() { return worldProj; } };
 })();
