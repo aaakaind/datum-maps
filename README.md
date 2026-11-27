@@ -178,9 +178,9 @@ public domain, with `tools/build_world.py`:
 
 ```sh
 pip install shapely
-B=https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson
+# https://github.com/nvkelso/natural-earth-vector/tree/master/geojson
 mkdir -p ne && for f in ne_50m_land ne_50m_admin_0_boundary_lines_land ne_50m_lakes ne_110m_admin_0_countries; do
-  curl -sL -o ne/$f.geojson $B/$f.geojson
+  curl -sL -o ne/$f.geojson https://github.com/nvkelso/natural-earth-vector/raw/master/geojson/$f.geojson
 done
 python3 tools/build_world.py ne data/world.json
 ```
